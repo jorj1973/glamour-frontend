@@ -8,8 +8,8 @@ type LoginPageProps = {
 };
 
 function LoginPage({ onLoginSuccess }: LoginPageProps) {
-    const [email, setEmail] = useState('owner@example.com');
-    const [password, setPassword] = useState('123456');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
