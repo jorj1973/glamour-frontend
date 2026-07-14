@@ -1059,3 +1059,17 @@ input {
     width: 100%;
   }
 }
+
+.sidebar-brand-logo {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+:root[data-theme='light'] .sidebar-brand-logo {
+  box-shadow: 0 10px 24px rgba(40, 30, 44, 0.14);
+}

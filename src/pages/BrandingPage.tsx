@@ -164,6 +164,9 @@ function BrandingPage() {
       );
 
       setBranding(response.data);
+      window.dispatchEvent(
+        new Event('glamour-branding-updated'),
+      );
       setStatus(
         imageType === 'logo'
           ? 'Логотип успешно загружен.'
@@ -209,6 +212,9 @@ function BrandingPage() {
       );
 
       setBranding(response.data);
+      window.dispatchEvent(
+        new Event('glamour-branding-updated'),
+      );
       setStatus(
         imageType === 'logo'
           ? 'Логотип удалён.'
@@ -257,6 +263,9 @@ function BrandingPage() {
 
       setBranding(response.data);
       applyTheme(response.data.themeMode);
+      window.dispatchEvent(
+        new Event('glamour-branding-updated'),
+      );
       setStatus('Настройки успешно сохранены.');
     } catch {
       setStatus('Не удалось сохранить настройки.');
