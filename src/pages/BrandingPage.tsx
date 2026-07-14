@@ -12,6 +12,7 @@ import {
 
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
+import { applyTheme } from '../theme';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -64,6 +65,7 @@ function BrandingPage() {
         );
 
         setBranding(brandingResponse.data);
+        applyTheme(brandingResponse.data.themeMode);
         setStatus('');
       } catch {
         setStatus('Не удалось загрузить настройки персонализации.');
@@ -117,6 +119,7 @@ function BrandingPage() {
       );
 
       setBranding(response.data);
+      applyTheme(response.data.themeMode);
       setStatus('Настройки успешно сохранены.');
     } catch {
       setStatus('Не удалось сохранить настройки.');
@@ -300,7 +303,10 @@ function BrandingPage() {
                         : 'theme-option'
                     }
                     type="button"
-                    onClick={() => updateField('themeMode', option.value)}
+                    onClick={() => {
+                      updateField('themeMode', option.value);
+                      applyTheme(option.value);
+                    }}
                   >
                     {option.icon}
                     <span>{option.label}</span>
