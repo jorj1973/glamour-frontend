@@ -6,6 +6,7 @@ import ClientsPage from './pages/ClientsPage';
 import MastersPage from './pages/MastersPage';
 import ServicesPage from './pages/ServicesPage';
 import FinancePage from './pages/FinancePage';
+import BrandingPage from './pages/BrandingPage';
 import './App.css';
 
 function App() {
@@ -46,6 +47,9 @@ function App() {
 
     case '#finance':
       return <FinancePage />;
+
+    case '#branding':
+      return <BrandingPage />;
 
     default:
       return <OwnerDashboardPage />;

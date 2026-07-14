@@ -6,6 +6,7 @@ import {
     Scissors,
     Sparkles,
     Users,
+    Palette,
 } from 'lucide-react';
 
 type AppLayoutProps = {
@@ -42,7 +43,8 @@ function AppLayout({ children }: AppLayoutProps) {
                                 currentHash !== '#clients' &&
                                 currentHash !== '#masters' &&
                                 currentHash !== '#services' &&
-                                currentHash !== '#finance'
+                                currentHash !== '#finance' &&
+                                currentHash !== '#branding'
                                 ? 'active'
                                 : ''
                         }
@@ -90,6 +92,14 @@ function AppLayout({ children }: AppLayoutProps) {
                     >
                         <CreditCard size={18} />
                         Финансы
+                    </a>
+
+                    <a
+                        className={currentHash === '#branding' ? 'active' : ''}
+                        href="#branding"
+                    >
+                        <Palette size={18} />
+                        Персонализация
                     </a>
                 </nav>
             </aside>
