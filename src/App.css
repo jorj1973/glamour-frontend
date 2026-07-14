@@ -1073,3 +1073,18 @@ input {
 :root[data-theme='light'] .sidebar-brand-logo {
   box-shadow: 0 10px 24px rgba(40, 30, 44, 0.14);
 }
+
+.sidebar-brand {
+  justify-items: center;
+  text-align: center;
+}
+
+.sidebar-brand-logo {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.sidebar-brand strong {
+  width: 100%;
+  text-align: center;
+}
