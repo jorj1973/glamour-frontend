@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Building2,
+  CheckCircle2,
   CircleDollarSign,
+  ClipboardCopy,
   LayoutDashboard,
+  Link2,
   LogOut,
+  Mail,
+  Phone,
+  Plus,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -71,6 +77,37 @@ type PlatformSalon = {
 };
 
 type LoadState = 'loading' | 'ready' | 'error';
+
+type InvitationCreateResponse = {
+  id: string;
+  status: string;
+  invitedEmail: string | null;
+  invitedPhone: string | null;
+  salonNameHint: string | null;
+  expiresAt: string;
+  createdAt: string;
+  inviteUrl: string;
+  security: {
+    tokenReturnedOnce: boolean;
+    tokenStoredAsHash: boolean;
+  };
+};
+
+type InvitationFormState = {
+  invitedEmail: string;
+  invitedPhone: string;
+  salonNameHint: string;
+  expiresInDays: string;
+  internalNote: string;
+};
+
+const INITIAL_INVITATION_FORM: InvitationFormState = {
+  invitedEmail: '',
+  invitedPhone: '',
+  salonNameHint: '',
+  expiresInDays: '7',
+  internalNote: '',
+};
 
 function getStatusLabel(status: SalonStatus) {
   switch (status) {
@@ -150,6 +187,24 @@ function PlatformOwnerPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [invitationForm, setInvitationForm] =
+    useState<InvitationFormState>(
+      INITIAL_INVITATION_FORM,
+    );
+
+  const [isInvitationSubmitting, setIsInvitationSubmitting] =
+    useState(false);
+
+  const [invitationError, setInvitationError] =
+    useState('');
+
+  const [createdInvitation, setCreatedInvitation] =
+    useState<InvitationCreateResponse | null>(null);
+
+  const [copyStatus, setCopyStatus] = useState<
+    'idle' | 'copied' | 'error'
+  >('idle');
+
   const loadPlatformData = useCallback(async () => {
     setLoadState('loading');
 
@@ -212,6 +267,130 @@ function PlatformOwnerPage() {
     });
   }, [salons, searchQuery]);
 
+  function updateInvitationField(
+    field: keyof InvitationFormState,
+    value: string,
+  ) {
+    setInvitationForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  async function handleInvitationSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    setInvitationError('');
+    setCreatedInvitation(null);
+    setCopyStatus('idle');
+    setIsInvitationSubmitting(true);
+
+    const invitedEmail =
+      invitationForm.invitedEmail.trim().toLowerCase();
+
+    const invitedPhone =
+      invitationForm.invitedPhone.trim();
+
+    const salonNameHint =
+      invitationForm.salonNameHint.trim();
+
+    const internalNote =
+      invitationForm.internalNote.trim();
+
+    const expiresInDays = Number(
+      invitationForm.expiresInDays,
+    );
+
+    const payload: {
+      invitedEmail?: string;
+      invitedPhone?: string;
+      salonNameHint?: string;
+      internalNote?: string;
+      expiresInDays: number;
+    } = {
+      expiresInDays,
+    };
+
+    if (invitedEmail) {
+      payload.invitedEmail = invitedEmail;
+    }
+
+    if (invitedPhone) {
+      payload.invitedPhone = invitedPhone;
+    }
+
+    if (salonNameHint) {
+      payload.salonNameHint = salonNameHint;
+    }
+
+    if (internalNote) {
+      payload.internalNote = internalNote;
+    }
+
+    try {
+      const response =
+        await api.post<InvitationCreateResponse>(
+          '/platform-admin/invitations',
+          payload,
+        );
+
+      setCreatedInvitation(response.data);
+      setInvitationForm(INITIAL_INVITATION_FORM);
+    } catch {
+      setInvitationError(
+        'Не удалось создать приглашение. Проверьте введённые данные и повторите попытку.',
+      );
+    } finally {
+      setIsInvitationSubmitting(false);
+    }
+  }
+
+  async function copyInvitationUrl() {
+    const inviteUrl = createdInvitation?.inviteUrl;
+
+    if (!inviteUrl) {
+      return;
+    }
+
+    setCopyStatus('idle');
+
+    try {
+      if (
+        navigator.clipboard &&
+        window.isSecureContext
+      ) {
+        await navigator.clipboard.writeText(inviteUrl);
+      } else {
+        const textarea =
+          document.createElement('textarea');
+
+        textarea.value = inviteUrl;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        textarea.style.pointerEvents = 'none';
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied =
+          document.execCommand('copy');
+
+        document.body.removeChild(textarea);
+
+        if (!copied) {
+          throw new Error('Copy command failed');
+        }
+      }
+
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('error');
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem('glamour_access_token');
     window.location.hash = '';
@@ -236,6 +415,11 @@ function PlatformOwnerPage() {
           <a className="active" href="#platform">
             <LayoutDashboard size={18} aria-hidden="true" />
             Обзор платформы
+          </a>
+
+          <a href="#platform-invitations">
+            <Link2 size={18} aria-hidden="true" />
+            Приглашения
           </a>
 
           <a href="#platform-salons">
@@ -421,6 +605,268 @@ function PlatformOwnerPage() {
                   {overview?.salons.cancelled ?? '—'}
                 </strong>
               </article>
+            </section>
+
+            <section
+              id="platform-invitations"
+              className="platform-invitations-panel"
+            >
+              <div className="platform-panel-heading">
+                <div>
+                  <p className="panel-kicker">
+                    ПРИГЛАШЕНИЯ
+                  </p>
+
+                  <h2>Создать ссылку для нового салона</h2>
+
+                  <p>
+                    Ссылка действует ограниченное время и
+                    может быть использована только один раз.
+                  </p>
+                </div>
+              </div>
+
+              <div className="platform-invitation-layout">
+                <form
+                  className="platform-invitation-form"
+                  onSubmit={handleInvitationSubmit}
+                >
+                  <div className="platform-form-grid">
+                    <label>
+                      <span>Email владельца</span>
+
+                      <div className="platform-form-field">
+                        <Mail
+                          size={17}
+                          aria-hidden="true"
+                        />
+
+                        <input
+                          type="email"
+                          value={
+                            invitationForm.invitedEmail
+                          }
+                          onChange={(event) =>
+                            updateInvitationField(
+                              'invitedEmail',
+                              event.target.value,
+                            )
+                          }
+                          placeholder="owner@example.com"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </label>
+
+                    <label>
+                      <span>Телефон владельца</span>
+
+                      <div className="platform-form-field">
+                        <Phone
+                          size={17}
+                          aria-hidden="true"
+                        />
+
+                        <input
+                          type="tel"
+                          value={
+                            invitationForm.invitedPhone
+                          }
+                          onChange={(event) =>
+                            updateInvitationField(
+                              'invitedPhone',
+                              event.target.value,
+                            )
+                          }
+                          placeholder="+37360123456"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </label>
+
+                    <label>
+                      <span>Название салона</span>
+
+                      <div className="platform-form-field">
+                        <Store
+                          size={17}
+                          aria-hidden="true"
+                        />
+
+                        <input
+                          type="text"
+                          value={
+                            invitationForm.salonNameHint
+                          }
+                          onChange={(event) =>
+                            updateInvitationField(
+                              'salonNameHint',
+                              event.target.value,
+                            )
+                          }
+                          placeholder="Название будущего салона"
+                          maxLength={150}
+                        />
+                      </div>
+                    </label>
+
+                    <label>
+                      <span>Срок действия</span>
+
+                      <select
+                        value={
+                          invitationForm.expiresInDays
+                        }
+                        onChange={(event) =>
+                          updateInvitationField(
+                            'expiresInDays',
+                            event.target.value,
+                          )
+                        }
+                      >
+                        <option value="1">1 день</option>
+                        <option value="3">3 дня</option>
+                        <option value="7">7 дней</option>
+                        <option value="14">14 дней</option>
+                        <option value="30">30 дней</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="platform-form-note">
+                    <span>Внутренняя заметка</span>
+
+                    <textarea
+                      value={
+                        invitationForm.internalNote
+                      }
+                      onChange={(event) =>
+                        updateInvitationField(
+                          'internalNote',
+                          event.target.value,
+                        )
+                      }
+                      placeholder="Заметка видна только владельцу платформы"
+                      maxLength={500}
+                      rows={3}
+                    />
+                  </label>
+
+                  {invitationError ? (
+                    <p
+                      className="platform-invitation-error"
+                      role="alert"
+                    >
+                      {invitationError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    className="platform-create-invitation-button"
+                    disabled={isInvitationSubmitting}
+                  >
+                    <Plus size={18} aria-hidden="true" />
+
+                    {isInvitationSubmitting
+                      ? 'Создание ссылки…'
+                      : 'Создать приглашение'}
+                  </button>
+                </form>
+
+                <aside className="platform-invitation-result">
+                  {createdInvitation ? (
+                    <>
+                      <div className="platform-result-success">
+                        <CheckCircle2
+                          size={21}
+                          aria-hidden="true"
+                        />
+
+                        <div>
+                          <strong>
+                            Приглашение создано
+                          </strong>
+
+                          <span>
+                            Действует до{' '}
+                            {formatDate(
+                              createdInvitation.expiresAt,
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      <label>
+                        Одноразовая ссылка
+                      </label>
+
+                      <div className="platform-invite-url">
+                        <input
+                          type="text"
+                          value={
+                            createdInvitation.inviteUrl
+                          }
+                          readOnly
+                          onFocus={(event) =>
+                            event.currentTarget.select()
+                          }
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void copyInvitationUrl()
+                          }
+                        >
+                          <ClipboardCopy
+                            size={17}
+                            aria-hidden="true"
+                          />
+
+                          Копировать
+                        </button>
+                      </div>
+
+                      {copyStatus === 'copied' ? (
+                        <p className="platform-copy-success">
+                          Ссылка скопирована.
+                        </p>
+                      ) : null}
+
+                      {copyStatus === 'error' ? (
+                        <p className="platform-invitation-error">
+                          Не удалось скопировать автоматически.
+                          Выделите ссылку и скопируйте её
+                          вручную.
+                        </p>
+                      ) : null}
+
+                      <p className="platform-security-note">
+                        Токен хранится в базе только в виде
+                        хеша. Полная ссылка показывается один
+                        раз после создания.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="platform-result-placeholder">
+                      <Link2
+                        size={28}
+                        aria-hidden="true"
+                      />
+
+                      <strong>
+                        Здесь появится ссылка
+                      </strong>
+
+                      <p>
+                        После создания сразу скопируйте и
+                        отправьте её владельцу салона.
+                      </p>
+                    </div>
+                  )}
+                </aside>
+              </div>
             </section>
 
             <section
