@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
@@ -9,12 +10,27 @@ import FinancePage from './pages/FinancePage';
 import BrandingPage from './pages/BrandingPage';
 import './App.css';
 
+type PlatformRole = 'platform_owner' | null;
+
+type LoginSession = {
+  platformRole: PlatformRole;
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     Boolean(localStorage.getItem('glamour_access_token')),
   );
 
-  const [currentPage, setCurrentPage] = useState(window.location.hash);
+  const [platformRole, setPlatformRole] =
+    useState<PlatformRole>(null);
+
+  const [isSessionLoading, setIsSessionLoading] = useState(
+    Boolean(localStorage.getItem('glamour_access_token')),
+  );
+
+  const [currentPage, setCurrentPage] = useState(
+    window.location.hash,
+  );
 
   useEffect(() => {
     function handleHashChange() {
@@ -24,12 +40,91 @@ function App() {
     window.addEventListener('hashchange', handleHashChange);
 
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener(
+        'hashchange',
+        handleHashChange,
+      );
     };
   }, []);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setPlatformRole(null);
+      setIsSessionLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function detectPlatformRole() {
+      setIsSessionLoading(true);
+
+      try {
+        await api.get('/platform-admin/overview');
+
+        if (!isCancelled) {
+          setPlatformRole('platform_owner');
+        }
+      } catch {
+        if (!isCancelled) {
+          setPlatformRole(null);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsSessionLoading(false);
+        }
+      }
+    }
+
+    void detectPlatformRole();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  function handleLoginSuccess(session: LoginSession) {
+    setPlatformRole(session.platformRole);
+    setIsAuthenticated(true);
+  }
+
   if (!isAuthenticated) {
-    return <LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />;
+    return (
+      <LoginPage onLoginSuccess={handleLoginSuccess} />
+    );
+  }
+
+  if (isSessionLoading) {
+    return (
+      <main className="login-page">
+        <section className="login-card">
+          <p className="dashboard-eyebrow">
+            GLAMOUR Salon Studio
+          </p>
+          <h1>Проверка доступа</h1>
+          <p className="login-subtitle">
+            Загружается информация об учётной записи…
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  if (platformRole === 'platform_owner') {
+    return (
+      <main className="login-page">
+        <section className="login-card">
+          <p className="dashboard-eyebrow">
+            GLAMOUR Platform
+          </p>
+          <h1>Владелец платформы</h1>
+          <p className="login-subtitle">
+            Доступ подтверждён. Кабинет владельца платформы
+            будет подключён следующим шагом.
+          </p>
+        </section>
+      </main>
+    );
   }
 
   switch (currentPage) {
