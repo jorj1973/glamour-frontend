@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
+import SalonRegistrationPage from './pages/SalonRegistrationPage';
 import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
@@ -85,6 +86,10 @@ function App() {
   function handleLoginSuccess(session: LoginSession) {
     setPlatformRole(session.platformRole);
     setIsAuthenticated(true);
+  }
+
+  if (currentPage.startsWith('#register?')) {
+    return <SalonRegistrationPage />;
   }
 
   if (!isAuthenticated) {
