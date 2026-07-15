@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
+import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import ClientsPage from './pages/ClientsPage';
@@ -49,8 +50,6 @@ function App() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      setPlatformRole(null);
-      setIsSessionLoading(false);
       return;
     }
 
@@ -101,7 +100,9 @@ function App() {
           <p className="dashboard-eyebrow">
             GLAMOUR Salon Studio
           </p>
+
           <h1>Проверка доступа</h1>
+
           <p className="login-subtitle">
             Загружается информация об учётной записи…
           </p>
@@ -111,20 +112,7 @@ function App() {
   }
 
   if (platformRole === 'platform_owner') {
-    return (
-      <main className="login-page">
-        <section className="login-card">
-          <p className="dashboard-eyebrow">
-            GLAMOUR Platform
-          </p>
-          <h1>Владелец платформы</h1>
-          <p className="login-subtitle">
-            Доступ подтверждён. Кабинет владельца платформы
-            будет подключён следующим шагом.
-          </p>
-        </section>
-      </main>
-    );
+    return <PlatformOwnerPage />;
   }
 
   switch (currentPage) {
