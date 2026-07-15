@@ -25,6 +25,7 @@ import api from "../api/api";
 import MarketingActionsPanel, {
   type PlatformSubscriptionPlan,
 } from "../components/platform/MarketingActionsPanel";
+import SubscriptionPlanEditor from "../components/platform/SubscriptionPlanEditor";
 
 type SalonStatus =
   "trial" | "active" | "past_due" | "suspended" | "cancelled" | string;
@@ -1133,22 +1134,22 @@ function PlatformOwnerPage() {
             />
 
             {selectedPlan ? (
-              <div className="platform-marketing-selection" role="status">
-                <div>
-                  <strong>Выбран тариф {selectedPlan.name}</strong>
+              <SubscriptionPlanEditor
+                key={selectedPlan.id}
+                plan={selectedPlan}
+                onClose={() => setSelectedPlan(null)}
+                onUpdated={(updatedPlan) => {
+                  setPlans((currentPlans) =>
+                    currentPlans.map((currentPlan) =>
+                      currentPlan.id === updatedPlan.id
+                        ? updatedPlan
+                        : currentPlan,
+                    ),
+                  );
 
-                  <span>
-                    {selectedPlan.billingPeriod === "monthly"
-                      ? "Ежемесячный вариант"
-                      : "Годовой вариант"}{" "}
-                    · {selectedPlan.price} {selectedPlan.currency}
-                  </span>
-                </div>
-
-                <button type="button" onClick={() => setSelectedPlan(null)}>
-                  Закрыть
-                </button>
-              </div>
+                  setSelectedPlan(updatedPlan);
+                }}
+              />
             ) : null}
 
             <section id="platform-salons" className="platform-salons-panel">
