@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   CircleDollarSign,
   ClipboardCopy,
+  ClipboardList,
+  Clock3,
   LayoutDashboard,
   Link2,
   LogOut,
@@ -15,6 +17,7 @@ import {
   ShieldCheck,
   Store,
   Users,
+  XCircle,
 } from 'lucide-react';
 
 import api from '../api/api';
@@ -101,6 +104,52 @@ type InvitationFormState = {
   internalNote: string;
 };
 
+type PlatformApplication = {
+  id: string;
+  status: string;
+  submittedAt: string | null;
+  createdAt: string;
+  invitedEmail: string | null;
+  invitedPhone: string | null;
+  salonNameHint: string | null;
+  internalNote: string | null;
+  owner: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    preferredLanguage: string;
+    timezone: string;
+    isActive: boolean;
+  } | null;
+  salon: {
+    id: string;
+    name: string;
+    legalName: string | null;
+    email: string | null;
+    phone: string | null;
+    timezone: string;
+    currency: string;
+    status: string;
+  } | null;
+  plan: {
+    id: string;
+    code: string;
+    name: string;
+    description: string | null;
+    price: string;
+    currency: string;
+    billingPeriod: string;
+    trialDays: number;
+  } | null;
+  subscription: {
+    id: string;
+    status: string;
+    paymentStatus: string;
+  } | null;
+};
+
 const INITIAL_INVITATION_FORM: InvitationFormState = {
   invitedEmail: '',
   invitedPhone: '',
@@ -126,6 +175,12 @@ function getStatusLabel(status: SalonStatus) {
     case 'cancelled':
       return 'Отменён';
 
+    case 'pending_approval':
+      return 'Ожидает одобрения';
+
+    case 'rejected':
+      return 'Отклонён';
+
     default:
       return status || 'Не указан';
   }
@@ -142,8 +197,12 @@ function getStatusClassName(status: SalonStatus) {
     case 'past_due':
       return 'platform-status platform-status-warning';
 
+    case 'pending_approval':
+      return 'platform-status platform-status-warning';
+
     case 'suspended':
     case 'cancelled':
+    case 'rejected':
       return 'platform-status platform-status-danger';
 
     default:
@@ -177,15 +236,42 @@ function getOwnerName(salon: PlatformSalon) {
   return fullName || 'Владелец не назначен';
 }
 
+function getApplicationOwnerName(
+  application: PlatformApplication,
+) {
+  const firstName =
+    application.owner?.firstName?.trim() || '';
+  const lastName =
+    application.owner?.lastName?.trim() || '';
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  return fullName || 'Имя не указано';
+}
+
 function PlatformOwnerPage() {
   const [overview, setOverview] =
     useState<PlatformOverview | null>(null);
 
   const [salons, setSalons] = useState<PlatformSalon[]>([]);
+  const [applications, setApplications] =
+    useState<PlatformApplication[]>([]);
+
   const [loadState, setLoadState] =
     useState<LoadState>('loading');
 
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [applicationActionId, setApplicationActionId] =
+    useState<string | null>(null);
+
+  const [applicationMessage, setApplicationMessage] =
+    useState('');
+
+  const [applicationError, setApplicationError] =
+    useState('');
+
+  const [rejectReasonById, setRejectReasonById] =
+    useState<Record<string, string>>({});
 
   const [invitationForm, setInvitationForm] =
     useState<InvitationFormState>(
@@ -209,18 +295,25 @@ function PlatformOwnerPage() {
     setLoadState('loading');
 
     try {
-      const [overviewResponse, salonsResponse] =
-        await Promise.all([
-          api.get<PlatformOverview>(
-            '/platform-admin/overview',
-          ),
-          api.get<PlatformSalon[]>(
-            '/platform-admin/salons',
-          ),
-        ]);
+      const [
+        overviewResponse,
+        salonsResponse,
+        applicationsResponse,
+      ] = await Promise.all([
+        api.get<PlatformOverview>(
+          '/platform-admin/overview',
+        ),
+        api.get<PlatformSalon[]>(
+          '/platform-admin/salons',
+        ),
+        api.get<PlatformApplication[]>(
+          '/platform-admin/applications',
+        ),
+      ]);
 
       setOverview(overviewResponse.data);
       setSalons(salonsResponse.data);
+      setApplications(applicationsResponse.data);
       setLoadState('ready');
     } catch {
       setLoadState('error');
@@ -347,6 +440,86 @@ function PlatformOwnerPage() {
     }
   }
 
+  function updateRejectReason(
+    applicationId: string,
+    value: string,
+  ) {
+    setRejectReasonById((current) => ({
+      ...current,
+      [applicationId]: value,
+    }));
+  }
+
+  async function approveApplication(
+    applicationId: string,
+  ) {
+    setApplicationActionId(applicationId);
+    setApplicationMessage('');
+    setApplicationError('');
+
+    try {
+      await api.patch(
+        `/platform-admin/applications/${applicationId}/approve`,
+      );
+
+      setApplicationMessage(
+        'Заявка одобрена. Пробный период салона запущен.',
+      );
+
+      await loadPlatformData();
+    } catch {
+      setApplicationError(
+        'Не удалось одобрить заявку. Обновите данные и повторите попытку.',
+      );
+    } finally {
+      setApplicationActionId(null);
+    }
+  }
+
+  async function rejectApplication(
+    applicationId: string,
+  ) {
+    const reason =
+      rejectReasonById[applicationId]?.trim() || '';
+
+    if (reason.length < 3) {
+      setApplicationMessage('');
+      setApplicationError(
+        'Укажите причину отклонения длиной не менее трёх символов.',
+      );
+      return;
+    }
+
+    setApplicationActionId(applicationId);
+    setApplicationMessage('');
+    setApplicationError('');
+
+    try {
+      await api.patch(
+        `/platform-admin/applications/${applicationId}/reject`,
+        {
+          reason,
+        },
+      );
+
+      setApplicationMessage('Заявка отклонена.');
+
+      setRejectReasonById((current) => {
+        const next = { ...current };
+        delete next[applicationId];
+        return next;
+      });
+
+      await loadPlatformData();
+    } catch {
+      setApplicationError(
+        'Не удалось отклонить заявку. Обновите данные и повторите попытку.',
+      );
+    } finally {
+      setApplicationActionId(null);
+    }
+  }
+
   async function copyInvitationUrl() {
     const inviteUrl = createdInvitation?.inviteUrl;
 
@@ -415,6 +588,16 @@ function PlatformOwnerPage() {
           <a className="active" href="#platform">
             <LayoutDashboard size={18} aria-hidden="true" />
             Обзор платформы
+          </a>
+
+          <a href="#platform-applications">
+            <ClipboardList size={18} aria-hidden="true" />
+            Заявки
+            {applications.length > 0 ? (
+              <span className="platform-navigation-count">
+                {applications.length}
+              </span>
+            ) : null}
           </a>
 
           <a href="#platform-invitations">
@@ -605,6 +788,248 @@ function PlatformOwnerPage() {
                   {overview?.salons.cancelled ?? '—'}
                 </strong>
               </article>
+            </section>
+
+            <section
+              id="platform-applications"
+              className="platform-applications-panel"
+            >
+              <div className="platform-panel-heading">
+                <div>
+                  <p className="panel-kicker">
+                    ЗАЯВКИ НА ПОДКЛЮЧЕНИЕ
+                  </p>
+
+                  <h2>Ожидают вашего решения</h2>
+
+                  <p>
+                    Новых заявок: {applications.length}
+                  </p>
+                </div>
+              </div>
+
+              {applicationMessage ? (
+                <div
+                  className="platform-application-message"
+                  role="status"
+                >
+                  <CheckCircle2
+                    size={19}
+                    aria-hidden="true"
+                  />
+
+                  {applicationMessage}
+                </div>
+              ) : null}
+
+              {applicationError ? (
+                <div
+                  className="platform-application-error"
+                  role="alert"
+                >
+                  <XCircle size={19} aria-hidden="true" />
+
+                  {applicationError}
+                </div>
+              ) : null}
+
+              {loadState === 'loading' ? (
+                <div className="platform-table-status">
+                  Загружаются заявки…
+                </div>
+              ) : null}
+
+              {loadState === 'ready' &&
+              applications.length === 0 ? (
+                <div className="platform-applications-empty">
+                  <ClipboardList
+                    size={30}
+                    aria-hidden="true"
+                  />
+
+                  <strong>Новых заявок нет</strong>
+
+                  <p>
+                    После заполнения регистрации новым
+                    салоном его заявка появится здесь.
+                  </p>
+                </div>
+              ) : null}
+
+              {loadState === 'ready' &&
+              applications.length > 0 ? (
+                <div className="platform-applications-list">
+                  {applications.map((application) => {
+                    const isProcessing =
+                      applicationActionId === application.id;
+
+                    return (
+                      <article
+                        key={application.id}
+                        className="platform-application-card"
+                      >
+                        <div className="platform-application-main">
+                          <div className="platform-application-title">
+                            <div className="platform-salon-avatar">
+                              <Store
+                                size={18}
+                                aria-hidden="true"
+                              />
+                            </div>
+
+                            <div>
+                              <h3>
+                                {application.salon?.name ||
+                                  application.salonNameHint ||
+                                  'Новый салон'}
+                              </h3>
+
+                              <span className="platform-status platform-status-warning">
+                                Ожидает одобрения
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="platform-application-details">
+                            <div>
+                              <span>Владелец</span>
+                              <strong>
+                                {getApplicationOwnerName(
+                                  application,
+                                )}
+                              </strong>
+                              <small>
+                                {application.owner?.email ||
+                                  application.invitedEmail ||
+                                  'Email не указан'}
+                              </small>
+                              <small>
+                                {application.owner?.phone ||
+                                  application.invitedPhone ||
+                                  'Телефон не указан'}
+                              </small>
+                            </div>
+
+                            <div>
+                              <span>Тариф</span>
+                              <strong>
+                                {application.plan?.name ||
+                                  'Не указан'}
+                              </strong>
+                              <small>
+                                {application.plan
+                                  ? `${application.plan.price} ${application.plan.currency}`
+                                  : 'Стоимость не указана'}
+                              </small>
+                              <small>
+                                Trial:{' '}
+                                {application.plan?.trialDays ??
+                                  '—'}{' '}
+                                дней
+                              </small>
+                            </div>
+
+                            <div>
+                              <span>Заявка подана</span>
+                              <strong>
+                                {formatDate(
+                                  application.submittedAt,
+                                )}
+                              </strong>
+                              <small>
+                                <Clock3
+                                  size={13}
+                                  aria-hidden="true"
+                                />
+                                Trial ещё не запущен
+                              </small>
+                            </div>
+                          </div>
+
+                          {application.internalNote ? (
+                            <div className="platform-application-note">
+                              <span>Внутренняя заметка</span>
+                              <p>
+                                {application.internalNote}
+                              </p>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="platform-application-actions">
+                          <button
+                            type="button"
+                            className="platform-approve-button"
+                            disabled={
+                              applicationActionId !== null
+                            }
+                            onClick={() =>
+                              void approveApplication(
+                                application.id,
+                              )
+                            }
+                          >
+                            <CheckCircle2
+                              size={17}
+                              aria-hidden="true"
+                            />
+
+                            {isProcessing
+                              ? 'Обработка…'
+                              : 'Одобрить и запустить trial'}
+                          </button>
+
+                          <label>
+                            <span>Причина отклонения</span>
+
+                            <textarea
+                              value={
+                                rejectReasonById[
+                                  application.id
+                                ] || ''
+                              }
+                              onChange={(event) =>
+                                updateRejectReason(
+                                  application.id,
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="Например: недостаточно данных"
+                              maxLength={500}
+                              rows={3}
+                              disabled={
+                                applicationActionId !== null
+                              }
+                            />
+                          </label>
+
+                          <button
+                            type="button"
+                            className="platform-reject-button"
+                            disabled={
+                              applicationActionId !== null
+                            }
+                            onClick={() =>
+                              void rejectApplication(
+                                application.id,
+                              )
+                            }
+                          >
+                            <XCircle
+                              size={17}
+                              aria-hidden="true"
+                            />
+
+                            {isProcessing
+                              ? 'Обработка…'
+                              : 'Отклонить заявку'}
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : null}
             </section>
 
             <section
