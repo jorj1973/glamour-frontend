@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Building2,
   CheckCircle2,
@@ -10,6 +10,7 @@ import {
   Link2,
   LogOut,
   Mail,
+  Megaphone,
   Phone,
   Plus,
   RefreshCw,
@@ -18,17 +19,15 @@ import {
   Store,
   Users,
   XCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
-import api from '../api/api';
+import api from "../api/api";
+import MarketingActionsPanel, {
+  type PlatformSubscriptionPlan,
+} from "../components/platform/MarketingActionsPanel";
 
 type SalonStatus =
-  | 'trial'
-  | 'active'
-  | 'past_due'
-  | 'suspended'
-  | 'cancelled'
-  | string;
+  "trial" | "active" | "past_due" | "suspended" | "cancelled" | string;
 
 type PlatformOverview = {
   salons: {
@@ -79,7 +78,7 @@ type PlatformSalon = {
   paymentStatus: null;
 };
 
-type LoadState = 'loading' | 'ready' | 'error';
+type LoadState = "loading" | "ready" | "error";
 
 type InvitationCreateResponse = {
   id: string;
@@ -151,172 +150,168 @@ type PlatformApplication = {
 };
 
 const INITIAL_INVITATION_FORM: InvitationFormState = {
-  invitedEmail: '',
-  invitedPhone: '',
-  salonNameHint: '',
-  expiresInDays: '7',
-  internalNote: '',
+  invitedEmail: "",
+  invitedPhone: "",
+  salonNameHint: "",
+  expiresInDays: "7",
+  internalNote: "",
 };
 
 function getStatusLabel(status: SalonStatus) {
   switch (status) {
-    case 'trial':
-      return 'Пробный период';
+    case "trial":
+      return "Пробный период";
 
-    case 'active':
-      return 'Активен';
+    case "active":
+      return "Активен";
 
-    case 'past_due':
-      return 'Есть задолженность';
+    case "past_due":
+      return "Есть задолженность";
 
-    case 'suspended':
-      return 'Приостановлен';
+    case "suspended":
+      return "Приостановлен";
 
-    case 'cancelled':
-      return 'Отменён';
+    case "cancelled":
+      return "Отменён";
 
-    case 'pending_approval':
-      return 'Ожидает одобрения';
+    case "pending_approval":
+      return "Ожидает одобрения";
 
-    case 'rejected':
-      return 'Отклонён';
+    case "rejected":
+      return "Отклонён";
 
     default:
-      return status || 'Не указан';
+      return status || "Не указан";
   }
 }
 
 function getStatusClassName(status: SalonStatus) {
   switch (status) {
-    case 'active':
-      return 'platform-status platform-status-active';
+    case "active":
+      return "platform-status platform-status-active";
 
-    case 'trial':
-      return 'platform-status platform-status-trial';
+    case "trial":
+      return "platform-status platform-status-trial";
 
-    case 'past_due':
-      return 'platform-status platform-status-warning';
+    case "past_due":
+      return "platform-status platform-status-warning";
 
-    case 'pending_approval':
-      return 'platform-status platform-status-warning';
+    case "pending_approval":
+      return "platform-status platform-status-warning";
 
-    case 'suspended':
-    case 'cancelled':
-    case 'rejected':
-      return 'platform-status platform-status-danger';
+    case "suspended":
+    case "cancelled":
+    case "rejected":
+      return "platform-status platform-status-danger";
 
     default:
-      return 'platform-status';
+      return "platform-status";
   }
 }
 
 function formatDate(value: string | null) {
   if (!value) {
-    return 'Не указана';
+    return "Не указана";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return 'Не указана';
+    return "Не указана";
   }
 
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   }).format(date);
 }
 
 function getOwnerName(salon: PlatformSalon) {
-  const firstName = salon.owner?.firstName?.trim() || '';
-  const lastName = salon.owner?.lastName?.trim() || '';
+  const firstName = salon.owner?.firstName?.trim() || "";
+  const lastName = salon.owner?.lastName?.trim() || "";
   const fullName = `${firstName} ${lastName}`.trim();
 
-  return fullName || 'Владелец не назначен';
+  return fullName || "Владелец не назначен";
 }
 
-function getApplicationOwnerName(
-  application: PlatformApplication,
-) {
-  const firstName =
-    application.owner?.firstName?.trim() || '';
-  const lastName =
-    application.owner?.lastName?.trim() || '';
+function getApplicationOwnerName(application: PlatformApplication) {
+  const firstName = application.owner?.firstName?.trim() || "";
+  const lastName = application.owner?.lastName?.trim() || "";
   const fullName = `${firstName} ${lastName}`.trim();
 
-  return fullName || 'Имя не указано';
+  return fullName || "Имя не указано";
 }
 
 function PlatformOwnerPage() {
-  const [overview, setOverview] =
-    useState<PlatformOverview | null>(null);
+  const [overview, setOverview] = useState<PlatformOverview | null>(null);
 
   const [salons, setSalons] = useState<PlatformSalon[]>([]);
-  const [applications, setApplications] =
-    useState<PlatformApplication[]>([]);
+  const [applications, setApplications] = useState<PlatformApplication[]>([]);
 
-  const [loadState, setLoadState] =
-    useState<LoadState>('loading');
+  const [plans, setPlans] = useState<PlatformSubscriptionPlan[]>([]);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [plansError, setPlansError] = useState("");
 
-  const [applicationActionId, setApplicationActionId] =
-    useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] =
+    useState<PlatformSubscriptionPlan | null>(null);
 
-  const [applicationMessage, setApplicationMessage] =
-    useState('');
+  const [loadState, setLoadState] = useState<LoadState>("loading");
 
-  const [applicationError, setApplicationError] =
-    useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [rejectReasonById, setRejectReasonById] =
-    useState<Record<string, string>>({});
+  const [applicationActionId, setApplicationActionId] = useState<string | null>(
+    null,
+  );
 
-  const [invitationForm, setInvitationForm] =
-    useState<InvitationFormState>(
-      INITIAL_INVITATION_FORM,
-    );
+  const [applicationMessage, setApplicationMessage] = useState("");
 
-  const [isInvitationSubmitting, setIsInvitationSubmitting] =
-    useState(false);
+  const [applicationError, setApplicationError] = useState("");
 
-  const [invitationError, setInvitationError] =
-    useState('');
+  const [rejectReasonById, setRejectReasonById] = useState<
+    Record<string, string>
+  >({});
+
+  const [invitationForm, setInvitationForm] = useState<InvitationFormState>(
+    INITIAL_INVITATION_FORM,
+  );
+
+  const [isInvitationSubmitting, setIsInvitationSubmitting] = useState(false);
+
+  const [invitationError, setInvitationError] = useState("");
 
   const [createdInvitation, setCreatedInvitation] =
     useState<InvitationCreateResponse | null>(null);
 
-  const [copyStatus, setCopyStatus] = useState<
-    'idle' | 'copied' | 'error'
-  >('idle');
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
 
   const loadPlatformData = useCallback(async () => {
-    setLoadState('loading');
+    setLoadState("loading");
 
     try {
       const [
         overviewResponse,
         salonsResponse,
         applicationsResponse,
+        plansResponse,
       ] = await Promise.all([
-        api.get<PlatformOverview>(
-          '/platform-admin/overview',
-        ),
-        api.get<PlatformSalon[]>(
-          '/platform-admin/salons',
-        ),
-        api.get<PlatformApplication[]>(
-          '/platform-admin/applications',
-        ),
+        api.get<PlatformOverview>("/platform-admin/overview"),
+        api.get<PlatformSalon[]>("/platform-admin/salons"),
+        api.get<PlatformApplication[]>("/platform-admin/applications"),
+        api.get<PlatformSubscriptionPlan[]>("/platform-admin/plans"),
       ]);
 
       setOverview(overviewResponse.data);
       setSalons(salonsResponse.data);
       setApplications(applicationsResponse.data);
-      setLoadState('ready');
+      setPlans(plansResponse.data);
+      setPlansError("");
+      setLoadState("ready");
     } catch {
-      setLoadState('error');
+      setPlansError("Не удалось загрузить тарифы из защищённого API.");
+      setLoadState("error");
     }
   }, []);
 
@@ -331,9 +326,7 @@ function PlatformOwnerPage() {
   }, [loadPlatformData]);
 
   const filteredSalons = useMemo(() => {
-    const normalizedQuery = searchQuery
-      .trim()
-      .toLocaleLowerCase('ru-RU');
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ru-RU");
 
     if (!normalizedQuery) {
       return salons;
@@ -353,9 +346,7 @@ function PlatformOwnerPage() {
       ];
 
       return searchableValues.some((value) =>
-        value
-          ?.toLocaleLowerCase('ru-RU')
-          .includes(normalizedQuery),
+        value?.toLocaleLowerCase("ru-RU").includes(normalizedQuery),
       );
     });
   }, [salons, searchQuery]);
@@ -375,26 +366,20 @@ function PlatformOwnerPage() {
   ) {
     event.preventDefault();
 
-    setInvitationError('');
+    setInvitationError("");
     setCreatedInvitation(null);
-    setCopyStatus('idle');
+    setCopyStatus("idle");
     setIsInvitationSubmitting(true);
 
-    const invitedEmail =
-      invitationForm.invitedEmail.trim().toLowerCase();
+    const invitedEmail = invitationForm.invitedEmail.trim().toLowerCase();
 
-    const invitedPhone =
-      invitationForm.invitedPhone.trim();
+    const invitedPhone = invitationForm.invitedPhone.trim();
 
-    const salonNameHint =
-      invitationForm.salonNameHint.trim();
+    const salonNameHint = invitationForm.salonNameHint.trim();
 
-    const internalNote =
-      invitationForm.internalNote.trim();
+    const internalNote = invitationForm.internalNote.trim();
 
-    const expiresInDays = Number(
-      invitationForm.expiresInDays,
-    );
+    const expiresInDays = Number(invitationForm.expiresInDays);
 
     const payload: {
       invitedEmail?: string;
@@ -423,86 +408,70 @@ function PlatformOwnerPage() {
     }
 
     try {
-      const response =
-        await api.post<InvitationCreateResponse>(
-          '/platform-admin/invitations',
-          payload,
-        );
+      const response = await api.post<InvitationCreateResponse>(
+        "/platform-admin/invitations",
+        payload,
+      );
 
       setCreatedInvitation(response.data);
       setInvitationForm(INITIAL_INVITATION_FORM);
     } catch {
       setInvitationError(
-        'Не удалось создать приглашение. Проверьте введённые данные и повторите попытку.',
+        "Не удалось создать приглашение. Проверьте введённые данные и повторите попытку.",
       );
     } finally {
       setIsInvitationSubmitting(false);
     }
   }
 
-  function updateRejectReason(
-    applicationId: string,
-    value: string,
-  ) {
+  function updateRejectReason(applicationId: string, value: string) {
     setRejectReasonById((current) => ({
       ...current,
       [applicationId]: value,
     }));
   }
 
-  async function approveApplication(
-    applicationId: string,
-  ) {
+  async function approveApplication(applicationId: string) {
     setApplicationActionId(applicationId);
-    setApplicationMessage('');
-    setApplicationError('');
+    setApplicationMessage("");
+    setApplicationError("");
 
     try {
-      await api.patch(
-        `/platform-admin/applications/${applicationId}/approve`,
-      );
+      await api.patch(`/platform-admin/applications/${applicationId}/approve`);
 
-      setApplicationMessage(
-        'Заявка одобрена. Пробный период салона запущен.',
-      );
+      setApplicationMessage("Заявка одобрена. Пробный период салона запущен.");
 
       await loadPlatformData();
     } catch {
       setApplicationError(
-        'Не удалось одобрить заявку. Обновите данные и повторите попытку.',
+        "Не удалось одобрить заявку. Обновите данные и повторите попытку.",
       );
     } finally {
       setApplicationActionId(null);
     }
   }
 
-  async function rejectApplication(
-    applicationId: string,
-  ) {
-    const reason =
-      rejectReasonById[applicationId]?.trim() || '';
+  async function rejectApplication(applicationId: string) {
+    const reason = rejectReasonById[applicationId]?.trim() || "";
 
     if (reason.length < 3) {
-      setApplicationMessage('');
+      setApplicationMessage("");
       setApplicationError(
-        'Укажите причину отклонения длиной не менее трёх символов.',
+        "Укажите причину отклонения длиной не менее трёх символов.",
       );
       return;
     }
 
     setApplicationActionId(applicationId);
-    setApplicationMessage('');
-    setApplicationError('');
+    setApplicationMessage("");
+    setApplicationError("");
 
     try {
-      await api.patch(
-        `/platform-admin/applications/${applicationId}/reject`,
-        {
-          reason,
-        },
-      );
+      await api.patch(`/platform-admin/applications/${applicationId}/reject`, {
+        reason,
+      });
 
-      setApplicationMessage('Заявка отклонена.');
+      setApplicationMessage("Заявка отклонена.");
 
       setRejectReasonById((current) => {
         const next = { ...current };
@@ -513,7 +482,7 @@ function PlatformOwnerPage() {
       await loadPlatformData();
     } catch {
       setApplicationError(
-        'Не удалось отклонить заявку. Обновите данные и повторите попытку.',
+        "Не удалось отклонить заявку. Обновите данные и повторите попытку.",
       );
     } finally {
       setApplicationActionId(null);
@@ -527,46 +496,41 @@ function PlatformOwnerPage() {
       return;
     }
 
-    setCopyStatus('idle');
+    setCopyStatus("idle");
 
     try {
-      if (
-        navigator.clipboard &&
-        window.isSecureContext
-      ) {
+      if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(inviteUrl);
       } else {
-        const textarea =
-          document.createElement('textarea');
+        const textarea = document.createElement("textarea");
 
         textarea.value = inviteUrl;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        textarea.style.pointerEvents = 'none';
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        textarea.style.pointerEvents = "none";
 
         document.body.appendChild(textarea);
         textarea.select();
 
-        const copied =
-          document.execCommand('copy');
+        const copied = document.execCommand("copy");
 
         document.body.removeChild(textarea);
 
         if (!copied) {
-          throw new Error('Copy command failed');
+          throw new Error("Copy command failed");
         }
       }
 
-      setCopyStatus('copied');
+      setCopyStatus("copied");
     } catch {
-      setCopyStatus('error');
+      setCopyStatus("error");
     }
   }
 
   function handleLogout() {
-    localStorage.removeItem('glamour_access_token');
-    window.location.hash = '';
+    localStorage.removeItem("glamour_access_token");
+    window.location.hash = "";
     window.location.reload();
   }
 
@@ -609,6 +573,11 @@ function PlatformOwnerPage() {
             <Store size={18} aria-hidden="true" />
             Салоны
           </a>
+
+          <a href="#platform-marketing">
+            <Megaphone size={18} aria-hidden="true" />
+            Маркетинг и акции
+          </a>
         </nav>
 
         <div className="platform-sidebar-footer">
@@ -629,15 +598,13 @@ function PlatformOwnerPage() {
       <main className="platform-main">
         <header className="platform-header">
           <div>
-            <p className="dashboard-eyebrow">
-              GLAMOUR PLATFORM
-            </p>
+            <p className="dashboard-eyebrow">GLAMOUR PLATFORM</p>
 
             <h1>Управление платформой</h1>
 
             <p className="platform-header-description">
-              Салоны, пользователи, подписки и состояние
-              системы в одном защищённом кабинете.
+              Салоны, пользователи, подписки и состояние системы в одном
+              защищённом кабинете.
             </p>
           </div>
 
@@ -645,30 +612,24 @@ function PlatformOwnerPage() {
             type="button"
             className="platform-refresh-button"
             onClick={() => void loadPlatformData()}
-            disabled={loadState === 'loading'}
+            disabled={loadState === "loading"}
           >
             <RefreshCw
               size={17}
               aria-hidden="true"
               className={
-                loadState === 'loading'
-                  ? 'platform-refresh-icon-loading'
-                  : ''
+                loadState === "loading" ? "platform-refresh-icon-loading" : ""
               }
             />
-
             Обновить
           </button>
         </header>
 
-        {loadState === 'error' ? (
+        {loadState === "error" ? (
           <section className="platform-error-panel">
             <h2>Не удалось загрузить данные</h2>
 
-            <p>
-              Проверьте соединение с backend и повторите
-              запрос.
-            </p>
+            <p>Проверьте соединение с backend и повторите запрос.</p>
 
             <button
               type="button"
@@ -680,7 +641,7 @@ function PlatformOwnerPage() {
           </section>
         ) : null}
 
-        {loadState !== 'error' ? (
+        {loadState !== "error" ? (
           <>
             <section className="platform-metrics">
               <article className="platform-metric-card">
@@ -690,13 +651,9 @@ function PlatformOwnerPage() {
 
                 <p>Всего салонов</p>
 
-                <strong>
-                  {overview?.salons.total ?? '—'}
-                </strong>
+                <strong>{overview?.salons.total ?? "—"}</strong>
 
-                <span>
-                  Активных: {overview?.salons.active ?? '—'}
-                </span>
+                <span>Активных: {overview?.salons.active ?? "—"}</span>
               </article>
 
               <article className="platform-metric-card">
@@ -706,13 +663,9 @@ function PlatformOwnerPage() {
 
                 <p>Пользователи</p>
 
-                <strong>
-                  {overview?.users.total ?? '—'}
-                </strong>
+                <strong>{overview?.users.total ?? "—"}</strong>
 
-                <span>
-                  Активных: {overview?.users.active ?? '—'}
-                </span>
+                <span>Активных: {overview?.users.active ?? "—"}</span>
               </article>
 
               <article className="platform-metric-card">
@@ -722,33 +675,26 @@ function PlatformOwnerPage() {
 
                 <p>Участники салонов</p>
 
-                <strong>
-                  {overview?.memberships.active ?? '—'}
-                </strong>
+                <strong>{overview?.memberships.active ?? "—"}</strong>
 
                 <span>Активные членства</span>
               </article>
 
               <article className="platform-metric-card">
                 <div className="platform-metric-icon">
-                  <CircleDollarSign
-                    size={21}
-                    aria-hidden="true"
-                  />
+                  <CircleDollarSign size={21} aria-hidden="true" />
                 </div>
 
                 <p>Биллинг</p>
 
                 <strong>
-                  {overview?.billing.available
-                    ? 'Активен'
-                    : 'Не подключён'}
+                  {overview?.billing.available ? "Активен" : "Не подключён"}
                 </strong>
 
                 <span>
                   {overview?.billing.available
-                    ? 'Данные доступны'
-                    : 'Ожидает настройки'}
+                    ? "Данные доступны"
+                    : "Ожидает настройки"}
                 </span>
               </article>
             </section>
@@ -756,37 +702,27 @@ function PlatformOwnerPage() {
             <section className="platform-status-grid">
               <article>
                 <span>Пробный период</span>
-                <strong>
-                  {overview?.salons.trial ?? '—'}
-                </strong>
+                <strong>{overview?.salons.trial ?? "—"}</strong>
               </article>
 
               <article>
                 <span>Активные</span>
-                <strong>
-                  {overview?.salons.active ?? '—'}
-                </strong>
+                <strong>{overview?.salons.active ?? "—"}</strong>
               </article>
 
               <article>
                 <span>Задолженность</span>
-                <strong>
-                  {overview?.salons.pastDue ?? '—'}
-                </strong>
+                <strong>{overview?.salons.pastDue ?? "—"}</strong>
               </article>
 
               <article>
                 <span>Приостановлены</span>
-                <strong>
-                  {overview?.salons.suspended ?? '—'}
-                </strong>
+                <strong>{overview?.salons.suspended ?? "—"}</strong>
               </article>
 
               <article>
                 <span>Отменены</span>
-                <strong>
-                  {overview?.salons.cancelled ?? '—'}
-                </strong>
+                <strong>{overview?.salons.cancelled ?? "—"}</strong>
               </article>
             </section>
 
@@ -796,72 +732,51 @@ function PlatformOwnerPage() {
             >
               <div className="platform-panel-heading">
                 <div>
-                  <p className="panel-kicker">
-                    ЗАЯВКИ НА ПОДКЛЮЧЕНИЕ
-                  </p>
+                  <p className="panel-kicker">ЗАЯВКИ НА ПОДКЛЮЧЕНИЕ</p>
 
                   <h2>Ожидают вашего решения</h2>
 
-                  <p>
-                    Новых заявок: {applications.length}
-                  </p>
+                  <p>Новых заявок: {applications.length}</p>
                 </div>
               </div>
 
               {applicationMessage ? (
-                <div
-                  className="platform-application-message"
-                  role="status"
-                >
-                  <CheckCircle2
-                    size={19}
-                    aria-hidden="true"
-                  />
+                <div className="platform-application-message" role="status">
+                  <CheckCircle2 size={19} aria-hidden="true" />
 
                   {applicationMessage}
                 </div>
               ) : null}
 
               {applicationError ? (
-                <div
-                  className="platform-application-error"
-                  role="alert"
-                >
+                <div className="platform-application-error" role="alert">
                   <XCircle size={19} aria-hidden="true" />
 
                   {applicationError}
                 </div>
               ) : null}
 
-              {loadState === 'loading' ? (
-                <div className="platform-table-status">
-                  Загружаются заявки…
-                </div>
+              {loadState === "loading" ? (
+                <div className="platform-table-status">Загружаются заявки…</div>
               ) : null}
 
-              {loadState === 'ready' &&
-              applications.length === 0 ? (
+              {loadState === "ready" && applications.length === 0 ? (
                 <div className="platform-applications-empty">
-                  <ClipboardList
-                    size={30}
-                    aria-hidden="true"
-                  />
+                  <ClipboardList size={30} aria-hidden="true" />
 
                   <strong>Новых заявок нет</strong>
 
                   <p>
-                    После заполнения регистрации новым
-                    салоном его заявка появится здесь.
+                    После заполнения регистрации новым салоном его заявка
+                    появится здесь.
                   </p>
                 </div>
               ) : null}
 
-              {loadState === 'ready' &&
-              applications.length > 0 ? (
+              {loadState === "ready" && applications.length > 0 ? (
                 <div className="platform-applications-list">
                   {applications.map((application) => {
-                    const isProcessing =
-                      applicationActionId === application.id;
+                    const isProcessing = applicationActionId === application.id;
 
                     return (
                       <article
@@ -871,17 +786,14 @@ function PlatformOwnerPage() {
                         <div className="platform-application-main">
                           <div className="platform-application-title">
                             <div className="platform-salon-avatar">
-                              <Store
-                                size={18}
-                                aria-hidden="true"
-                              />
+                              <Store size={18} aria-hidden="true" />
                             </div>
 
                             <div>
                               <h3>
                                 {application.salon?.name ||
                                   application.salonNameHint ||
-                                  'Новый салон'}
+                                  "Новый салон"}
                               </h3>
 
                               <span className="platform-status platform-status-warning">
@@ -894,53 +806,42 @@ function PlatformOwnerPage() {
                             <div>
                               <span>Владелец</span>
                               <strong>
-                                {getApplicationOwnerName(
-                                  application,
-                                )}
+                                {getApplicationOwnerName(application)}
                               </strong>
                               <small>
                                 {application.owner?.email ||
                                   application.invitedEmail ||
-                                  'Email не указан'}
+                                  "Email не указан"}
                               </small>
                               <small>
                                 {application.owner?.phone ||
                                   application.invitedPhone ||
-                                  'Телефон не указан'}
+                                  "Телефон не указан"}
                               </small>
                             </div>
 
                             <div>
                               <span>Тариф</span>
                               <strong>
-                                {application.plan?.name ||
-                                  'Не указан'}
+                                {application.plan?.name || "Не указан"}
                               </strong>
                               <small>
                                 {application.plan
                                   ? `${application.plan.price} ${application.plan.currency}`
-                                  : 'Стоимость не указана'}
+                                  : "Стоимость не указана"}
                               </small>
                               <small>
-                                Trial:{' '}
-                                {application.plan?.trialDays ??
-                                  '—'}{' '}
-                                дней
+                                Trial: {application.plan?.trialDays ?? "—"} дней
                               </small>
                             </div>
 
                             <div>
                               <span>Заявка подана</span>
                               <strong>
-                                {formatDate(
-                                  application.submittedAt,
-                                )}
+                                {formatDate(application.submittedAt)}
                               </strong>
                               <small>
-                                <Clock3
-                                  size={13}
-                                  aria-hidden="true"
-                                />
+                                <Clock3 size={13} aria-hidden="true" />
                                 Trial ещё не запущен
                               </small>
                             </div>
@@ -949,9 +850,7 @@ function PlatformOwnerPage() {
                           {application.internalNote ? (
                             <div className="platform-application-note">
                               <span>Внутренняя заметка</span>
-                              <p>
-                                {application.internalNote}
-                              </p>
+                              <p>{application.internalNote}</p>
                             </div>
                           ) : null}
                         </div>
@@ -960,34 +859,23 @@ function PlatformOwnerPage() {
                           <button
                             type="button"
                             className="platform-approve-button"
-                            disabled={
-                              applicationActionId !== null
-                            }
+                            disabled={applicationActionId !== null}
                             onClick={() =>
-                              void approveApplication(
-                                application.id,
-                              )
+                              void approveApplication(application.id)
                             }
                           >
-                            <CheckCircle2
-                              size={17}
-                              aria-hidden="true"
-                            />
+                            <CheckCircle2 size={17} aria-hidden="true" />
 
                             {isProcessing
-                              ? 'Обработка…'
-                              : 'Одобрить и запустить trial'}
+                              ? "Обработка…"
+                              : "Одобрить и запустить trial"}
                           </button>
 
                           <label>
                             <span>Причина отклонения</span>
 
                             <textarea
-                              value={
-                                rejectReasonById[
-                                  application.id
-                                ] || ''
-                              }
+                              value={rejectReasonById[application.id] || ""}
                               onChange={(event) =>
                                 updateRejectReason(
                                   application.id,
@@ -997,32 +885,21 @@ function PlatformOwnerPage() {
                               placeholder="Например: недостаточно данных"
                               maxLength={500}
                               rows={3}
-                              disabled={
-                                applicationActionId !== null
-                              }
+                              disabled={applicationActionId !== null}
                             />
                           </label>
 
                           <button
                             type="button"
                             className="platform-reject-button"
-                            disabled={
-                              applicationActionId !== null
-                            }
+                            disabled={applicationActionId !== null}
                             onClick={() =>
-                              void rejectApplication(
-                                application.id,
-                              )
+                              void rejectApplication(application.id)
                             }
                           >
-                            <XCircle
-                              size={17}
-                              aria-hidden="true"
-                            />
+                            <XCircle size={17} aria-hidden="true" />
 
-                            {isProcessing
-                              ? 'Обработка…'
-                              : 'Отклонить заявку'}
+                            {isProcessing ? "Обработка…" : "Отклонить заявку"}
                           </button>
                         </div>
                       </article>
@@ -1038,15 +915,13 @@ function PlatformOwnerPage() {
             >
               <div className="platform-panel-heading">
                 <div>
-                  <p className="panel-kicker">
-                    ПРИГЛАШЕНИЯ
-                  </p>
+                  <p className="panel-kicker">ПРИГЛАШЕНИЯ</p>
 
                   <h2>Создать ссылку для нового салона</h2>
 
                   <p>
-                    Ссылка действует ограниченное время и
-                    может быть использована только один раз.
+                    Ссылка действует ограниченное время и может быть
+                    использована только один раз.
                   </p>
                 </div>
               </div>
@@ -1061,19 +936,14 @@ function PlatformOwnerPage() {
                       <span>Email владельца</span>
 
                       <div className="platform-form-field">
-                        <Mail
-                          size={17}
-                          aria-hidden="true"
-                        />
+                        <Mail size={17} aria-hidden="true" />
 
                         <input
                           type="email"
-                          value={
-                            invitationForm.invitedEmail
-                          }
+                          value={invitationForm.invitedEmail}
                           onChange={(event) =>
                             updateInvitationField(
-                              'invitedEmail',
+                              "invitedEmail",
                               event.target.value,
                             )
                           }
@@ -1087,19 +957,14 @@ function PlatformOwnerPage() {
                       <span>Телефон владельца</span>
 
                       <div className="platform-form-field">
-                        <Phone
-                          size={17}
-                          aria-hidden="true"
-                        />
+                        <Phone size={17} aria-hidden="true" />
 
                         <input
                           type="tel"
-                          value={
-                            invitationForm.invitedPhone
-                          }
+                          value={invitationForm.invitedPhone}
                           onChange={(event) =>
                             updateInvitationField(
-                              'invitedPhone',
+                              "invitedPhone",
                               event.target.value,
                             )
                           }
@@ -1113,19 +978,14 @@ function PlatformOwnerPage() {
                       <span>Название салона</span>
 
                       <div className="platform-form-field">
-                        <Store
-                          size={17}
-                          aria-hidden="true"
-                        />
+                        <Store size={17} aria-hidden="true" />
 
                         <input
                           type="text"
-                          value={
-                            invitationForm.salonNameHint
-                          }
+                          value={invitationForm.salonNameHint}
                           onChange={(event) =>
                             updateInvitationField(
-                              'salonNameHint',
+                              "salonNameHint",
                               event.target.value,
                             )
                           }
@@ -1139,12 +999,10 @@ function PlatformOwnerPage() {
                       <span>Срок действия</span>
 
                       <select
-                        value={
-                          invitationForm.expiresInDays
-                        }
+                        value={invitationForm.expiresInDays}
                         onChange={(event) =>
                           updateInvitationField(
-                            'expiresInDays',
+                            "expiresInDays",
                             event.target.value,
                           )
                         }
@@ -1162,12 +1020,10 @@ function PlatformOwnerPage() {
                     <span>Внутренняя заметка</span>
 
                     <textarea
-                      value={
-                        invitationForm.internalNote
-                      }
+                      value={invitationForm.internalNote}
                       onChange={(event) =>
                         updateInvitationField(
-                          'internalNote',
+                          "internalNote",
                           event.target.value,
                         )
                       }
@@ -1178,10 +1034,7 @@ function PlatformOwnerPage() {
                   </label>
 
                   {invitationError ? (
-                    <p
-                      className="platform-invitation-error"
-                      role="alert"
-                    >
+                    <p className="platform-invitation-error" role="alert">
                       {invitationError}
                     </p>
                   ) : null}
@@ -1194,8 +1047,8 @@ function PlatformOwnerPage() {
                     <Plus size={18} aria-hidden="true" />
 
                     {isInvitationSubmitting
-                      ? 'Создание ссылки…'
-                      : 'Создать приглашение'}
+                      ? "Создание ссылки…"
+                      : "Создать приглашение"}
                   </button>
                 </form>
 
@@ -1203,90 +1056,64 @@ function PlatformOwnerPage() {
                   {createdInvitation ? (
                     <>
                       <div className="platform-result-success">
-                        <CheckCircle2
-                          size={21}
-                          aria-hidden="true"
-                        />
+                        <CheckCircle2 size={21} aria-hidden="true" />
 
                         <div>
-                          <strong>
-                            Приглашение создано
-                          </strong>
+                          <strong>Приглашение создано</strong>
 
                           <span>
-                            Действует до{' '}
-                            {formatDate(
-                              createdInvitation.expiresAt,
-                            )}
+                            Действует до{" "}
+                            {formatDate(createdInvitation.expiresAt)}
                           </span>
                         </div>
                       </div>
 
-                      <label>
-                        Одноразовая ссылка
-                      </label>
+                      <label>Одноразовая ссылка</label>
 
                       <div className="platform-invite-url">
                         <input
                           type="text"
-                          value={
-                            createdInvitation.inviteUrl
-                          }
+                          value={createdInvitation.inviteUrl}
                           readOnly
-                          onFocus={(event) =>
-                            event.currentTarget.select()
-                          }
+                          onFocus={(event) => event.currentTarget.select()}
                         />
 
                         <button
                           type="button"
-                          onClick={() =>
-                            void copyInvitationUrl()
-                          }
+                          onClick={() => void copyInvitationUrl()}
                         >
-                          <ClipboardCopy
-                            size={17}
-                            aria-hidden="true"
-                          />
-
+                          <ClipboardCopy size={17} aria-hidden="true" />
                           Копировать
                         </button>
                       </div>
 
-                      {copyStatus === 'copied' ? (
+                      {copyStatus === "copied" ? (
                         <p className="platform-copy-success">
                           Ссылка скопирована.
                         </p>
                       ) : null}
 
-                      {copyStatus === 'error' ? (
+                      {copyStatus === "error" ? (
                         <p className="platform-invitation-error">
-                          Не удалось скопировать автоматически.
-                          Выделите ссылку и скопируйте её
-                          вручную.
+                          Не удалось скопировать автоматически. Выделите ссылку
+                          и скопируйте её вручную.
                         </p>
                       ) : null}
 
                       <p className="platform-security-note">
-                        Токен хранится в базе только в виде
-                        хеша. Полная ссылка показывается один
-                        раз после создания.
+                        Токен хранится в базе только в виде хеша. Полная ссылка
+                        показывается один раз после создания.
                       </p>
                     </>
                   ) : (
                     <div className="platform-result-placeholder">
-                      <Link2
-                        size={28}
-                        aria-hidden="true"
-                      />
+                      <Link2 size={28} aria-hidden="true" />
 
-                      <strong>
-                        Здесь появится ссылка
-                      </strong>
+                      <strong>Здесь появится ссылка</strong>
 
                       <p>
-                        После создания сразу скопируйте и
-                        отправьте её владельцу салона.
+                        После создания сразу скопируйте и отправьте её владельцу
+                        салона.
                       </p>
                     </div>
                   )}
@@ -1294,21 +1121,44 @@ function PlatformOwnerPage() {
               </div>
             </section>
 
-            <section
-              id="platform-salons"
-              className="platform-salons-panel"
-            >
+            <MarketingActionsPanel
+              plans={plans}
+              isLoading={loadState === "loading"}
+              errorMessage={plansError}
+              onReload={() => void loadPlatformData()}
+              onEditPlan={(plan) => {
+                setSelectedPlan(plan);
+                window.location.hash = "platform-marketing";
+              }}
+            />
+
+            {selectedPlan ? (
+              <div className="platform-marketing-selection" role="status">
+                <div>
+                  <strong>Выбран тариф {selectedPlan.name}</strong>
+
+                  <span>
+                    {selectedPlan.billingPeriod === "monthly"
+                      ? "Ежемесячный вариант"
+                      : "Годовой вариант"}{" "}
+                    · {selectedPlan.price} {selectedPlan.currency}
+                  </span>
+                </div>
+
+                <button type="button" onClick={() => setSelectedPlan(null)}>
+                  Закрыть
+                </button>
+              </div>
+            ) : null}
+
+            <section id="platform-salons" className="platform-salons-panel">
               <div className="platform-panel-heading">
                 <div>
-                  <p className="panel-kicker">
-                    САЛОНЫ ПЛАТФОРМЫ
-                  </p>
+                  <p className="panel-kicker">САЛОНЫ ПЛАТФОРМЫ</p>
 
                   <h2>Все зарегистрированные салоны</h2>
 
-                  <p>
-                    Найдено: {filteredSalons.length}
-                  </p>
+                  <p>Найдено: {filteredSalons.length}</p>
                 </div>
 
                 <label className="platform-search">
@@ -1317,30 +1167,24 @@ function PlatformOwnerPage() {
                   <input
                     type="search"
                     value={searchQuery}
-                    onChange={(event) =>
-                      setSearchQuery(event.target.value)
-                    }
+                    onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Название, email или владелец"
                     aria-label="Поиск салонов"
                   />
                 </label>
               </div>
 
-              {loadState === 'loading' ? (
+              {loadState === "loading" ? (
                 <div className="platform-table-status">
                   Загружаются данные салонов…
                 </div>
               ) : null}
 
-              {loadState === 'ready' &&
-              filteredSalons.length === 0 ? (
-                <div className="platform-table-status">
-                  Салоны не найдены.
-                </div>
+              {loadState === "ready" && filteredSalons.length === 0 ? (
+                <div className="platform-table-status">Салоны не найдены.</div>
               ) : null}
 
-              {loadState === 'ready' &&
-              filteredSalons.length > 0 ? (
+              {loadState === "ready" && filteredSalons.length > 0 ? (
                 <div className="platform-table-wrapper">
                   <table className="platform-table">
                     <thead>
@@ -1360,18 +1204,13 @@ function PlatformOwnerPage() {
                           <td>
                             <div className="platform-salon-cell">
                               <div className="platform-salon-avatar">
-                                <Store
-                                  size={18}
-                                  aria-hidden="true"
-                                />
+                                <Store size={18} aria-hidden="true" />
                               </div>
 
                               <div>
                                 <strong>{salon.name}</strong>
                                 <span>
-                                  {salon.email ||
-                                    salon.phone ||
-                                    salon.slug}
+                                  {salon.email || salon.phone || salon.slug}
                                 </span>
                               </div>
                             </div>
@@ -1379,24 +1218,18 @@ function PlatformOwnerPage() {
 
                           <td>
                             <div className="platform-owner-cell">
-                              <strong>
-                                {getOwnerName(salon)}
-                              </strong>
+                              <strong>{getOwnerName(salon)}</strong>
 
                               <span>
                                 {salon.owner?.email ||
                                   salon.owner?.phone ||
-                                  'Контакты не указаны'}
+                                  "Контакты не указаны"}
                               </span>
                             </div>
                           </td>
 
                           <td>
-                            <span
-                              className={getStatusClassName(
-                                salon.status,
-                              )}
-                            >
+                            <span className={getStatusClassName(salon.status)}>
                               {getStatusLabel(salon.status)}
                             </span>
                           </td>
@@ -1406,14 +1239,12 @@ function PlatformOwnerPage() {
                           <td>
                             <span className="platform-muted-value">
                               {salon.subscription
-                                ? 'Подключена'
-                                : 'Не подключена'}
+                                ? "Подключена"
+                                : "Не подключена"}
                             </span>
                           </td>
 
-                          <td>
-                            {formatDate(salon.createdAt)}
-                          </td>
+                          <td>{formatDate(salon.createdAt)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1422,18 +1253,12 @@ function PlatformOwnerPage() {
               ) : null}
             </section>
 
-            {!overview?.billing.available &&
-            overview?.billing.reason ? (
+            {!overview?.billing.available && overview?.billing.reason ? (
               <section className="platform-billing-notice">
-                <CircleDollarSign
-                  size={20}
-                  aria-hidden="true"
-                />
+                <CircleDollarSign size={20} aria-hidden="true" />
 
                 <div>
-                  <strong>
-                    Подписки и платежи ещё не подключены
-                  </strong>
+                  <strong>Подписки и платежи ещё не подключены</strong>
 
                   <p>{overview.billing.reason}</p>
                 </div>

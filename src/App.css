@@ -1,7 +1,12 @@
 :root {
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   color: #f7f3f7;
   background: #17151c;
   font-synthesis: none;
@@ -17,8 +22,16 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at top right, rgba(173, 90, 148, 0.16), transparent 32%),
-    radial-gradient(circle at bottom left, rgba(106, 69, 130, 0.18), transparent 30%),
+    radial-gradient(
+      circle at top right,
+      rgba(173, 90, 148, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(106, 69, 130, 0.18),
+      transparent 30%
+    ),
     #17151c;
 }
 
@@ -108,9 +121,11 @@ input {
 .metric-card,
 .dashboard-panel {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(145deg,
-      rgba(47, 39, 52, 0.96),
-      rgba(29, 25, 34, 0.96));
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.96),
+    rgba(29, 25, 34, 0.96)
+  );
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
 }
 
@@ -837,7 +852,7 @@ input {
   --app-shadow: rgba(0, 0, 0, 0.18);
 }
 
-:root[data-theme='light'] {
+:root[data-theme="light"] {
   --app-bg: #f7f4f6;
   --app-bg-soft: #ffffff;
   --app-panel: #ffffff;
@@ -849,66 +864,74 @@ input {
   --app-shadow: rgba(54, 40, 57, 0.08);
 }
 
-:root[data-theme='light'] body {
+:root[data-theme="light"] body {
   background:
-    radial-gradient(circle at top right, rgba(214, 130, 184, 0.11), transparent 32%),
-    radial-gradient(circle at bottom left, rgba(106, 69, 130, 0.08), transparent 30%),
+    radial-gradient(
+      circle at top right,
+      rgba(214, 130, 184, 0.11),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(106, 69, 130, 0.08),
+      transparent 30%
+    ),
     var(--app-bg);
   color: var(--app-text);
 }
 
-:root[data-theme='light'] .sidebar {
+:root[data-theme="light"] .sidebar {
   border-color: var(--app-border);
   background: var(--app-sidebar);
 }
 
-:root[data-theme='light'] .sidebar-brand strong,
-:root[data-theme='light'] .dashboard-header h1,
-:root[data-theme='light'] .panel-heading h2,
-:root[data-theme='light'] .metric-card strong,
-:root[data-theme='light'] .ranking-main strong,
-:root[data-theme='light'] .ranking-value strong,
-:root[data-theme='light'] .branding-card-heading h2,
-:root[data-theme='light'] .branding-fields input,
-:root[data-theme='light'] .branding-fields textarea,
-:root[data-theme='light'] .color-control span,
-:root[data-theme='light'] .theme-option.active {
+:root[data-theme="light"] .sidebar-brand strong,
+:root[data-theme="light"] .dashboard-header h1,
+:root[data-theme="light"] .panel-heading h2,
+:root[data-theme="light"] .metric-card strong,
+:root[data-theme="light"] .ranking-main strong,
+:root[data-theme="light"] .ranking-value strong,
+:root[data-theme="light"] .branding-card-heading h2,
+:root[data-theme="light"] .branding-fields input,
+:root[data-theme="light"] .branding-fields textarea,
+:root[data-theme="light"] .color-control span,
+:root[data-theme="light"] .theme-option.active {
   color: var(--app-text);
 }
 
-:root[data-theme='light'] .dashboard-subtitle,
-:root[data-theme='light'] .metric-card p,
-:root[data-theme='light'] .ranking-main span,
-:root[data-theme='light'] .ranking-value span,
-:root[data-theme='light'] .empty-state,
-:root[data-theme='light'] .sidebar-nav a,
-:root[data-theme='light'] .branding-fields label,
-:root[data-theme='light'] .color-grid label,
-:root[data-theme='light'] .branding-switch,
-:root[data-theme='light'] .theme-option {
+:root[data-theme="light"] .dashboard-subtitle,
+:root[data-theme="light"] .metric-card p,
+:root[data-theme="light"] .ranking-main span,
+:root[data-theme="light"] .ranking-value span,
+:root[data-theme="light"] .empty-state,
+:root[data-theme="light"] .sidebar-nav a,
+:root[data-theme="light"] .branding-fields label,
+:root[data-theme="light"] .color-grid label,
+:root[data-theme="light"] .branding-switch,
+:root[data-theme="light"] .theme-option {
   color: var(--app-text-muted);
 }
 
-:root[data-theme='light'] .metric-card,
-:root[data-theme='light'] .dashboard-panel,
-:root[data-theme='light'] .branding-card,
-:root[data-theme='light'] .branding-preview,
-:root[data-theme='light'] .dashboard-status {
+:root[data-theme="light"] .metric-card,
+:root[data-theme="light"] .dashboard-panel,
+:root[data-theme="light"] .branding-card,
+:root[data-theme="light"] .branding-preview,
+:root[data-theme="light"] .dashboard-status {
   border-color: var(--app-border);
   background: var(--app-panel);
   box-shadow: 0 18px 45px var(--app-shadow);
 }
 
-:root[data-theme='light'] .branding-fields input,
-:root[data-theme='light'] .branding-fields textarea,
-:root[data-theme='light'] .color-control,
-:root[data-theme='light'] .theme-option {
+:root[data-theme="light"] .branding-fields input,
+:root[data-theme="light"] .branding-fields textarea,
+:root[data-theme="light"] .color-control,
+:root[data-theme="light"] .theme-option {
   border-color: var(--app-border);
   background: var(--app-input);
 }
 
-:root[data-theme='light'] .sidebar-nav a.active,
-:root[data-theme='light'] .sidebar-nav a:hover {
+:root[data-theme="light"] .sidebar-nav a.active,
+:root[data-theme="light"] .sidebar-nav a:hover {
   background: rgba(214, 130, 184, 0.14);
   color: var(--app-text);
 }
@@ -1024,17 +1047,17 @@ input {
   }
 }
 
-:root[data-theme='light'] .branding-image-control {
+:root[data-theme="light"] .branding-image-control {
   border-color: rgba(38, 29, 42, 0.12);
   background: rgba(38, 29, 42, 0.035);
 }
 
-:root[data-theme='light'] .branding-image-preview {
+:root[data-theme="light"] .branding-image-preview {
   border-color: rgba(38, 29, 42, 0.16);
   background: rgba(214, 130, 184, 0.09);
 }
 
-:root[data-theme='light'] .branding-image-delete {
+:root[data-theme="light"] .branding-image-delete {
   border-color: rgba(173, 45, 45, 0.25);
   background: rgba(173, 45, 45, 0.07);
   color: #9b3030;
@@ -1070,7 +1093,7 @@ input {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
 }
 
-:root[data-theme='light'] .sidebar-brand-logo {
+:root[data-theme="light"] .sidebar-brand-logo {
   box-shadow: 0 10px 24px rgba(40, 30, 44, 0.14);
 }
 
@@ -1276,12 +1299,11 @@ input {
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(47, 39, 52, 0.96),
-      rgba(29, 25, 34, 0.96)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.96),
+    rgba(29, 25, 34, 0.96)
+  );
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
 }
 
@@ -1350,12 +1372,11 @@ input {
 .platform-billing-notice {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(47, 39, 52, 0.96),
-      rgba(29, 25, 34, 0.96)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.96),
+    rgba(29, 25, 34, 0.96)
+  );
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
 }
 
@@ -1913,7 +1934,6 @@ input {
   }
 }
 
-
 /* Platform salon applications */
 
 .platform-navigation-count {
@@ -1935,12 +1955,11 @@ input {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(47, 39, 52, 0.96),
-      rgba(29, 25, 34, 0.96)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.96),
+    rgba(29, 25, 34, 0.96)
+  );
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
   scroll-margin-top: 24px;
 }
@@ -2322,10 +2341,7 @@ input {
 
 .registration-plans {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(270px, 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   gap: 20px;
 }
 
@@ -2333,12 +2349,11 @@ input {
 .registration-form-card,
 .registration-state-card {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(47, 39, 52, 0.98),
-      rgba(29, 25, 34, 0.98)
-    );
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.98),
+    rgba(29, 25, 34, 0.98)
+  );
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.19);
 }
 
@@ -2736,5 +2751,369 @@ input {
   .registration-intro h1,
   .registration-state-card h1 {
     font-size: 34px;
+  }
+}
+
+/* Platform marketing constructor */
+
+.platform-marketing-panel {
+  margin-bottom: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  background: linear-gradient(
+    145deg,
+    rgba(47, 39, 52, 0.96),
+    rgba(29, 25, 34, 0.96)
+  );
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+  scroll-margin-top: 24px;
+}
+
+.platform-marketing-create-button,
+.platform-marketing-reload-button,
+.platform-plan-actions button,
+.platform-marketing-selection button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.platform-marketing-create-button {
+  border: 0;
+  background: #d682b8;
+  color: #17151c;
+}
+
+.platform-marketing-create-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.platform-marketing-builder-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 22px;
+}
+
+.platform-marketing-builder-card {
+  position: relative;
+  display: grid;
+  min-height: 210px;
+  align-content: start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.platform-marketing-builder-card-active {
+  border-color: rgba(214, 130, 184, 0.35);
+  background: rgba(214, 130, 184, 0.08);
+}
+
+.platform-marketing-builder-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(214, 130, 184, 0.14);
+  color: #efb6d8;
+}
+
+.platform-marketing-builder-card > div:nth-child(2) {
+  display: grid;
+  gap: 6px;
+}
+
+.platform-marketing-builder-card span {
+  color: #8f8792;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.platform-marketing-builder-card strong {
+  color: #fff7fc;
+  font-size: 15px;
+}
+
+.platform-marketing-builder-card p {
+  color: #a9a0ab;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.platform-marketing-card-status {
+  align-self: end;
+  margin-top: auto;
+  color: #d8a7c9 !important;
+}
+
+.platform-marketing-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin: 0 22px 22px;
+  padding: 16px;
+  border: 1px dashed rgba(214, 130, 184, 0.28);
+  border-radius: 16px;
+  background: rgba(214, 130, 184, 0.045);
+}
+
+.platform-marketing-flow > div {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 13px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #efd3e5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.platform-marketing-flow > span {
+  color: #8f8792;
+  font-weight: 800;
+}
+
+.platform-marketing-plans-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.platform-marketing-plans-heading h3 {
+  margin: 0;
+  color: #fff7fc;
+  font-size: 20px;
+}
+
+.platform-marketing-plans-heading p {
+  margin-top: 6px;
+  color: #8f8792;
+  font-size: 13px;
+}
+
+.platform-marketing-reload-button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+  color: #e3d7e1;
+}
+
+.platform-plan-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 22px 22px;
+}
+
+.platform-plan-card {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.platform-plan-card-featured {
+  border-color: rgba(214, 130, 184, 0.42);
+  box-shadow: 0 0 0 1px rgba(214, 130, 184, 0.08);
+}
+
+.platform-plan-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.platform-plan-card-header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.platform-plan-card-header > div > span {
+  color: #8f8792;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.platform-plan-card-header h3 {
+  margin: 0;
+  color: #fff7fc;
+  font-size: 23px;
+}
+
+.platform-plan-featured-label {
+  margin-top: 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(214, 130, 184, 0.12);
+  color: #efb6d8;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.platform-plan-prices {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.platform-plan-prices > div {
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.platform-plan-prices span,
+.platform-plan-prices small {
+  color: #8f8792;
+  font-size: 11px;
+}
+
+.platform-plan-prices strong {
+  color: #fff7fc;
+  font-size: 19px;
+}
+
+.platform-plan-prices small {
+  color: #d8a7c9;
+  font-weight: 700;
+}
+
+.platform-plan-details {
+  display: grid;
+  gap: 0;
+  margin: 16px 0;
+}
+
+.platform-plan-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.platform-plan-details dt {
+  color: #8f8792;
+  font-size: 12px;
+}
+
+.platform-plan-details dd {
+  margin: 0;
+  color: #d7ced8;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.platform-plan-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.platform-plan-actions button {
+  width: 100%;
+  border: 1px solid rgba(214, 130, 184, 0.24);
+  background: rgba(214, 130, 184, 0.09);
+  color: #efb6d8;
+}
+
+.platform-marketing-error {
+  margin: 0 22px 22px;
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 96, 128, 0.22);
+  border-radius: 13px;
+  background: rgba(255, 96, 128, 0.1);
+  color: #ffb6c6;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.platform-marketing-selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding: 15px 18px;
+  border: 1px solid rgba(214, 130, 184, 0.28);
+  border-radius: 15px;
+  background: rgba(214, 130, 184, 0.08);
+}
+
+.platform-marketing-selection div {
+  display: grid;
+  gap: 4px;
+}
+
+.platform-marketing-selection strong {
+  color: #fff7fc;
+  font-size: 14px;
+}
+
+.platform-marketing-selection span {
+  color: #b9b0bb;
+  font-size: 12px;
+}
+
+.platform-marketing-selection button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+  color: #d7ced8;
+}
+
+@media (max-width: 1250px) {
+  .platform-marketing-builder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-plan-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .platform-marketing-builder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-marketing-plans-heading,
+  .platform-marketing-selection {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .platform-marketing-reload-button,
+  .platform-marketing-selection button {
+    width: 100%;
   }
 }
