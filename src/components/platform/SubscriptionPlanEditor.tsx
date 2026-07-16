@@ -1,5 +1,13 @@
-import { useState } from "react";
-import { AlertTriangle, CheckCircle2, Save, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock3,
+  History,
+  RefreshCw,
+  Save,
+  X,
+} from "lucide-react";
 
 import axios from "axios";
 
@@ -35,6 +43,67 @@ type UpdatePlanResponse = {
 type ApiErrorResponse = {
   message?: string | string[];
 };
+
+type PlanHistoryEntry = {
+  id: string;
+  planId: string;
+  version: number;
+  price: string;
+  currency: string;
+  billingPeriod: "monthly" | "yearly";
+  annualBonusDays: number;
+  referralBonusDays: number;
+  trialDays: number;
+  effectiveFrom: string;
+  createdByUserId: string | null;
+  changeReason: string;
+  createdAt: string;
+};
+
+type PlanHistoryResponse = {
+  plan: {
+    id: string;
+    code: string;
+    planGroupCode: string;
+    name: string;
+    billingPeriod: "monthly" | "yearly";
+    currentVersion: number;
+  };
+  history: PlanHistoryEntry[];
+};
+
+type HistoryLoadState = "idle" | "loading" | "ready" | "error";
+
+function formatHistoryDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Дата не указана";
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatHistoryPrice(value: string, currency: string): string {
+  const numberValue = Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return `${value} ${currency}`;
+  }
+
+  return (
+    new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(numberValue) + ` ${currency}`
+  );
+}
 
 function nullableLimitToInput(value: number | null): string {
   return value === null ? "" : String(value);
@@ -151,6 +220,53 @@ function SubscriptionPlanEditor({
 
   const [successMessage, setSuccessMessage] = useState("");
 
+  const [history, setHistory] = useState<PlanHistoryEntry[]>([]);
+
+  const [historyLoadState, setHistoryLoadState] =
+    useState<HistoryLoadState>("idle");
+
+  const [historyError, setHistoryError] = useState("");
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoadState("loading");
+    setHistoryError("");
+
+    try {
+      const response = await api.get<PlanHistoryResponse>(
+        `/platform-admin/plans/${plan.id}/history`,
+      );
+
+      setHistory(response.data.history);
+      setHistoryLoadState("ready");
+    } catch (error) {
+      const fallbackMessage = "Не удалось загрузить историю изменений тарифа.";
+
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const responseMessage = error.response?.data?.message;
+
+        if (Array.isArray(responseMessage)) {
+          setHistoryError(responseMessage.join(" "));
+        } else {
+          setHistoryError(responseMessage || fallbackMessage);
+        }
+      } else {
+        setHistoryError(fallbackMessage);
+      }
+
+      setHistoryLoadState("error");
+    }
+  }, [plan.id]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadHistory();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [loadHistory]);
+
   function updateField(field: keyof PlanFormState, value: string | boolean) {
     setForm((current) => ({
       ...current,
@@ -169,6 +285,9 @@ function SubscriptionPlanEditor({
     setForm(createFormState(nextPlan));
     setErrorMessage("");
     setSuccessMessage("");
+    setHistory([]);
+    setHistoryLoadState("idle");
+    setHistoryError("");
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -255,6 +374,10 @@ function SubscriptionPlanEditor({
       );
 
       onUpdated(response.data.plan);
+
+      if (response.data.pricingVersionCreated) {
+        await loadHistory();
+      }
     } catch (error) {
       const fallbackMessage =
         "Не удалось сохранить тариф. Проверьте данные и повторите попытку.";
@@ -511,6 +634,110 @@ function SubscriptionPlanEditor({
             {successMessage}
           </div>
         ) : null}
+
+        <section
+          className="platform-plan-history"
+          aria-labelledby="platform-plan-history-title"
+        >
+          <div className="platform-plan-history-header">
+            <div>
+              <div className="platform-plan-history-title">
+                <History size={19} aria-hidden="true" />
+
+                <h3 id="platform-plan-history-title">История изменения цены</h3>
+              </div>
+
+              <p>
+                {plan.billingPeriod === "monthly"
+                  ? "Ежемесячный вариант"
+                  : "Годовой вариант"}{" "}
+                · текущая версия v{plan.priceVersion}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="platform-plan-history-refresh"
+              onClick={() => void loadHistory()}
+              disabled={historyLoadState === "loading"}
+            >
+              <RefreshCw
+                size={16}
+                aria-hidden="true"
+                className={
+                  historyLoadState === "loading"
+                    ? "platform-plan-history-refreshing"
+                    : ""
+                }
+              />
+              Обновить
+            </button>
+          </div>
+
+          {historyLoadState === "loading" ? (
+            <div className="platform-plan-history-status">
+              Загружается история…
+            </div>
+          ) : null}
+
+          {historyLoadState === "error" ? (
+            <div className="platform-plan-history-error" role="alert">
+              <AlertTriangle size={18} aria-hidden="true" />
+
+              {historyError}
+            </div>
+          ) : null}
+
+          {historyLoadState === "ready" && history.length === 0 ? (
+            <div className="platform-plan-history-status">
+              История изменений пока отсутствует.
+            </div>
+          ) : null}
+
+          {historyLoadState === "ready" && history.length > 0 ? (
+            <div className="platform-plan-history-list">
+              {history.map((entry) => (
+                <article key={entry.id} className="platform-plan-history-item">
+                  <div className="platform-plan-history-version">
+                    <strong>v{entry.version}</strong>
+
+                    <span>
+                      {formatHistoryPrice(entry.price, entry.currency)}
+                    </span>
+                  </div>
+
+                  <div className="platform-plan-history-content">
+                    <div className="platform-plan-history-meta">
+                      <span>
+                        <Clock3 size={14} aria-hidden="true" />
+
+                        {formatHistoryDate(entry.createdAt)}
+                      </span>
+
+                      <span>Trial: {entry.trialDays} дней</span>
+
+                      <span>
+                        Реферальный бонус: {entry.referralBonusDays} дней
+                      </span>
+
+                      {entry.billingPeriod === "yearly" ? (
+                        <span>Годовой бонус: {entry.annualBonusDays} дней</span>
+                      ) : null}
+                    </div>
+
+                    <p>{entry.changeReason}</p>
+
+                    <small>
+                      {entry.createdByUserId
+                        ? "Изменено владельцем платформы"
+                        : "Системная запись"}
+                    </small>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+        </section>
 
         <div className="platform-plan-editor-actions">
           <button
