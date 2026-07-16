@@ -3383,3 +3383,67 @@ input {
     width: 100%;
   }
 }
+
+/* Platform plan billing-period switch */
+
+.platform-plan-period-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.platform-plan-period-switch button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: #9d949f;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.platform-plan-period-switch button.active {
+  background: #d682b8;
+  color: #17151c;
+  box-shadow: 0 8px 22px rgba(214, 130, 184, 0.18);
+}
+
+.platform-plan-period-switch button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.platform-plan-period-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 15px;
+  border-left: 3px solid rgba(214, 130, 184, 0.65);
+  border-radius: 0 12px 12px 0;
+  background: rgba(214, 130, 184, 0.07);
+}
+
+.platform-plan-period-summary strong {
+  color: #fff7fc;
+  font-size: 13px;
+}
+
+.platform-plan-period-summary span {
+  color: #a99fab;
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .platform-plan-period-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Save, X } from "lucide-react";
 
+import axios from "axios";
+
 import api from "../../api/api";
 import type { PlatformSubscriptionPlan } from "./MarketingActionsPanel";
 
 type SubscriptionPlanEditorProps = {
-  plan: PlatformSubscriptionPlan;
+  monthlyPlan: PlatformSubscriptionPlan | null;
+  yearlyPlan: PlatformSubscriptionPlan | null;
   onClose: () => void;
   onUpdated: (plan: PlatformSubscriptionPlan) => void;
 };
@@ -27,6 +30,10 @@ type UpdatePlanResponse = {
   message: string;
   pricingVersionCreated: boolean;
   plan: PlatformSubscriptionPlan;
+};
+
+type ApiErrorResponse = {
+  message?: string | string[];
 };
 
 function nullableLimitToInput(value: number | null): string {
@@ -107,12 +114,36 @@ function validatePrice(value: string): string {
   return normalizedValue;
 }
 
+function resolveInitialPlan(
+  monthlyPlan: PlatformSubscriptionPlan | null,
+  yearlyPlan: PlatformSubscriptionPlan | null,
+): PlatformSubscriptionPlan {
+  const initialPlan = monthlyPlan ?? yearlyPlan;
+
+  if (!initialPlan) {
+    throw new Error("Subscription plan group has no billing variants");
+  }
+
+  return initialPlan;
+}
+
 function SubscriptionPlanEditor({
-  plan,
+  monthlyPlan,
+  yearlyPlan,
   onClose,
   onUpdated,
 }: SubscriptionPlanEditorProps) {
-  const [form, setForm] = useState<PlanFormState>(createFormState(plan));
+  const initialPlan = resolveInitialPlan(monthlyPlan, yearlyPlan);
+
+  const [activePeriod, setActivePeriod] = useState<"monthly" | "yearly">(
+    monthlyPlan ? "monthly" : "yearly",
+  );
+
+  const activePlan = activePeriod === "monthly" ? monthlyPlan : yearlyPlan;
+
+  const plan = activePlan ?? initialPlan;
+
+  const [form, setForm] = useState<PlanFormState>(createFormState(initialPlan));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -125,6 +156,19 @@ function SubscriptionPlanEditor({
       ...current,
       [field]: value,
     }));
+  }
+
+  function selectPeriod(period: "monthly" | "yearly") {
+    const nextPlan = period === "monthly" ? monthlyPlan : yearlyPlan;
+
+    if (!nextPlan || isSubmitting) {
+      return;
+    }
+
+    setActivePeriod(period);
+    setForm(createFormState(nextPlan));
+    setErrorMessage("");
+    setSuccessMessage("");
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -190,11 +234,9 @@ function SubscriptionPlanEditor({
           trialDays,
           annualBonusDays,
           referralBonusDays,
-          limits: {
-            maxMasters,
-            maxAdministrators,
-            maxLocations,
-          },
+          maxMasters,
+          maxAdministrators,
+          maxLocations,
           isActive: form.isActive,
           isFeatured: form.isFeatured,
           changeReason,
@@ -217,7 +259,15 @@ function SubscriptionPlanEditor({
       const fallbackMessage =
         "Не удалось сохранить тариф. Проверьте данные и повторите попытку.";
 
-      if (error instanceof Error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const responseMessage = error.response?.data?.message;
+
+        if (Array.isArray(responseMessage)) {
+          setErrorMessage(responseMessage.join(" "));
+        } else {
+          setErrorMessage(responseMessage || fallbackMessage);
+        }
+      } else if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
         setErrorMessage(fallbackMessage);
@@ -236,14 +286,9 @@ function SubscriptionPlanEditor({
         <div>
           <p className="panel-kicker">РЕДАКТОР ТАРИФА</p>
 
-          <h2 id="platform-plan-editor-title">{plan.name}</h2>
+          <h2 id="platform-plan-editor-title">Настройка тарифа {plan.name}</h2>
 
-          <p>
-            {plan.billingPeriod === "monthly"
-              ? "Ежемесячный вариант"
-              : "Годовой вариант"}{" "}
-            · версия цены v{plan.priceVersion}
-          </p>
+          <p>Выберите период оплаты и настройте его условия.</p>
         </div>
 
         <button
@@ -257,6 +302,40 @@ function SubscriptionPlanEditor({
       </div>
 
       <form className="platform-plan-editor-form" onSubmit={handleSubmit}>
+        <div
+          className="platform-plan-period-switch"
+          role="group"
+          aria-label="Период оплаты тарифа"
+        >
+          <button
+            type="button"
+            className={activePeriod === "monthly" ? "active" : ""}
+            onClick={() => selectPeriod("monthly")}
+            disabled={!monthlyPlan || isSubmitting}
+          >
+            Ежемесячный
+          </button>
+
+          <button
+            type="button"
+            className={activePeriod === "yearly" ? "active" : ""}
+            onClick={() => selectPeriod("yearly")}
+            disabled={!yearlyPlan || isSubmitting}
+          >
+            Годовой
+          </button>
+        </div>
+
+        <div className="platform-plan-period-summary">
+          <strong>
+            {activePeriod === "monthly"
+              ? "Ежемесячная оплата"
+              : "Годовая оплата"}
+          </strong>
+
+          <span>Версия цены v{plan.priceVersion}</span>
+        </div>
+
         <div className="platform-plan-editor-grid">
           <label>
             <span>Цена, {plan.currency}</span>

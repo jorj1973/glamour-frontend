@@ -39,7 +39,10 @@ type MarketingActionsPanelProps = {
   isLoading: boolean;
   errorMessage: string;
   onReload: () => void;
-  onEditPlan: (plan: PlatformSubscriptionPlan) => void;
+  onConfigurePlan: (
+    monthly: PlatformSubscriptionPlan | null,
+    yearly: PlatformSubscriptionPlan | null,
+  ) => void;
 };
 
 type PlanGroup = {
@@ -104,7 +107,7 @@ function MarketingActionsPanel({
   isLoading,
   errorMessage,
   onReload,
-  onEditPlan,
+  onConfigurePlan,
 }: MarketingActionsPanelProps) {
   const planGroups = groupPlans(plans);
 
@@ -362,25 +365,13 @@ function MarketingActionsPanel({
                 </dl>
 
                 <div className="platform-plan-actions">
-                  {group.monthly ? (
-                    <button
-                      type="button"
-                      onClick={() => onEditPlan(group.monthly!)}
-                    >
-                      <Pencil size={16} aria-hidden="true" />
-                      Изменить месячный
-                    </button>
-                  ) : null}
-
-                  {group.yearly ? (
-                    <button
-                      type="button"
-                      onClick={() => onEditPlan(group.yearly!)}
-                    >
-                      <Pencil size={16} aria-hidden="true" />
-                      Изменить годовой
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => onConfigurePlan(group.monthly, group.yearly)}
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                    Настроить тариф
+                  </button>
                 </div>
               </article>
             );

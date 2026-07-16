@@ -254,8 +254,10 @@ function PlatformOwnerPage() {
 
   const [plansError, setPlansError] = useState("");
 
-  const [selectedPlan, setSelectedPlan] =
-    useState<PlatformSubscriptionPlan | null>(null);
+  const [selectedPlanGroup, setSelectedPlanGroup] = useState<{
+    monthly: PlatformSubscriptionPlan | null;
+    yearly: PlatformSubscriptionPlan | null;
+  } | null>(null);
 
   const [loadState, setLoadState] = useState<LoadState>("loading");
 
@@ -1127,17 +1129,25 @@ function PlatformOwnerPage() {
               isLoading={loadState === "loading"}
               errorMessage={plansError}
               onReload={() => void loadPlatformData()}
-              onEditPlan={(plan) => {
-                setSelectedPlan(plan);
+              onConfigurePlan={(monthly, yearly) => {
+                setSelectedPlanGroup({
+                  monthly,
+                  yearly,
+                });
+
                 window.location.hash = "platform-marketing";
               }}
             />
 
-            {selectedPlan ? (
+            {selectedPlanGroup ? (
               <SubscriptionPlanEditor
-                key={selectedPlan.id}
-                plan={selectedPlan}
-                onClose={() => setSelectedPlan(null)}
+                key={
+                  selectedPlanGroup.monthly?.planGroupCode ??
+                  selectedPlanGroup.yearly?.planGroupCode
+                }
+                monthlyPlan={selectedPlanGroup.monthly}
+                yearlyPlan={selectedPlanGroup.yearly}
+                onClose={() => setSelectedPlanGroup(null)}
                 onUpdated={(updatedPlan) => {
                   setPlans((currentPlans) =>
                     currentPlans.map((currentPlan) =>
@@ -1147,7 +1157,22 @@ function PlatformOwnerPage() {
                     ),
                   );
 
-                  setSelectedPlan(updatedPlan);
+                  setSelectedPlanGroup((currentGroup) => {
+                    if (!currentGroup) {
+                      return currentGroup;
+                    }
+
+                    return {
+                      monthly:
+                        updatedPlan.billingPeriod === "monthly"
+                          ? updatedPlan
+                          : currentGroup.monthly,
+                      yearly:
+                        updatedPlan.billingPeriod === "yearly"
+                          ? updatedPlan
+                          : currentGroup.yearly,
+                    };
+                  });
                 }}
               />
             ) : null}
