@@ -18,6 +18,8 @@ type LoginSession = {
   platformRole: PlatformRole;
 };
 
+const WORKSPACE_MODE_KEY = 'glamour_workspace_mode';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     Boolean(localStorage.getItem('glamour_access_token')),
@@ -86,6 +88,10 @@ function App() {
   function handleLoginSuccess(session: LoginSession) {
     setPlatformRole(session.platformRole);
     setIsAuthenticated(true);
+
+    if (session.platformRole === 'platform_owner') {
+      localStorage.setItem(WORKSPACE_MODE_KEY, 'platform');
+    }
   }
 
   if (currentPage.startsWith('#register?')) {
@@ -116,7 +122,17 @@ function App() {
     );
   }
 
-  if (platformRole === 'platform_owner') {
+  const workspaceMode =
+    localStorage.getItem(WORKSPACE_MODE_KEY);
+
+  const isSalonWorkspace =
+    platformRole !== 'platform_owner' ||
+    workspaceMode === 'salon';
+
+  if (
+    platformRole === 'platform_owner' &&
+    !isSalonWorkspace
+  ) {
     return <PlatformOwnerPage />;
   }
 
