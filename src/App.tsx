@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
+import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
 import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
@@ -96,6 +97,17 @@ function App() {
 
   if (currentPage.startsWith('#register?')) {
     return <SalonRegistrationPage />;
+  }
+
+  if (
+    currentPage === '#master-register' ||
+    currentPage.startsWith('#master-register?') ||
+    currentPage === '#register-master' ||
+    currentPage.startsWith('#register-master?') ||
+    currentPage === '#master-registration' ||
+    currentPage.startsWith('#master-registration?')
+  ) {
+    return <PublicMasterRegistrationPage />;
   }
 
   if (!isAuthenticated) {
