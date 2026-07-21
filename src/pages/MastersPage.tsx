@@ -50,6 +50,19 @@ type PromotionLinkResponse = {
 function getRegistrationUrl(
   data: PromotionLinkResponse,
 ): string {
+  const identifier =
+    typeof data.slug === 'string' && data.slug.trim()
+      ? data.slug.trim()
+      : typeof data.code === 'string' && data.code.trim()
+        ? data.code.trim()
+        : '';
+
+  if (identifier) {
+    return `${window.location.origin}/#master-register?identifier=${encodeURIComponent(
+      identifier,
+    )}`;
+  }
+
   const possibleUrl =
     data.registrationUrl ??
     data.publicUrl ??
@@ -60,14 +73,6 @@ function getRegistrationUrl(
 
   if (typeof possibleUrl === 'string' && possibleUrl.trim()) {
     return possibleUrl.trim();
-  }
-
-  if (typeof data.slug === 'string' && data.slug.trim()) {
-    return `${window.location.origin}/p/${data.slug.trim()}`;
-  }
-
-  if (typeof data.code === 'string' && data.code.trim()) {
-    return `${window.location.origin}/p/${data.code.trim()}`;
   }
 
   return '';
