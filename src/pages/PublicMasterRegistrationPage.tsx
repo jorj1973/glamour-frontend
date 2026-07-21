@@ -608,26 +608,19 @@ function PublicMasterRegistrationPage() {
                             <p className="registration-brand-product">
                                 GLAMOUR SALON STUDIO
                             </p>
-                            <h2>
-                                {registrationData?.salon.name ||
-                                    'Салон красоты'}
-                            </h2>
+                            <h2>GLAMOUR Salon-Studio</h2>
                         </div>
                     </div>
 
                     <div className="registration-visual-content">
                         <p className="registration-eyebrow">
-                            ПРИГЛАШЕНИЕ ДЛЯ МАСТЕРА
+                            ВАС ПРИГЛАСИЛИ В КОМАНДУ
                         </p>
 
-                        <h1>
-                            Развивайте карьеру вместе с современным салоном
-                        </h1>
+                        <h1>GLAMOUR Salon-Studio</h1>
 
                         <p className="registration-visual-description">
-                            Создайте защищённый аккаунт мастера, управляйте
-                            услугами, расписанием, клиентами и своей
-                            профессиональной загрузкой в одной системе.
+                            Создавайте красоту вместе с нами.
                         </p>
 
                         <div className="registration-benefits">
