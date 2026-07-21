@@ -1,6 +1,7 @@
 import {
     AlertCircle,
     ArrowRight,
+    CalendarDays,
     Check,
     CheckCircle2,
     Eye,
@@ -634,17 +635,81 @@ function PublicMasterRegistrationPage() {
                             className="registration-invitation-symbol"
                             aria-hidden="true"
                         >
-                            <Leaf size={46} strokeWidth={1.55} />
+                            <Leaf size={45} strokeWidth={1.55} />
                             <span>✦</span>
                         </div>
 
                         <p className="registration-visual-description">
                             Создавайте красоту вместе с нами.
                         </p>
+
+                        <div className="registration-feature-list">
+                            <div className="registration-feature-item">
+                                <span className="registration-feature-icon">
+                                    <Scissors size={23} strokeWidth={1.65} />
+                                </span>
+
+                                <div>
+                                    <strong>
+                                        Профессиональные инструменты
+                                    </strong>
+
+                                    <p>
+                                        Всё необходимое для работы и развития
+                                        мастера.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="registration-feature-item">
+                                <span className="registration-feature-icon">
+                                    <UserRound size={23} strokeWidth={1.65} />
+                                </span>
+
+                                <div>
+                                    <strong>Клиенты и записи</strong>
+
+                                    <p>
+                                        Удобная система записей и работа с
+                                        клиентской базой.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="registration-feature-item">
+                                <span className="registration-feature-icon">
+                                    <ShieldCheck size={23} strokeWidth={1.65} />
+                                </span>
+
+                                <div>
+                                    <strong>Безопасность и порядок</strong>
+
+                                    <p>
+                                        Ваши данные и рабочая информация
+                                        защищены и находятся под контролем.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="registration-feature-item">
+                                <span className="registration-feature-icon">
+                                    <CalendarDays size={23} strokeWidth={1.65} />
+                                </span>
+
+                                <div>
+                                    <strong>Гибкий график</strong>
+
+                                    <p>
+                                        Управляйте своим временем и записями
+                                        клиентов максимально удобно.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="registration-visual-footer">
-                        <LockKeyhole size={16} />
+                        <LockKeyhole size={17} />
                         <span>
                             Защищённая регистрация по персональному приглашению
                         </span>
