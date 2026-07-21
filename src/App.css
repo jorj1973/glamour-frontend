@@ -4580,3 +4580,150 @@ input {
 }
 
 /* MASTER REGISTRATION PREMIUM LAYOUT END */
+
+/* MASTER REGISTRATION APPROVED LAYOUT FIX START */
+
+.registration-visual-panel {
+  padding: 38px 42px 30px;
+}
+
+.registration-visual-content {
+  width: 100%;
+  margin-top: 62px;
+  text-align: left;
+}
+
+.registration-visual-content .registration-eyebrow {
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.registration-visual-content > h1 {
+  width: 100%;
+  max-width: none;
+  text-align: left;
+}
+
+.registration-visual-content > h1 > span,
+.registration-visual-content > h1 > small {
+  display: block;
+  text-align: left;
+}
+
+.registration-title-divider {
+  width: min(410px, 100%);
+  margin-top: 28px;
+  margin-left: 0;
+}
+
+.registration-visual-description {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 25px;
+  text-align: left;
+}
+
+.registration-benefits {
+  width: 100%;
+  max-width: 520px;
+  gap: 17px;
+  margin-top: 28px;
+}
+
+.registration-benefit {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+
+.registration-benefit > span {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+}
+
+.registration-benefit > div {
+  min-width: 0;
+  text-align: left;
+}
+
+.registration-benefit strong {
+  display: block;
+  margin: 0;
+  text-align: left;
+}
+
+.registration-benefit p {
+  max-width: none;
+  margin: 4px 0 0;
+  text-align: left;
+}
+
+.registration-visual-footer {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 28px;
+  text-align: left;
+}
+
+@media (min-width: 1060px) {
+  .registration-shell:has(.registration-visual-panel) {
+    grid-template-columns: minmax(560px, 0.95fr) minmax(620px, 1.05fr);
+  }
+
+  .registration-visual-content > h1 {
+    font-size: clamp(54px, 4.8vw, 72px);
+  }
+
+  .registration-visual-content > h1 > small {
+    font-size: 0.7em;
+  }
+}
+
+@media (max-width: 1059px) and (min-width: 861px) {
+  .registration-visual-panel {
+    padding: 34px 30px 28px;
+  }
+
+  .registration-visual-content {
+    margin-top: 50px;
+  }
+
+  .registration-visual-content > h1 {
+    font-size: 50px;
+  }
+
+  .registration-benefit {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .registration-benefit > span {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 860px) {
+  .registration-visual-content,
+  .registration-visual-content .registration-eyebrow,
+  .registration-visual-content > h1,
+  .registration-visual-content > h1 > span,
+  .registration-visual-content > h1 > small,
+  .registration-visual-description,
+  .registration-benefit,
+  .registration-benefit > div,
+  .registration-benefit strong,
+  .registration-benefit p,
+  .registration-visual-footer {
+    text-align: left;
+  }
+
+  .registration-benefits {
+    max-width: none;
+  }
+}
+
+/* MASTER REGISTRATION APPROVED LAYOUT FIX END */
