@@ -3,6 +3,9 @@ import api from './api';
 const VISITOR_TOKEN_STORAGE_KEY =
   'glamour_promotion_visitor_token';
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 export type ResolveMasterRegistrationPayload = {
   visitorToken?: string;
   fingerprint?: string;
@@ -21,6 +24,11 @@ type BackendResolveResponse = {
   targetType: string;
   targetId: string | null;
   customSlug: string | null;
+  salon: {
+    id: string;
+    name: string;
+    logoUrl: string | null;
+  };
 };
 
 export type ResolveRegistrationResponse = {
@@ -74,6 +82,29 @@ export type CompleteMasterRegistrationResponse = {
   };
 };
 
+function resolvePublicAssetUrl(
+  assetUrl: string | null,
+): string | null {
+  if (!assetUrl) {
+    return null;
+  }
+
+  const normalizedAssetUrl = assetUrl.trim();
+
+  if (!normalizedAssetUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(
+      normalizedAssetUrl,
+      `${API_BASE_URL.replace(/\/+$/, '')}/`,
+    ).toString();
+  } catch {
+    return null;
+  }
+}
+
 export async function resolveMasterRegistration(
   identifier: string,
   payload: ResolveMasterRegistrationPayload,
@@ -110,9 +141,11 @@ export async function resolveMasterRegistration(
     targetId: response.data.targetId,
     customSlug: response.data.customSlug,
     salon: {
-      id: response.data.salonId,
-      name: response.data.title,
-      logoUrl: null,
+      id: response.data.salon.id,
+      name: response.data.salon.name,
+      logoUrl: resolvePublicAssetUrl(
+        response.data.salon.logoUrl,
+      ),
     },
   };
 }
