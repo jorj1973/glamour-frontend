@@ -4311,3 +4311,272 @@ input {
     width: 100%;
   }
 }
+
+/* MASTER REGISTRATION PREMIUM LAYOUT START */
+
+.registration-shell:has(.registration-visual-panel) {
+  grid-template-columns: minmax(0, 0.92fr) minmax(520px, 1.08fr);
+}
+
+.registration-visual-panel {
+  justify-content: flex-start;
+  gap: 0;
+  min-height: 760px;
+  padding: 38px 42px 30px;
+}
+
+.registration-visual-panel .registration-brand {
+  flex: 0 0 auto;
+  gap: 15px;
+}
+
+.registration-brand-logo,
+.registration-brand-placeholder {
+  width: 68px;
+  height: 68px;
+  flex-basis: 68px;
+  border-radius: 19px;
+}
+
+.registration-visual-panel .registration-brand > div:last-child {
+  display: block;
+  min-width: 0;
+}
+
+.registration-visual-panel .registration-brand-title {
+  margin: 0;
+  color: #fff8fc;
+  font-size: clamp(18px, 1.75vw, 25px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.16;
+  white-space: nowrap;
+}
+
+.registration-visual-panel .registration-brand-title span {
+  color: #ef9aca;
+  font-size: inherit;
+  font-weight: 800;
+  letter-spacing: 0.015em;
+}
+
+.registration-visual-content {
+  display: grid;
+  align-content: start;
+  margin-top: clamp(68px, 8vh, 98px);
+}
+
+.registration-visual-content .registration-eyebrow {
+  margin: 0 0 22px;
+  color: #ec9ac8;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.19em;
+  line-height: 1.4;
+}
+
+.registration-visual-content > h1 {
+  display: grid;
+  max-width: 520px;
+  gap: 0;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(48px, 5vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.registration-visual-content > h1 > span {
+  color: #fff;
+}
+
+.registration-visual-content > h1 > small {
+  margin-top: 9px;
+  color: #fff8fc;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.registration-title-divider {
+  display: grid;
+  width: min(405px, 100%);
+  grid-template-columns: 1fr 18px 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.registration-title-divider > span {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(229, 107, 178, 0.12),
+    rgba(238, 117, 188, 0.95)
+  );
+}
+
+.registration-title-divider > span:last-child {
+  background: linear-gradient(
+    90deg,
+    rgba(238, 117, 188, 0.95),
+    rgba(229, 107, 178, 0.12)
+  );
+}
+
+.registration-title-divider > i {
+  position: relative;
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin: auto;
+  border: 1px solid #ef7dbe;
+  transform: rotate(45deg);
+}
+
+.registration-title-divider > i::after {
+  position: absolute;
+  inset: 3px;
+  background: #ef7dbe;
+  content: "";
+}
+
+.registration-visual-description {
+  max-width: 520px;
+  margin: 25px 0 0;
+  color: #f2e9f0;
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 450;
+  line-height: 1.5;
+}
+
+.registration-benefits {
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.registration-benefit {
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 15px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.registration-benefit > span {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(239, 154, 202, 0.12);
+  border-radius: 15px;
+  background: rgba(239, 154, 202, 0.09);
+  color: #ef9aca;
+}
+
+.registration-benefit strong {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.registration-benefit p {
+  max-width: 390px;
+  margin-top: 3px;
+  color: #c3b7c2;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.registration-visual-footer {
+  margin-top: auto;
+  padding-top: 28px;
+  color: #d1c4ce;
+}
+
+@media (max-width: 1050px) {
+  .registration-shell:has(.registration-visual-panel) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(480px, 1.1fr);
+  }
+
+  .registration-visual-panel {
+    padding: 34px 30px 28px;
+  }
+
+  .registration-visual-content {
+    margin-top: 58px;
+  }
+
+  .registration-visual-panel .registration-brand-title {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 860px) {
+  .registration-shell:has(.registration-visual-panel) {
+    display: block;
+  }
+
+  .registration-visual-panel {
+    min-height: auto;
+    padding: 30px 26px;
+  }
+
+  .registration-visual-content {
+    margin-top: 48px;
+  }
+
+  .registration-visual-content > h1 {
+    font-size: clamp(43px, 10vw, 62px);
+  }
+
+  .registration-benefits {
+    margin-bottom: 28px;
+  }
+
+  .registration-visual-footer {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 540px) {
+  .registration-visual-panel {
+    padding: 24px 20px;
+  }
+
+  .registration-brand-logo,
+  .registration-brand-placeholder {
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+  }
+
+  .registration-visual-panel .registration-brand-title {
+    font-size: 18px;
+  }
+
+  .registration-visual-content {
+    margin-top: 42px;
+  }
+
+  .registration-visual-content .registration-eyebrow {
+    margin-bottom: 17px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+  }
+
+  .registration-visual-content > h1 {
+    font-size: 42px;
+  }
+
+  .registration-title-divider {
+    margin-top: 25px;
+  }
+
+  .registration-visual-description {
+    margin-top: 22px;
+    font-size: 17px;
+  }
+}
+
+/* MASTER REGISTRATION PREMIUM LAYOUT END */

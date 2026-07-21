@@ -605,10 +605,9 @@ function PublicMasterRegistrationPage() {
                         {renderBrandMark()}
 
                         <div>
-                            <p className="registration-brand-product">
-                                GLAMOUR SALON STUDIO
-                            </p>
-                            <h2>GLAMOUR Salon-Studio</h2>
+                            <h2 className="registration-brand-title">
+                                <span>GLAMOUR</span> Salon-Studio
+                            </h2>
                         </div>
                     </div>
 
@@ -617,7 +616,19 @@ function PublicMasterRegistrationPage() {
                             ВАС ПРИГЛАСИЛИ В КОМАНДУ
                         </p>
 
-                        <h1>GLAMOUR Salon-Studio</h1>
+                        <h1>
+                            <span>GLAMOUR</span>
+                            <small>Salon-Studio</small>
+                        </h1>
+
+                        <div
+                            className="registration-title-divider"
+                            aria-hidden="true"
+                        >
+                            <span />
+                            <i />
+                            <span />
+                        </div>
 
                         <p className="registration-visual-description">
                             Создавайте красоту вместе с нами.
