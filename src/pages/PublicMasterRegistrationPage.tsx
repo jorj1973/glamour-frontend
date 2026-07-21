@@ -6,6 +6,7 @@ import {
     Eye,
     EyeOff,
     Languages,
+    Leaf,
     LoaderCircle,
     LockKeyhole,
     Mail,
@@ -604,11 +605,10 @@ function PublicMasterRegistrationPage() {
                     <div className="registration-brand">
                         {renderBrandMark()}
 
-                        <div>
-                            <h2 className="registration-brand-title">
-                                <span>GLAMOUR</span> Salon-Studio
-                            </h2>
-                        </div>
+                        <h2 className="registration-brand-title">
+                            <span>GLAMOUR</span>
+                            <span>Salon-Studio</span>
+                        </h2>
                     </div>
 
                     <div className="registration-visual-content">
@@ -618,7 +618,7 @@ function PublicMasterRegistrationPage() {
 
                         <h1>
                             <span>GLAMOUR</span>
-                            <small>Salon-Studio</small>
+                            <span>Salon-Studio</span>
                         </h1>
 
                         <div
@@ -630,50 +630,17 @@ function PublicMasterRegistrationPage() {
                             <span />
                         </div>
 
+                        <div
+                            className="registration-invitation-symbol"
+                            aria-hidden="true"
+                        >
+                            <Leaf size={46} strokeWidth={1.55} />
+                            <span>✦</span>
+                        </div>
+
                         <p className="registration-visual-description">
                             Создавайте красоту вместе с нами.
                         </p>
-
-                        <div className="registration-benefits">
-                            <div className="registration-benefit">
-                                <span>
-                                    <Scissors size={19} />
-                                </span>
-                                <div>
-                                    <strong>Персональный профиль</strong>
-                                    <p>
-                                        Ваши услуги, цены, специализация и
-                                        рабочая информация.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="registration-benefit">
-                                <span>
-                                    <UserRound size={19} />
-                                </span>
-                                <div>
-                                    <strong>Удобная работа с клиентами</strong>
-                                    <p>
-                                        Записи, история посещений и важная
-                                        информация всегда под рукой.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="registration-benefit">
-                                <span>
-                                    <ShieldCheck size={19} />
-                                </span>
-                                <div>
-                                    <strong>Защищённый доступ</strong>
-                                    <p>
-                                        Данные аккаунта и права доступа
-                                        контролируются системой безопасности.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="registration-visual-footer">

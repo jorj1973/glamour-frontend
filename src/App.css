@@ -4727,3 +4727,396 @@ input {
 }
 
 /* MASTER REGISTRATION APPROVED LAYOUT FIX END */
+
+/* MASTER REGISTRATION FINAL APPROVED DESIGN START */
+
+.registration-page {
+  padding: 22px;
+}
+
+.registration-shell:has(.registration-visual-panel) {
+  display: grid;
+  width: min(1420px, 100%);
+  grid-template-columns: minmax(500px, 0.94fr) minmax(650px, 1.06fr);
+  min-height: calc(100vh - 44px);
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(240, 215, 232, 0.11);
+  border-radius: 30px;
+  background: #17131c;
+  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.36);
+}
+
+.registration-visual-panel {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 900px;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: 50px 58px 38px;
+  background:
+    radial-gradient(
+      circle at 12% 3%,
+      rgba(137, 83, 123, 0.28),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 28% 96%,
+      rgba(130, 32, 91, 0.19),
+      transparent 37%
+    ),
+    linear-gradient(145deg, #241b27 0%, #17131d 49%, #0f1018 100%);
+}
+
+.registration-visual-panel::before {
+  position: absolute;
+  top: -126px;
+  right: -118px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgba(234, 88, 165, 0.44);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.registration-visual-panel::after {
+  position: absolute;
+  right: -18px;
+  bottom: -8px;
+  left: -35px;
+  height: 285px;
+  background-image: url("data:image/svg+xml,%3Csvg width='900' height='300' viewBox='0 0 900 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-40 175 C120 75 260 285 455 180 C625 88 720 225 950 85' stroke='%23ee3f9b' stroke-opacity='.85' stroke-width='3'/%3E%3Cpath d='M-35 190 C130 90 270 300 465 195 C635 103 730 240 955 100' stroke='%23d92f8c' stroke-opacity='.56' stroke-width='2'/%3E%3Cpath d='M-30 205 C140 105 280 315 475 210 C645 118 740 255 960 115' stroke='%23ff64b4' stroke-opacity='.38' stroke-width='1.5'/%3E%3Cpath d='M-25 220 C150 120 290 330 485 225 C655 133 750 270 965 130' stroke='%23b62a78' stroke-opacity='.32' stroke-width='1'/%3E%3C/g%3E%3Cg fill='%23ef4a9f' fill-opacity='.42'%3E%3Ccircle cx='76' cy='220' r='1.3'/%3E%3Ccircle cx='109' cy='237' r='1'/%3E%3Ccircle cx='139' cy='210' r='1.5'/%3E%3Ccircle cx='183' cy='249' r='1.2'/%3E%3Ccircle cx='222' cy='228' r='1'/%3E%3Ccircle cx='266' cy='257' r='1.4'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  background-size: 115% 100%;
+  content: "";
+  opacity: 0.96;
+  pointer-events: none;
+}
+
+.registration-visual-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.registration-visual-panel .registration-brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.registration-brand-logo,
+.registration-brand-placeholder {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.28),
+    0 0 0 5px rgba(255, 255, 255, 0.025);
+}
+
+.registration-brand-logo {
+  display: block;
+  padding: 0;
+  object-fit: contain;
+  filter: none;
+  opacity: 1;
+}
+
+.registration-brand-placeholder {
+  display: grid;
+  place-items: center;
+  color: #f7edf5;
+}
+
+.registration-visual-panel .registration-brand-title {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  color: #f7edf5;
+  font-size: clamp(26px, 2.4vw, 38px);
+  font-weight: 740;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.registration-visual-panel .registration-brand-title span {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+
+.registration-visual-content {
+  display: grid;
+  width: 100%;
+  align-content: start;
+  margin-top: clamp(92px, 10vh, 132px);
+  text-align: left;
+}
+
+.registration-visual-content .registration-eyebrow {
+  margin: 0 0 31px;
+  color: #e68fbd;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.registration-visual-content > h1 {
+  display: grid;
+  width: 100%;
+  max-width: 590px;
+  gap: 4px;
+  margin: 0;
+  color: #f7edf5;
+  font-size: clamp(55px, 5.2vw, 80px);
+  font-weight: 760;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  text-align: left;
+}
+
+.registration-visual-content > h1 span {
+  display: block;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+}
+
+.registration-visual-content > h1 span:last-child {
+  font-size: 0.71em;
+  letter-spacing: -0.045em;
+}
+
+.registration-title-divider {
+  display: grid;
+  width: min(430px, 100%);
+  grid-template-columns: 1fr 18px 1fr;
+  align-items: center;
+  gap: 11px;
+  margin-top: 37px;
+}
+
+.registration-title-divider > span {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(231, 65, 150, 0.06),
+    rgba(236, 68, 155, 0.94)
+  );
+}
+
+.registration-title-divider > span:last-child {
+  background: linear-gradient(
+    90deg,
+    rgba(236, 68, 155, 0.94),
+    rgba(231, 65, 150, 0.06)
+  );
+}
+
+.registration-title-divider > i {
+  position: relative;
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin: auto;
+  border: 1px solid #ed5ca6;
+  transform: rotate(45deg);
+}
+
+.registration-title-divider > i::after {
+  position: absolute;
+  inset: 3px;
+  background: #ed5ca6;
+  content: "";
+}
+
+.registration-invitation-symbol {
+  position: relative;
+  display: grid;
+  width: 78px;
+  height: 68px;
+  place-items: center;
+  margin: 35px 0 0 154px;
+  color: #e75ca5;
+}
+
+.registration-invitation-symbol svg {
+  transform: rotate(-17deg);
+}
+
+.registration-invitation-symbol span {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: #f08aba;
+  font-size: 17px;
+}
+
+.registration-visual-description {
+  width: 100%;
+  max-width: 520px;
+  margin: 10px 0 0;
+  color: #f7edf5;
+  font-size: clamp(18px, 1.65vw, 22px);
+  font-weight: 430;
+  letter-spacing: -0.012em;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.registration-visual-footer {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 210px;
+  color: #e1d4de;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.registration-visual-footer svg {
+  flex: 0 0 auto;
+  color: #e55b9f;
+}
+
+.registration-form-panel {
+  min-width: 0;
+  background: #f9f6f9;
+}
+
+.registration-form-container {
+  width: min(690px, 100%);
+  margin: 0 auto;
+  padding: 52px 50px 58px;
+}
+
+.registration-form-header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.registration-form-header .registration-eyebrow {
+  color: #aa5d8e;
+}
+
+.registration-form-header h2 {
+  color: #29232d;
+}
+
+@media (max-width: 1180px) {
+  .registration-shell:has(.registration-visual-panel) {
+    grid-template-columns: minmax(430px, 0.9fr) minmax(560px, 1.1fr);
+  }
+
+  .registration-visual-panel {
+    padding-right: 38px;
+    padding-left: 38px;
+  }
+
+  .registration-visual-content {
+    margin-top: 82px;
+  }
+
+  .registration-visual-footer {
+    padding-top: 180px;
+  }
+}
+
+@media (max-width: 900px) {
+  .registration-page {
+    padding: 12px;
+  }
+
+  .registration-shell:has(.registration-visual-panel) {
+    display: block;
+    border-radius: 22px;
+  }
+
+  .registration-visual-panel {
+    min-height: 820px;
+    padding: 32px 28px 30px;
+  }
+
+  .registration-visual-content {
+    margin-top: 68px;
+  }
+
+  .registration-visual-footer {
+    padding-top: 190px;
+  }
+
+  .registration-form-container {
+    padding: 42px 28px 48px;
+  }
+}
+
+@media (max-width: 560px) {
+  .registration-visual-panel {
+    min-height: 720px;
+    padding: 24px 20px 26px;
+  }
+
+  .registration-brand-logo,
+  .registration-brand-placeholder {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+    border-radius: 19px;
+  }
+
+  .registration-visual-panel .registration-brand-title {
+    font-size: 24px;
+  }
+
+  .registration-visual-content {
+    margin-top: 58px;
+  }
+
+  .registration-visual-content .registration-eyebrow {
+    margin-bottom: 23px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  .registration-visual-content > h1 {
+    font-size: 47px;
+  }
+
+  .registration-title-divider {
+    margin-top: 29px;
+  }
+
+  .registration-invitation-symbol {
+    margin-top: 27px;
+    margin-left: 100px;
+  }
+
+  .registration-visual-description {
+    font-size: 18px;
+  }
+
+  .registration-visual-footer {
+    padding-top: 160px;
+    font-size: 12px;
+  }
+}
+
+/* MASTER REGISTRATION FINAL APPROVED DESIGN END */
