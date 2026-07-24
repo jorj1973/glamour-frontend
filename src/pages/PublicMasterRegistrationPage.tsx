@@ -125,19 +125,19 @@ function isValidPhone(value: string): boolean {
 function getPasswordStrength(password: string): number {
     let score = 0;
 
-    if (password.length >= 8) {
+    if (password.length >= 10) {
         score += 1;
     }
 
-    if (/[a-zа-яăâîșț]/i.test(password)) {
+    if (/[a-zа-яăâîșț]/.test(password)) {
+        score += 1;
+    }
+
+    if (/[A-ZА-ЯĂÂÎȘȚ]/.test(password)) {
         score += 1;
     }
 
     if (/\d/.test(password)) {
-        score += 1;
-    }
-
-    if (/[^a-zа-яăâîșț0-9]/i.test(password)) {
         score += 1;
     }
 
@@ -364,12 +364,15 @@ function PublicMasterRegistrationPage() {
             nextErrors.email = 'Введите корректный адрес электронной почты.';
         }
 
-        if (form.password.length < 8) {
+        if (form.password.length < 10) {
             nextErrors.password =
-                'Пароль должен содержать не менее 8 символов.';
-        } else if (!/[a-zа-яăâîșț]/i.test(form.password)) {
+                'Пароль должен содержать не менее 10 символов.';
+        } else if (!/[a-zа-яăâîșț]/.test(form.password)) {
             nextErrors.password =
-                'Добавьте в пароль хотя бы одну букву.';
+                'Добавьте в пароль хотя бы одну строчную букву.';
+        } else if (!/[A-ZА-ЯĂÂÎȘȚ]/.test(form.password)) {
+            nextErrors.password =
+                'Добавьте в пароль хотя бы одну заглавную букву.';
         } else if (!/\d/.test(form.password)) {
             nextErrors.password =
                 'Добавьте в пароль хотя бы одну цифру.';
@@ -990,7 +993,7 @@ function PublicMasterRegistrationPage() {
                                         autoComplete="new-password"
                                         value={form.password}
                                         onChange={handleTextChange}
-                                        placeholder="Не менее 8 символов"
+                                        placeholder="Не менее 10 символов"
                                         maxLength={128}
                                         disabled={status === 'submitting'}
                                         aria-invalid={Boolean(errors.password)}
@@ -1055,7 +1058,7 @@ function PublicMasterRegistrationPage() {
                                                 ? getPasswordStrengthLabel(
                                                     passwordStrength,
                                                 )
-                                                : 'Используйте буквы и цифры'}
+                                                : 'Минимум 10 символов, строчная, заглавная буква и цифра'}
                                         </span>
                                     </div>
                                 )}
