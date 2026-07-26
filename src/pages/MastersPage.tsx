@@ -107,17 +107,12 @@ function MastersPage() {
 
     async function loadData() {
       try {
-        const [mastersResponse, salonsResponse] =
-          await Promise.all([
-            api.get<Master[]>('/masters'),
-            api.get<SalonSummary[]>('/salons/my'),
-          ]);
+        const salonsResponse =
+          await api.get<SalonSummary[]>('/salons/my');
 
         if (isCancelled) {
           return;
         }
-
-        setMasters(mastersResponse.data);
 
         const currentSalon =
           salonsResponse.data[0] ?? null;
@@ -125,12 +120,25 @@ function MastersPage() {
         setSalon(currentSalon);
 
         if (!currentSalon) {
+          setMasters([]);
           setMessage(
             'Для вашей учётной записи не найден доступный салон.',
           );
           return;
         }
 
+        const mastersResponse =
+          await api.get<Master[]>('/masters', {
+            params: {
+              salonId: currentSalon.id,
+            },
+          });
+
+        if (isCancelled) {
+          return;
+        }
+
+        setMasters(mastersResponse.data);
         setMessage('');
       } catch {
         if (!isCancelled) {
