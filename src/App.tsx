@@ -19,18 +19,44 @@ type LoginSession = {
   platformRole: PlatformRole;
 };
 
+type AuthSessionResponse = {
+  authenticated: boolean;
+  platformRole: PlatformRole;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    platformRole: PlatformRole;
+  };
+  salonMemberships: Array<{
+    id: string;
+    salonId: string;
+    status: string;
+    roles: Array<{
+      id: string;
+      role: string;
+      cooperationType: string | null;
+      isPrimaryWorkplace: boolean;
+      acceptsBookingsAtSalon: boolean;
+    }>;
+  }>;
+};
+
+const TOKEN_STORAGE_KEY = 'glamour_access_token';
 const WORKSPACE_MODE_KEY = 'glamour_workspace_mode';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    Boolean(localStorage.getItem('glamour_access_token')),
+    Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
   );
 
   const [platformRole, setPlatformRole] =
     useState<PlatformRole>(null);
 
   const [isSessionLoading, setIsSessionLoading] = useState(
-    Boolean(localStorage.getItem('glamour_access_token')),
+    Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
   );
 
   const [currentPage, setCurrentPage] = useState(
@@ -54,23 +80,37 @@ function App() {
 
   useEffect(() => {
     if (!isAuthenticated) {
+      setIsSessionLoading(false);
       return;
     }
 
     let isCancelled = false;
 
-    async function detectPlatformRole() {
+    async function loadSession() {
       setIsSessionLoading(true);
 
       try {
-        await api.get('/platform-admin/overview');
+        const response =
+          await api.get<AuthSessionResponse>('/auth/session');
 
-        if (!isCancelled) {
-          setPlatformRole('platform_owner');
+        if (isCancelled) {
+          return;
+        }
+
+        setPlatformRole(response.data.platformRole);
+
+        if (response.data.platformRole !== 'platform_owner') {
+          localStorage.setItem(WORKSPACE_MODE_KEY, 'salon');
         }
       } catch {
-        if (!isCancelled) {
-          setPlatformRole(null);
+        if (isCancelled) {
+          return;
+        }
+
+        setPlatformRole(null);
+
+        if (!localStorage.getItem(TOKEN_STORAGE_KEY)) {
+          setIsAuthenticated(false);
         }
       } finally {
         if (!isCancelled) {
@@ -79,7 +119,7 @@ function App() {
       }
     }
 
-    void detectPlatformRole();
+    void loadSession();
 
     return () => {
       isCancelled = true;
@@ -92,6 +132,8 @@ function App() {
 
     if (session.platformRole === 'platform_owner') {
       localStorage.setItem(WORKSPACE_MODE_KEY, 'platform');
+    } else {
+      localStorage.setItem(WORKSPACE_MODE_KEY, 'salon');
     }
   }
 
