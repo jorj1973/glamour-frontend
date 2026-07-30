@@ -3,6 +3,7 @@ import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
 import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
@@ -135,6 +136,10 @@ function App() {
     } else {
       localStorage.setItem(WORKSPACE_MODE_KEY, 'salon');
     }
+  }
+
+  if (currentPage.startsWith('#reset-password')) {
+    return <ResetPasswordPage />;
   }
 
   if (currentPage.startsWith('#register?')) {
