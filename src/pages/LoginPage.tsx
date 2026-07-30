@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { LockKeyhole, Mail } from 'lucide-react';
+import {
+  ArrowLeft,
+  LockKeyhole,
+  Mail,
+} from 'lucide-react';
 import api from '../api/api';
 
 type PlatformRole = 'platform_owner' | null;
@@ -23,8 +27,12 @@ function LoginPage({
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordResetMode, setIsPasswordResetMode] =
+    useState(false);
+  const [isResetRequestSent, setIsResetRequestSent] =
+    useState(false);
 
-  async function handleSubmit(
+  async function handleLoginSubmit(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
@@ -60,6 +68,114 @@ function LoginPage({
     }
   }
 
+  async function handlePasswordResetSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+    setMessage('');
+    setIsLoading(true);
+
+    try {
+      await api.post('/auth/forgot-password', {
+        email: email.trim(),
+      });
+
+      setIsResetRequestSent(true);
+      setMessage(
+        'Если учётная запись с таким email существует, письмо для восстановления пароля отправлено.',
+      );
+    } catch {
+      setMessage(
+        'Не удалось отправить запрос. Попробуйте ещё раз позднее.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function openPasswordReset() {
+    setPassword('');
+    setMessage('');
+    setIsResetRequestSent(false);
+    setIsPasswordResetMode(true);
+  }
+
+  function returnToLogin() {
+    setMessage('');
+    setIsResetRequestSent(false);
+    setIsPasswordResetMode(false);
+  }
+
+  if (isPasswordResetMode) {
+    return (
+      <main className="login-page">
+        <section className="login-card">
+          <p className="dashboard-eyebrow">
+            GLAMOUR Salon Studio
+          </p>
+
+          <h1>Восстановление пароля</h1>
+
+          <p className="login-subtitle">
+            Укажите email своей учётной записи. Мы
+            отправим ссылку для создания нового пароля.
+          </p>
+
+          {!isResetRequestSent ? (
+            <form
+              onSubmit={handlePasswordResetSubmit}
+              className="login-form"
+            >
+              <label htmlFor="reset-email">Email</label>
+
+              <div className="login-field">
+                <Mail size={18} aria-hidden="true" />
+
+                <input
+                  id="reset-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) =>
+                    setEmail(event.target.value)
+                  }
+                  autoComplete="email"
+                  maxLength={320}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="login-button"
+              >
+                {isLoading
+                  ? 'Отправка…'
+                  : 'Отправить ссылку'}
+              </button>
+            </form>
+          ) : null}
+
+          {message ? (
+            <p role="status" className="login-message">
+              {message}
+            </p>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={returnToLogin}
+            className="login-forgot-button"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            Вернуться ко входу
+          </button>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="login-page">
       <section className="login-card">
@@ -75,7 +191,7 @@ function LoginPage({
         </p>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleLoginSubmit}
           className="login-form"
         >
           <label htmlFor="email">Email</label>
@@ -114,6 +230,14 @@ function LoginPage({
               required
             />
           </div>
+
+          <button
+            type="button"
+            onClick={openPasswordReset}
+            className="login-forgot-button"
+          >
+            Забыли пароль?
+          </button>
 
           <button
             type="submit"
