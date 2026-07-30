@@ -2,8 +2,13 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   ArrowLeft,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  LoaderCircle,
   LockKeyhole,
   Mail,
+  RotateCcw,
 } from 'lucide-react';
 import api from '../api/api';
 
@@ -20,30 +25,52 @@ type LoginPageProps = {
   }) => void;
 };
 
+type MessageType = 'error' | 'success' | null;
+
 function LoginPage({
   onLoginSuccess,
 }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] =
+    useState<MessageType>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] =
+    useState(false);
   const [isPasswordResetMode, setIsPasswordResetMode] =
     useState(false);
   const [isResetRequestSent, setIsResetRequestSent] =
     useState(false);
 
+  function clearMessage() {
+    setMessage('');
+    setMessageType(null);
+  }
+
   async function handleLoginSubmit(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-    setMessage('');
+    clearMessage();
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      setMessage(
+        'Введите email и пароль своей учётной записи.',
+      );
+      setMessageType('error');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const response = await api.post<LoginResponse>(
         '/auth/login',
         {
-          email,
+          email: normalizedEmail,
           password,
         },
       );
@@ -63,6 +90,7 @@ function LoginPage({
       setMessage(
         'Не удалось войти. Проверьте email и пароль.',
       );
+      setMessageType('error');
     } finally {
       setIsLoading(false);
     }
@@ -72,22 +100,34 @@ function LoginPage({
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-    setMessage('');
+    clearMessage();
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setMessage('Введите email своей учётной записи.');
+      setMessageType('error');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await api.post('/auth/forgot-password', {
-        email: email.trim(),
+        email: normalizedEmail,
       });
 
+      setEmail(normalizedEmail);
       setIsResetRequestSent(true);
       setMessage(
-        'Если учётная запись с таким email существует, письмо для восстановления пароля отправлено.',
+        'Если учётная запись с таким email существует, письмо со ссылкой для восстановления пароля отправлено.',
       );
+      setMessageType('success');
     } catch {
       setMessage(
         'Не удалось отправить запрос. Попробуйте ещё раз позднее.',
       );
+      setMessageType('error');
     } finally {
       setIsLoading(false);
     }
@@ -95,70 +135,137 @@ function LoginPage({
 
   function openPasswordReset() {
     setPassword('');
-    setMessage('');
+    setIsPasswordVisible(false);
     setIsResetRequestSent(false);
+    clearMessage();
     setIsPasswordResetMode(true);
   }
 
   function returnToLogin() {
-    setMessage('');
+    setPassword('');
+    setIsPasswordVisible(false);
     setIsResetRequestSent(false);
+    clearMessage();
     setIsPasswordResetMode(false);
+  }
+
+  function retryPasswordReset() {
+    setIsResetRequestSent(false);
+    clearMessage();
   }
 
   if (isPasswordResetMode) {
     return (
       <main className="login-page">
-        <section className="login-card">
+        <section
+          className="login-card"
+          aria-labelledby="password-reset-title"
+        >
           <p className="dashboard-eyebrow">
             GLAMOUR Salon Studio
           </p>
 
-          <h1>Восстановление пароля</h1>
-
-          <p className="login-subtitle">
-            Укажите email своей учётной записи. Мы
-            отправим ссылку для создания нового пароля.
-          </p>
+          <h1 id="password-reset-title">
+            Восстановление пароля
+          </h1>
 
           {!isResetRequestSent ? (
-            <form
-              onSubmit={handlePasswordResetSubmit}
-              className="login-form"
-            >
-              <label htmlFor="reset-email">Email</label>
+            <>
+              <p className="login-subtitle">
+                Укажите email своей учётной записи. Мы
+                отправим ссылку для создания нового пароля.
+              </p>
 
-              <div className="login-field">
-                <Mail size={18} aria-hidden="true" />
+              <form
+                onSubmit={handlePasswordResetSubmit}
+                className="login-form"
+                noValidate
+              >
+                <label htmlFor="reset-email">Email</label>
 
-                <input
-                  id="reset-email"
-                  type="email"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  autoComplete="email"
-                  maxLength={320}
-                  required
-                  autoFocus
-                />
-              </div>
+                <div className="login-field">
+                  <Mail size={18} aria-hidden="true" />
+
+                  <input
+                    id="reset-email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      clearMessage();
+                    }}
+                    autoComplete="email"
+                    inputMode="email"
+                    maxLength={320}
+                    placeholder="name@example.com"
+                    disabled={isLoading}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="login-button"
+                >
+                  {isLoading ? (
+                    <>
+                      <LoaderCircle
+                        size={18}
+                        className="login-spinner"
+                        aria-hidden="true"
+                      />
+                      Отправка…
+                    </>
+                  ) : (
+                    'Отправить ссылку'
+                  )}
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="login-reset-success">
+              <CheckCircle2
+                size={42}
+                aria-hidden="true"
+              />
+
+              <h2>Проверьте почту</h2>
+
+              <p>
+                Инструкция по восстановлению пароля
+                отправлена на:
+              </p>
+
+              <strong>{email}</strong>
+
+              <p className="login-reset-hint">
+                Проверьте также папки «Спам» и
+                «Нежелательная почта».
+              </p>
 
               <button
-                type="submit"
-                disabled={isLoading}
-                className="login-button"
+                type="button"
+                onClick={retryPasswordReset}
+                className="login-secondary-button"
               >
-                {isLoading
-                  ? 'Отправка…'
-                  : 'Отправить ссылку'}
+                <RotateCcw size={16} aria-hidden="true" />
+                Указать другой email
               </button>
-            </form>
-          ) : null}
+            </div>
+          )}
 
           {message ? (
-            <p role="status" className="login-message">
+            <p
+              role={messageType === 'error' ? 'alert' : 'status'}
+              aria-live="polite"
+              className={`login-message ${
+                messageType === 'success'
+                  ? 'login-message-success'
+                  : 'login-message-error'
+              }`}
+            >
               {message}
             </p>
           ) : null}
@@ -166,6 +273,7 @@ function LoginPage({
           <button
             type="button"
             onClick={returnToLogin}
+            disabled={isLoading}
             className="login-forgot-button"
           >
             <ArrowLeft size={16} aria-hidden="true" />
@@ -178,21 +286,25 @@ function LoginPage({
 
   return (
     <main className="login-page">
-      <section className="login-card">
+      <section
+        className="login-card"
+        aria-labelledby="login-title"
+      >
         <p className="dashboard-eyebrow">
           GLAMOUR Salon Studio
         </p>
 
-        <h1>Вход в систему</h1>
+        <h1 id="login-title">Вход в систему</h1>
 
         <p className="login-subtitle">
-          Используйте свою учётную запись для доступа
-          к панели управления.
+          Используйте свою учётную запись для доступа к
+          панели управления.
         </p>
 
         <form
           onSubmit={handleLoginSubmit}
           className="login-form"
+          noValidate
         >
           <label htmlFor="email">Email</label>
 
@@ -203,37 +315,67 @@ function LoginPage({
               id="email"
               type="email"
               value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
+              onChange={(event) => {
+                setEmail(event.target.value);
+                clearMessage();
+              }}
               autoComplete="email"
+              inputMode="email"
+              maxLength={320}
+              placeholder="name@example.com"
+              disabled={isLoading}
               required
+              autoFocus
             />
           </div>
 
           <label htmlFor="password">Пароль</label>
 
           <div className="login-field">
-            <LockKeyhole
-              size={18}
-              aria-hidden="true"
-            />
+            <LockKeyhole size={18} aria-hidden="true" />
 
             <input
               id="password"
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
+              type={
+                isPasswordVisible ? 'text' : 'password'
               }
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                clearMessage();
+              }}
               autoComplete="current-password"
+              placeholder="Введите пароль"
+              disabled={isLoading}
               required
             />
+
+            <button
+              type="button"
+              className="login-password-toggle"
+              onClick={() =>
+                setIsPasswordVisible((current) => !current)
+              }
+              disabled={isLoading}
+              aria-label={
+                isPasswordVisible
+                  ? 'Скрыть пароль'
+                  : 'Показать пароль'
+              }
+              aria-pressed={isPasswordVisible}
+            >
+              {isPasswordVisible ? (
+                <EyeOff size={18} aria-hidden="true" />
+              ) : (
+                <Eye size={18} aria-hidden="true" />
+              )}
+            </button>
           </div>
 
           <button
             type="button"
             onClick={openPasswordReset}
+            disabled={isLoading}
             className="login-forgot-button"
           >
             Забыли пароль?
@@ -244,14 +386,27 @@ function LoginPage({
             disabled={isLoading}
             className="login-button"
           >
-            {isLoading
-              ? 'Выполняется вход…'
-              : 'Войти'}
+            {isLoading ? (
+              <>
+                <LoaderCircle
+                  size={18}
+                  className="login-spinner"
+                  aria-hidden="true"
+                />
+                Выполняется вход…
+              </>
+            ) : (
+              'Войти'
+            )}
           </button>
         </form>
 
         {message ? (
-          <p role="status" className="login-message">
+          <p
+            role="alert"
+            aria-live="polite"
+            className="login-message login-message-error"
+          >
             {message}
           </p>
         ) : null}
