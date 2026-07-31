@@ -6,6 +6,7 @@ import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
+import MasterDashboardPage from './pages/MasterDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import ClientsPage from './pages/ClientsPage';
 import MastersPage from './pages/MastersPage';
@@ -183,6 +184,10 @@ function App() {
 
   const workspaceMode =
     localStorage.getItem(WORKSPACE_MODE_KEY);
+
+  if (workspaceMode === 'master') {
+    return <MasterDashboardPage />;
+  }
 
   const isSalonWorkspace =
     platformRole !== 'platform_owner' ||
