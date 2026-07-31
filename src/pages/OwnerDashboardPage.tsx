@@ -29,6 +29,11 @@ type TopService = {
     revenue: number;
 };
 
+type SalonSummary = {
+    id: string;
+    name: string;
+};
+
 type DashboardData = {
     revenueToday: number;
     revenueMonth: number;
@@ -50,7 +55,27 @@ function OwnerDashboardPage() {
     useEffect(() => {
         async function loadDashboard() {
             try {
-                const response = await api.get<DashboardData>('/dashboard/owner');
+                const salonsResponse =
+                    await api.get<SalonSummary[]>('/salons/my');
+
+                const currentSalon = salonsResponse.data[0];
+
+                if (!currentSalon) {
+                    setMessage(
+                        'Для учётной записи не найден активный салон.',
+                    );
+                    return;
+                }
+
+                const response = await api.get<DashboardData>(
+                    '/dashboard/owner',
+                    {
+                        params: {
+                            salonId: currentSalon.id,
+                        },
+                    },
+                );
+
                 setData(response.data);
                 setMessage('');
             } catch {
