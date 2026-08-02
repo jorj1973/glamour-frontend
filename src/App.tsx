@@ -48,6 +48,7 @@ type AuthSessionResponse = {
 
 const TOKEN_STORAGE_KEY = 'glamour_access_token';
 const WORKSPACE_MODE_KEY = 'glamour_workspace_mode';
+const CURRENT_SALON_ID_KEY = 'glamour_current_salon_id';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -101,8 +102,63 @@ function App() {
 
         setPlatformRole(response.data.platformRole);
 
-        if (response.data.platformRole !== 'platform_owner') {
+        const savedWorkspaceMode =
+          localStorage.getItem(WORKSPACE_MODE_KEY);
+
+        if (
+          response.data.platformRole !== 'platform_owner' &&
+          savedWorkspaceMode !== 'salon' &&
+          savedWorkspaceMode !== 'master'
+        ) {
           localStorage.setItem(WORKSPACE_MODE_KEY, 'salon');
+        }
+
+        const masterMemberships =
+          response.data.salonMemberships.filter(
+            (membership) =>
+              membership.status === 'active' &&
+              membership.roles.some(
+                (role) => role.role === 'master',
+              ),
+          );
+
+        const savedCurrentSalonId =
+          localStorage.getItem(CURRENT_SALON_ID_KEY);
+
+        const savedMasterMembership =
+          savedCurrentSalonId
+            ? masterMemberships.find(
+                (membership) =>
+                  membership.salonId ===
+                  savedCurrentSalonId,
+              )
+            : undefined;
+
+        if (!savedMasterMembership) {
+          const primaryMasterMembership =
+            masterMemberships.find(
+              (membership) =>
+                membership.roles.some(
+                  (role) =>
+                    role.role === 'master' &&
+                    role.isPrimaryWorkplace,
+                ),
+            );
+
+          const fallbackMasterMembership =
+            primaryMasterMembership ??
+            masterMemberships[0];
+
+          if (fallbackMasterMembership) {
+            localStorage.setItem(
+              CURRENT_SALON_ID_KEY,
+              fallbackMasterMembership.salonId,
+            );
+          } else {
+            localStorage.removeItem(
+              CURRENT_SALON_ID_KEY,
+            );
+          }
         }
       } catch {
         if (isCancelled) {
@@ -186,7 +242,22 @@ function App() {
     localStorage.getItem(WORKSPACE_MODE_KEY);
 
   if (workspaceMode === 'master') {
-    return <MasterDashboardPage />;
+    switch (currentPage) {
+      case '#appointments':
+        return <AppointmentsPage />;
+
+      case '#clients':
+        return <ClientsPage />;
+
+      case '#services':
+        return <ServicesPage />;
+
+      case '#finance':
+        return <FinancePage />;
+
+      default:
+        return <MasterDashboardPage />;
+    }
   }
 
   const isSalonWorkspace =

@@ -5456,3 +5456,33 @@ input {
   outline: 2px solid rgba(214, 130, 184, 0.72);
   outline-offset: 2px;
 }
+
+/* Master salon selector */
+
+.workspace-salon-select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 36px 0 11px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-input);
+  color: var(--app-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.workspace-salon-select:hover {
+  border-color: rgba(214, 130, 184, 0.36);
+}
+
+.workspace-salon-select:focus {
+  border-color: rgba(214, 130, 184, 0.56);
+  outline: none;
+}
+
+.workspace-salon-select:focus-visible {
+  outline: 2px solid rgba(214, 130, 184, 0.72);
+  outline-offset: 2px;
+}

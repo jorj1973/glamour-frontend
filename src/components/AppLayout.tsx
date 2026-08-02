@@ -26,6 +26,9 @@ type WorkspaceMode = 'platform' | 'salon' | 'master';
 type SalonSummary = {
   id: string;
   name: string;
+  membershipRole?: string | null;
+  membershipRoles?: string[];
+  membershipStatus?: string | null;
 };
 
 type SalonBranding = {
@@ -55,6 +58,9 @@ const BRANDING_UPDATED_EVENT =
 
 const WORKSPACE_MODE_KEY =
   'glamour_workspace_mode';
+
+const CURRENT_SALON_ID_KEY =
+  'glamour_current_salon_id';
 
 const SALON_MANAGEMENT_ROLES = new Set([
   'salon_owner',
@@ -103,12 +109,33 @@ function AppLayout({ children }: AppLayoutProps) {
   const [canOpenMaster, setCanOpenMaster] =
     useState(false);
 
+  const [masterSalons, setMasterSalons] =
+    useState<SalonSummary[]>([]);
+
+  const [currentSalonId, setCurrentSalonId] =
+    useState(
+      () =>
+        localStorage.getItem(
+          CURRENT_SALON_ID_KEY,
+        ) ?? '',
+    );
+
   const loadSalonBranding = useCallback(async () => {
     try {
       const salonsResponse =
         await api.get<SalonSummary[]>('/salons/my');
 
-      const currentSalon = salonsResponse.data[0];
+      const savedCurrentSalonId =
+        localStorage.getItem(CURRENT_SALON_ID_KEY);
+
+      const currentSalon =
+        (savedCurrentSalonId
+          ? salonsResponse.data.find(
+              (salon) =>
+                salon.id === savedCurrentSalonId,
+            )
+          : undefined) ??
+        salonsResponse.data[0];
 
       if (!currentSalon) {
         setSalonName('Salon Studio');
@@ -159,6 +186,77 @@ function AppLayout({ children }: AppLayoutProps) {
 
         const hasMasterAccess =
           roles.includes('master');
+
+        const salonsResponse =
+          await api.get<SalonSummary[]>('/salons/my');
+
+        const availableMasterSalons =
+          salonsResponse.data.filter(
+            (salon) =>
+              salon.membershipStatus === 'active' &&
+              (
+                salon.membershipRoles?.includes(
+                  'master',
+                ) ||
+                salon.membershipRole === 'master'
+              ),
+          );
+
+        setMasterSalons(availableMasterSalons);
+
+        const savedCurrentSalonId =
+          localStorage.getItem(
+            CURRENT_SALON_ID_KEY,
+          );
+
+        const savedMasterSalon =
+          savedCurrentSalonId
+            ? availableMasterSalons.find(
+                (salon) =>
+                  salon.id === savedCurrentSalonId,
+              )
+            : undefined;
+
+        const primaryMasterMembership =
+          activeMemberships.find(
+            (membership) =>
+              membership.roles.some(
+                (role) =>
+                  role.role === 'master' &&
+                  role.isPrimaryWorkplace,
+              ),
+          );
+
+        const primaryMasterSalon =
+          primaryMasterMembership
+            ? availableMasterSalons.find(
+                (salon) =>
+                  salon.id ===
+                  primaryMasterMembership.salonId,
+              )
+            : undefined;
+
+        const resolvedMasterSalon =
+          savedMasterSalon ??
+          primaryMasterSalon ??
+          availableMasterSalons[0];
+
+        if (resolvedMasterSalon) {
+          localStorage.setItem(
+            CURRENT_SALON_ID_KEY,
+            resolvedMasterSalon.id,
+          );
+
+          setCurrentSalonId(
+            resolvedMasterSalon.id,
+          );
+        } else {
+          localStorage.removeItem(
+            CURRENT_SALON_ID_KEY,
+          );
+
+          setCurrentSalonId('');
+        }
 
         const hasPlatformAccess =
           response.data.platformRole ===
@@ -269,6 +367,28 @@ function AppLayout({ children }: AppLayoutProps) {
     loadSalonBranding,
     loadWorkspaceAccess,
   ]);
+
+  function switchMasterSalon(
+    nextSalonId: string,
+  ) {
+    if (
+      !nextSalonId ||
+      !masterSalons.some(
+        (salon) => salon.id === nextSalonId,
+      )
+    ) {
+      return;
+    }
+
+    localStorage.setItem(
+      CURRENT_SALON_ID_KEY,
+      nextSalonId,
+    );
+
+    setCurrentSalonId(nextSalonId);
+
+    window.location.reload();
+  }
 
   function switchWorkspace(
     nextMode: WorkspaceMode,
@@ -382,6 +502,38 @@ function AppLayout({ children }: AppLayoutProps) {
             ) : null}
           </div>
         </section>
+
+        {isMasterWorkspace &&
+        masterSalons.length > 0 ? (
+          <section
+            className="workspace-switcher"
+            aria-label="Выбор салона мастера"
+          >
+            <span className="workspace-switcher-label">
+              Текущий салон
+            </span>
+
+            <select
+              className="workspace-salon-select"
+              value={currentSalonId}
+              onChange={(event) =>
+                switchMasterSalon(
+                  event.target.value,
+                )
+              }
+              aria-label="Текущий салон мастера"
+            >
+              {masterSalons.map((salon) => (
+                <option
+                  key={salon.id}
+                  value={salon.id}
+                >
+                  {salon.name}
+                </option>
+              ))}
+            </select>
+          </section>
+        ) : null}
 
         <nav className="sidebar-nav">
           <a
