@@ -3,6 +3,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
   Building2,
@@ -13,9 +14,11 @@ import {
   Sparkles,
   UserRound,
   Users,
+  Link2,
 } from 'lucide-react';
 
 import api from '../api/api';
+import LanguageSwitcher from './LanguageSwitcher';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -87,6 +90,7 @@ function getSavedWorkspaceMode(): WorkspaceMode {
 }
 
 function AppLayout({ children }: AppLayoutProps) {
+  const { t } = useTranslation();
   const [currentHash, setCurrentHash] = useState(
     window.location.hash,
   );
@@ -457,7 +461,7 @@ function AppLayout({ children }: AppLayoutProps) {
                   size={17}
                   aria-hidden="true"
                 />
-                <span>Платформа</span>
+                <span>{t('nav.platform')}</span>
               </button>
             ) : null}
 
@@ -477,7 +481,7 @@ function AppLayout({ children }: AppLayoutProps) {
                   size={17}
                   aria-hidden="true"
                 />
-                <span>Салон</span>
+                <span>{t('nav.salon')}</span>
               </button>
             ) : null}
 
@@ -546,7 +550,7 @@ function AppLayout({ children }: AppLayoutProps) {
             href="#"
           >
             <BarChart3 size={18} />
-            Dashboard
+            {t('nav.dashboard')}
           </a>
 
           {isMasterWorkspace ? (
@@ -598,6 +602,17 @@ function AppLayout({ children }: AppLayoutProps) {
                 <CreditCard size={18} />
                 Мои доходы
               </a>
+              <a
+                className={
+                  currentHash === '#payment-settings'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#payment-settings"
+              >
+                <CreditCard size={18} />
+                Мои реквизиты
+              </a>
             </>
           ) : (
             <>
@@ -648,6 +663,17 @@ function AppLayout({ children }: AppLayoutProps) {
                 <Sparkles size={18} />
                 Услуги
               </a>
+              <a
+                className={
+                  currentHash === '#promotion-links'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#promotion-links"
+              >
+                <Link2 size={18} />
+                Ссылки
+              </a>
 
               <a
                 className={
@@ -675,6 +701,9 @@ function AppLayout({ children }: AppLayoutProps) {
             </>
           )}
         </nav>
+        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto' }}>
+          <LanguageSwitcher />
+        </div>
       </aside>
 
       <div className="app-content">

@@ -13,6 +13,8 @@ import MastersPage from './pages/MastersPage';
 import ServicesPage from './pages/ServicesPage';
 import FinancePage from './pages/FinancePage';
 import BrandingPage from './pages/BrandingPage';
+import MasterPaymentPage from './pages/MasterPaymentPage';
+import PromotionLinksPage from './pages/PromotionLinksPage';
 import './App.css';
 
 type PlatformRole = 'platform_owner' | null;
@@ -255,6 +257,9 @@ function App() {
       case '#finance':
         return <FinancePage />;
 
+      case '#payment-settings':
+        return <MasterPaymentPage />;
+
       default:
         return <MasterDashboardPage />;
     }
@@ -287,7 +292,10 @@ function App() {
     case '#finance':
       return <FinancePage />;
 
-    case '#branding':
+    case '#promotion-links':
+        return <PromotionLinksPage />;
+
+      case '#branding':
       return <BrandingPage />;
 
     default:

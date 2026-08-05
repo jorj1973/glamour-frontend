@@ -537,6 +537,12 @@ function PlatformOwnerPage() {
     window.location.reload();
   }
 
+  function switchToSalon() {
+    localStorage.setItem("glamour_workspace_mode", "salon");
+    window.location.hash = "";
+    window.location.reload();
+  }
+
   return (
     <div className="platform-shell">
       <aside className="platform-sidebar">
@@ -586,6 +592,16 @@ function PlatformOwnerPage() {
         <div className="platform-sidebar-footer">
           <p>Защищённый кабинет</p>
           <strong>Владелец платформы</strong>
+
+          <button
+            type="button"
+            className="platform-create-invitation-button"
+            onClick={switchToSalon}
+            style={{ marginBottom: 8, width: "100%" }}
+          >
+            <Store size={17} aria-hidden="true" />
+            Мой салон
+          </button>
 
           <button
             type="button"
