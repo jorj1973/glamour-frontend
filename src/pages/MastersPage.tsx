@@ -365,7 +365,7 @@ function MastersPage() {
                               <span>Профиль</span><strong style={{ color: master.isPublic ? '#8ee5b5' : '#ffb6c6' }}>{master.isPublic ? 'Публичный' : 'Скрытый'}</strong>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Тип</span><strong>{master.cooperationType === 'INDEPENDENT' ? 'Независимый' : 'Штатный'}</strong>
+                              <span>Тип</span><strong>{master.cooperationType === 'INDEPENDENT' ? 'независимый' : 'Штатный'}</strong>
                             </div>
                           </div>
                         </div>

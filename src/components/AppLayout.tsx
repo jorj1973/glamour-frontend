@@ -501,7 +501,7 @@ function AppLayout({ children }: AppLayoutProps) {
                   size={17}
                   aria-hidden="true"
                 />
-                <span>Мой кабинет мастера</span>
+                <span>{t('nav.masterCabinet')}</span>
               </button>
             ) : null}
           </div>
@@ -564,7 +564,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#appointments"
               >
                 <CalendarDays size={18} />
-                Мои записи
+                {t('nav.myAppointments')}
               </a>
 
               <a
@@ -576,7 +576,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#clients"
               >
                 <Users size={18} />
-                Мои клиенты
+                {t('nav.myClients')}
               </a>
 
               <a
@@ -588,7 +588,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#services"
               >
                 <Sparkles size={18} />
-                Мои услуги
+                {t('nav.myServices')}
               </a>
 
               <a
@@ -600,7 +600,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#finance"
               >
                 <CreditCard size={18} />
-                Мои доходы
+                {t('nav.myFinance')}
               </a>
               <a
                 className={
@@ -611,7 +611,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#payment-settings"
               >
                 <CreditCard size={18} />
-                Мои реквизиты
+                {t('nav.myPayment')}
               </a>
             </>
           ) : (
@@ -625,7 +625,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#appointments"
               >
                 <CalendarDays size={18} />
-                Записи
+                {t('nav.appointments')}
               </a>
 
               <a
@@ -637,7 +637,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#clients"
               >
                 <Users size={18} />
-                Клиенты
+                {t('nav.clients')}
               </a>
 
               <a
@@ -649,7 +649,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#masters"
               >
                 <Scissors size={18} />
-                Мастера
+                {t('nav.masters')}
               </a>
 
               <a
@@ -661,7 +661,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#services"
               >
                 <Sparkles size={18} />
-                Услуги
+                {t('nav.services')}
               </a>
               <a
                 className={
@@ -672,7 +672,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#promotion-links"
               >
                 <Link2 size={18} />
-                Ссылки
+                {t('nav.links')}
               </a>
 
               <a
@@ -684,7 +684,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#finance"
               >
                 <CreditCard size={18} />
-                Финансы
+                {t('nav.finance')}
               </a>
 
               <a
@@ -696,7 +696,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 href="#branding"
               >
                 <Palette size={18} />
-                Персонализация
+                {t('nav.branding')}
               </a>
             </>
           )}

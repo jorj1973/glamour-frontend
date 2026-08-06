@@ -648,7 +648,7 @@ function ServicesPage() {
 
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button type="submit" className="primary-action" style={{ flex: 1 }} disabled={isSubmitting}>
-                    {isSubmitting ? 'Создаём...' : 'Создать услугу'}
+                    {isSubmitting ? 'Создаём...' : 'Создать свою услугу'}
                   </button>
                   <button type="button" className="danger-action" onClick={() => setAddMode(null)}>
                     Отмена

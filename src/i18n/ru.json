@@ -1,6 +1,51 @@
 {
-  "common": { "loading": "Загрузка...", "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить", "search": "Поиск", "refresh": "Обновить", "back": "Назад", "close": "Закрыть", "error": "Ошибка", "success": "Успешно", "noData": "Нет данных", "all": "Все" },
-  "nav": { "dashboard": "Dashboard", "appointments": "Записи", "clients": "Клиенты", "masters": "Мастера", "services": "Услуги", "finance": "Финансы", "branding": "Персонализация", "links": "Ссылки", "myAppointments": "Мои записи", "myClients": "Мои клиенты", "myServices": "Мои услуги", "myFinance": "Мои доходы", "myPayment": "Мои реквизиты", "platform": "Платформа", "salon": "Салон", "masterCabinet": "Мой кабинет мастера", "logout": "Выйти" },
-  "auth": { "login": "Вход в систему", "loginSubtitle": "Используйте свою учётную запись для доступа к панели управления.", "email": "Email", "password": "Пароль", "forgotPassword": "Забыли пароль?", "loginButton": "Войти", "loginError": "Не удалось войти. Проверьте email и пароль.", "loggingIn": "Входим..." },
-  "language": { "select": "Язык", "ru": "Русский", "ro": "Română", "en": "English" }
+  "common": {
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "search": "Поиск",
+    "refresh": "Обновить",
+    "back": "Назад",
+    "close": "Закрыть",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "noData": "Нет данных",
+    "all": "Все"
+  },
+  "nav": {
+    "dashboard": "Главная",
+    "appointments": "Записи",
+    "clients": "Клиенты",
+    "masters": "Мастера",
+    "services": "Услуги",
+    "finance": "Финансы",
+    "branding": "Персонализация",
+    "links": "Ссылки",
+    "myAppointments": "Мои записи",
+    "myClients": "Мои клиенты",
+    "myServices": "Мои услуги",
+    "myFinance": "Мои доходы",
+    "myPayment": "Мои реквизиты",
+    "platform": "Платформа",
+    "salon": "Салон",
+    "masterCabinet": "Мой кабинет мастера",
+    "logout": "Выйти"
+  },
+  "auth": {
+    "login": "Вход в систему",
+    "loginSubtitle": "Используйте свою учётную запись для доступа к панели управления.",
+    "email": "Email",
+    "password": "Пароль",
+    "forgotPassword": "Забыли пароль?",
+    "loginButton": "Войти",
+    "loginError": "Не удалось войти. Проверьте email и пароль.",
+    "loggingIn": "Входим..."
+  },
+  "language": {
+    "select": "Язык",
+    "ru": "Русский",
+    "ro": "Română",
+    "en": "English"
+  }
 }
