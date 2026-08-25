@@ -156,7 +156,9 @@ function NotificationBell() {
             ref={boxRef}
             style={{
                 position: 'fixed',
-                top: 16,
+                // Ниже строки состояния телефона и кнопки меню:
+                // иначе колокольчик перекрывает их.
+                top: 'calc(env(safe-area-inset-top, 0px) + 68px)',
                 right: 16,
                 zIndex: 600,
             }}
