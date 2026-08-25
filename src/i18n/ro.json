@@ -1148,5 +1148,25 @@
         "text": "Cei la care ai fost deja. O nouă programare — dintr-o singură atingere."
       }
     }
+  },
+  "clientImport": {
+    "title": "Transferă baza de clienți",
+    "subtitle": "Încarcă lista din programul anterior — clienții vor apărea aici și îi vei putea invita în aplicație.",
+    "open": "Transferă",
+    "collapse": "Restrânge",
+    "hint": "Merge un fișier CSV din orice program: Excel, Google Sheets, vechiul sistem de programări. Sunt suficiente coloanele cu nume, telefon și email — denumirile coloanelor se recunosc automat.",
+    "chooseFile": "Alege fișierul",
+    "found": "Înregistrări găsite: {{count}}",
+    "skipped": "Omise: {{rejected}} cu erori, {{duplicates}} duplicate",
+    "confirm": "Încarcă",
+    "cancel": "Anulează",
+    "done": "Adăugați: {{added}}. Existau deja: {{skipped}}.",
+    "pendingTitle": "Încă nu au trecut în aplicație",
+    "pendingCount": "În listă sunt {{count}} clienți care încă nu au trecut în aplicație",
+    "andMore": "și încă {{count}}",
+    "remove": "Șterge",
+    "parseError": "Fișierul nu a putut fi citit. Verifică dacă are coloane cu nume și telefon.",
+    "saveError": "Nu s-a putut salva. Încearcă din nou.",
+    "deleteError": "Nu s-a putut șterge înregistrarea."
   }
 }

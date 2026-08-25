@@ -1141,5 +1141,25 @@
         "text": "The ones you have visited. Booking again takes a single tap."
       }
     }
+  },
+  "clientImport": {
+    "title": "Import your client base",
+    "subtitle": "Upload a list from your previous software — clients will appear here and you can invite them to the app.",
+    "open": "Import",
+    "collapse": "Collapse",
+    "hint": "A CSV file from any program will do: Excel, Google Sheets, your old booking system. Columns with name, phone and email are enough — column names are detected automatically.",
+    "chooseFile": "Choose file",
+    "found": "Records found: {{count}}",
+    "skipped": "Skipped: {{rejected}} with errors, {{duplicates}} duplicates",
+    "confirm": "Import",
+    "cancel": "Cancel",
+    "done": "Added: {{added}}. Already in the base: {{skipped}}.",
+    "pendingTitle": "Not yet in the app",
+    "pendingCount": "{{count}} clients in the list have not joined the app yet",
+    "andMore": "and {{count}} more",
+    "remove": "Remove",
+    "parseError": "Could not read the file. Check that it has name and phone columns.",
+    "saveError": "Could not save. Please try again.",
+    "deleteError": "Could not remove the record."
   }
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
+import ClientImportPanel from '../components/ClientImportPanel';
 
 type WorkspaceMode = 'platform' | 'salon' | 'master';
 type SalonSummary = { id: string; name: string; membershipRole?: string | null; membershipRoles?: string[]; membershipStatus?: string | null; };
@@ -164,6 +165,8 @@ function ClientsPage() {
             <strong>{clients.length}</strong>
           </div>
         </header>
+
+        {salon?.id && <ClientImportPanel salonId={salon.id} />}
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
           <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => salon && loadClients(salon.id)} disabled={isLoading}>
