@@ -1151,7 +1151,7 @@
     "chooseFile": "Choose file",
     "found": "Records found: {{count}}",
     "skipped": "Skipped: {{rejected}} with errors, {{duplicates}} duplicates",
-    "confirm": "Import",
+    "confirm": "Import {{count}}",
     "cancel": "Cancel",
     "done": "Added: {{added}}. Already in the base: {{skipped}}.",
     "pendingTitle": "Not yet in the app",
@@ -1160,6 +1160,9 @@
     "remove": "Remove",
     "parseError": "Could not read the file. Check that it has name and phone columns.",
     "saveError": "Could not save. Please try again.",
-    "deleteError": "Could not remove the record."
+    "deleteError": "Could not remove the record.",
+    "inviteAll": "Invite to the app",
+    "invited": "Invitations sent: {{count}}",
+    "inviteError": "Could not send invitations. Please try later."
   }
 }

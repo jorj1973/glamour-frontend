@@ -43,6 +43,14 @@ function ClientImportPanel({ salonId }: Props) {
     const fileRef = useRef<HTMLInputElement>(null);
 
     const [preview, setPreview] = useState<ParseResult | null>(null);
+
+    /**
+     * Строки, снятые салоном.
+     *
+     * По умолчанию отмечены все: салон снимает единицы, а не
+     * отмечает сотни.
+     */
+    const [excluded, setExcluded] = useState<Set<number>>(new Set());
     const [pending, setPending] = useState<ImportedClient[]>([]);
     const [isBusy, setIsBusy] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -74,6 +82,7 @@ function ClientImportPanel({ salonId }: Props) {
         setErrorMsg('');
         setDoneMsg('');
         setPreview(null);
+        setExcluded(new Set());
 
         try {
             const form = new FormData();
@@ -94,7 +103,15 @@ function ClientImportPanel({ salonId }: Props) {
     }
 
     async function confirmImport() {
-        if (!preview || preview.rows.length === 0) {
+        if (!preview) {
+            return;
+        }
+
+        const rows = preview.rows.filter(
+            (row) => !excluded.has(row.rowNumber),
+        );
+
+        if (rows.length === 0) {
             return;
         }
 
@@ -104,7 +121,7 @@ function ClientImportPanel({ salonId }: Props) {
         try {
             const res = await api.post<{ added: number; skipped: number }>(
                 '/client-import/confirm',
-                { rows: preview.rows },
+                { rows },
                 { params: { salonId } },
             );
 
@@ -116,10 +133,36 @@ function ClientImportPanel({ salonId }: Props) {
             );
 
             setPreview(null);
+            setExcluded(new Set());
 
             await loadPending();
         } catch {
             setErrorMsg(t('clientImport.saveError'));
+        } finally {
+            setIsBusy(false);
+        }
+    }
+
+    /**
+     * Первая рассылка по нажатию: салон грузит список вечером,
+     * а письма лучше слать утром.
+     */
+    async function sendInvites() {
+        setIsBusy(true);
+        setErrorMsg('');
+
+        try {
+            const res = await api.post<{ sent: number }>(
+                '/client-import/invite',
+                {},
+                { params: { salonId } },
+            );
+
+            setDoneMsg(t('clientImport.invited', { count: res.data.sent }));
+
+            await loadPending();
+        } catch {
+            setErrorMsg(t('clientImport.inviteError'));
         } finally {
             setIsBusy(false);
         }
@@ -376,47 +419,93 @@ function ClientImportPanel({ salonId }: Props) {
                         </p>
                     )}
 
-                    {/* Первые пять строк: салон сверяет, что столбцы
-                        распознались верно, и не грузит вслепую. */}
+                    {/* Весь список с галочками: снятые не попадут
+                        в базу вовсе. Грузить лишнее, чтобы потом
+                        удалять, — плохой порядок. */}
                     <div
                         style={{
+                            maxHeight: 340,
+                            overflowY: 'auto',
                             marginBottom: 16,
                             borderRadius: 13,
                             border: '1px solid var(--app-border)',
-                            overflow: 'hidden',
                         }}
                     >
-                        {preview.rows.slice(0, 5).map((row) => (
-                            <div
-                                key={row.rowNumber}
-                                style={{
-                                    display: 'flex',
-                                    gap: 14,
-                                    padding: '10px 14px',
-                                    borderBottom:
-                                        '1px solid var(--app-border)',
-                                    fontSize: 13,
-                                    flexWrap: 'wrap',
-                                }}
-                            >
-                                <strong
+                        {preview.rows.map((row) => {
+                            const isOn = !excluded.has(row.rowNumber);
+
+                            return (
+                                <label
+                                    key={row.rowNumber}
                                     style={{
-                                        color: 'var(--app-text)',
-                                        minWidth: 120,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                        padding: '10px 14px',
+                                        borderBottom:
+                                            '1px solid var(--app-border)',
+                                        fontSize: 13,
+                                        cursor: 'pointer',
+                                        opacity: isOn ? 1 : 0.45,
                                     }}
                                 >
-                                    {row.firstName} {row.lastName ?? ''}
-                                </strong>
+                                    <input
+                                        type="checkbox"
+                                        checked={isOn}
+                                        onChange={() => {
+                                            setExcluded((prev) => {
+                                                const next = new Set(prev);
 
-                                <span style={{ color: 'var(--app-text-muted)' }}>
-                                    {row.phone ?? '—'}
-                                </span>
+                                                if (next.has(row.rowNumber)) {
+                                                    next.delete(row.rowNumber);
+                                                } else {
+                                                    next.add(row.rowNumber);
+                                                }
 
-                                <span style={{ color: 'var(--app-text-muted)' }}>
-                                    {row.email ?? '—'}
-                                </span>
-                            </div>
-                        ))}
+                                                return next;
+                                            });
+                                        }}
+                                        style={{
+                                            width: 17,
+                                            height: 17,
+                                            accentColor: 'var(--app-accent)',
+                                            flexShrink: 0,
+                                        }}
+                                    />
+
+                                    <strong
+                                        style={{
+                                            flex: 1,
+                                            minWidth: 90,
+                                            color: 'var(--app-text)',
+                                        }}
+                                    >
+                                        {row.firstName} {row.lastName ?? ''}
+                                    </strong>
+
+                                    <span
+                                        style={{
+                                            color: 'var(--app-text-muted)',
+                                            minWidth: 110,
+                                        }}
+                                    >
+                                        {row.phone ?? '—'}
+                                    </span>
+
+                                    <span
+                                        style={{
+                                            color: 'var(--app-text-muted)',
+                                            minWidth: 140,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        {row.email ?? '—'}
+                                    </span>
+                                </label>
+                            );
+                        })}
                     </div>
 
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -436,7 +525,9 @@ function ClientImportPanel({ salonId }: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            {t('clientImport.confirm')}
+                            {t('clientImport.confirm', {
+                                count: preview.rows.length - excluded.size,
+                            })}
                         </button>
 
                         <button
@@ -462,6 +553,26 @@ function ClientImportPanel({ salonId }: Props) {
 
             {pending.length > 0 && !preview && (
                 <div style={{ marginTop: 22 }}>
+                    <button
+                        type="button"
+                        onClick={() => void sendInvites()}
+                        disabled={isBusy}
+                        style={{
+                            width: '100%',
+                            minHeight: 46,
+                            marginBottom: 16,
+                            borderRadius: 13,
+                            border: 0,
+                            background: 'var(--app-accent)',
+                            color: 'var(--app-bg)',
+                            fontSize: 14,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {t('clientImport.inviteAll')}
+                    </button>
+
                     <p
                         style={{
                             margin: '0 0 10px',

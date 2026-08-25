@@ -1158,7 +1158,7 @@
     "chooseFile": "Alege fișierul",
     "found": "Înregistrări găsite: {{count}}",
     "skipped": "Omise: {{rejected}} cu erori, {{duplicates}} duplicate",
-    "confirm": "Încarcă",
+    "confirm": "Încarcă {{count}}",
     "cancel": "Anulează",
     "done": "Adăugați: {{added}}. Existau deja: {{skipped}}.",
     "pendingTitle": "Încă nu au trecut în aplicație",
@@ -1167,6 +1167,9 @@
     "remove": "Șterge",
     "parseError": "Fișierul nu a putut fi citit. Verifică dacă are coloane cu nume și telefon.",
     "saveError": "Nu s-a putut salva. Încearcă din nou.",
-    "deleteError": "Nu s-a putut șterge înregistrarea."
+    "deleteError": "Nu s-a putut șterge înregistrarea.",
+    "inviteAll": "Invită în aplicație",
+    "invited": "Invitații trimise: {{count}}",
+    "inviteError": "Invitațiile nu au putut fi trimise. Încercați mai târziu."
   }
 }
