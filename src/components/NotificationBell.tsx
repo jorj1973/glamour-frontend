@@ -158,7 +158,7 @@ function NotificationBell() {
                 position: 'fixed',
                 // Ниже строки состояния телефона и кнопки меню:
                 // иначе колокольчик перекрывает их.
-                top: 'calc(env(safe-area-inset-top, 0px) + 68px)',
+                top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
                 right: 16,
                 zIndex: 600,
             }}
