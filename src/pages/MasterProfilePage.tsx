@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, Sparkles, User, X } from 'lucide-react';
+import { UserRound, Save, Sparkles, User, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
@@ -14,6 +14,7 @@ type MasterProfile = {
   lastName?: string | null;
   profession?: string | null;
   specialization?: string | null;
+  photoUrl?: string | null;
   bio?: string | null;
 
   /** Описание по языкам: клиент читает на своём. */
@@ -49,6 +50,9 @@ function MasterProfilePage() {
   const [lastName, setLastName] = useState('');
   const [profession, setProfession] = useState('');
   const [specialization, setSpecialization] = useState('');
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   const [bio, setBio] = useState('');
 
   /** Описание по языкам: клиент читает на своём. */
@@ -156,6 +160,7 @@ function MasterProfilePage() {
       setLastName(p.lastName ?? '');
       setProfession(p.profession ?? '');
       setSpecialization(p.specialization ?? '');
+      setPhotoUrl(p.photoUrl ?? null);
       setBio(p.bio ?? '');
       setProfessionRo(p.professionRo ?? '');
       setProfessionRu(p.professionRu ?? '');
@@ -177,6 +182,45 @@ function MasterProfilePage() {
       setErrorMsg(t('common.loadError'));
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  /**
+   * Отправляет фотографию сразу, не дожидаясь сохранения формы:
+   * мастер должен увидеть, что снимок принят.
+   */
+  async function uploadPhoto(file: File) {
+    setIsUploading(true);
+    setErrorMsg('');
+
+    try {
+      const form = new FormData();
+
+      form.append('file', file);
+
+      const res = await api.post<{ photoUrl: string }>(
+        '/master-portfolio/photo',
+        form,
+      );
+
+      setPhotoUrl(res.data.photoUrl);
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  async function removePhoto() {
+    setIsUploading(true);
+
+    try {
+      await api.delete('/master-portfolio/photo');
+      setPhotoUrl(null);
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    } finally {
+      setIsUploading(false);
     }
   }
 
@@ -245,6 +289,104 @@ function MasterProfilePage() {
         {isLoading ? (
           <p className="dashboard-status">{t('common.loading')}</p>
         ) : (
+          <>
+          {/* Фотография не обязательна, но клиент по ней узнаёт
+              мастера при первом визите — об этом говорим прямо. */}
+          <article className="dashboard-panel" style={{ marginBottom: 20, padding: 20 }}>
+            <p style={{ margin: 0, color: 'var(--app-text)', fontSize: 15, fontWeight: 700 }}>
+              {t('myProfile.photoTitle')}
+            </p>
+
+            <p style={{ margin: '6px 0 16px', color: 'var(--app-text-muted)', fontSize: 13, lineHeight: 1.55 }}>
+              {t('myProfile.photoHint')}
+            </p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+              {photoUrl ? (
+                <img
+                  src={photoUrl}
+                  alt={t('myProfile.photoTitle')}
+                  style={{ width: 92, height: 92, borderRadius: 20, objectFit: 'cover', border: '1px solid var(--app-border)' }}
+                />
+              ) : (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 92,
+                    height: 92,
+                    borderRadius: 20,
+                    border: '1px dashed var(--app-border)',
+                    background: 'var(--app-input)',
+                    color: 'var(--app-text-muted)',
+                  }}
+                >
+                  <UserRound size={30} />
+                </span>
+              )}
+
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <label
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 44,
+                    padding: '0 20px',
+                    borderRadius: 13,
+                    border: '1px solid var(--app-accent)',
+                    background: 'transparent',
+                    color: 'var(--app-accent)',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: isUploading ? 'default' : 'pointer',
+                    opacity: isUploading ? 0.6 : 1,
+                  }}
+                >
+                  {isUploading ? t('common.loading') : t(photoUrl ? 'myProfile.photoReplace' : 'myProfile.photoUpload')}
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={isUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+
+                      if (file) {
+                        void uploadPhoto(file);
+                      }
+
+                      e.target.value = '';
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+
+                {photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => void removePhoto()}
+                    disabled={isUploading}
+                    style={{
+                      minHeight: 44,
+                      padding: '0 20px',
+                      borderRadius: 13,
+                      border: '1px solid var(--app-border)',
+                      background: 'transparent',
+                      color: 'var(--app-text-muted)',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {t('myProfile.photoRemove')}
+                  </button>
+                )}
+              </div>
+            </div>
+          </article>
+
           <form onSubmit={handleSave}>
             <section className="dashboard-columns">
               <article className="dashboard-panel">
@@ -360,6 +502,7 @@ function MasterProfilePage() {
               />
             </div>
           </form>
+          </>
         )}
       </main>
     </AppLayout>

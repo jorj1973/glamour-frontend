@@ -878,7 +878,12 @@
     "experienceHint_other": "Experiență: {{count}} de ani",
     "bioRo": "Despre mine în română",
     "bioRu": "Despre mine în rusă",
-    "bioEn": "Despre mine în engleză"
+    "bioEn": "Despre mine în engleză",
+    "photoTitle": "Fotografia de profil",
+    "photoHint": "Nu este obligatorie, dar clientul te va recunoaște când vine prima dată. Iar când aleg un maestru, oamenii se uită la chipuri.",
+    "photoUpload": "Încarcă fotografia",
+    "photoReplace": "Schimbă fotografia",
+    "photoRemove": "Șterge"
   },
   "credentials": {
     "title": "Diplome și certificate",

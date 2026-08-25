@@ -872,7 +872,12 @@
     "experienceHint_other": "Experience: {{count}} years",
     "bioRo": "About me in Romanian",
     "bioRu": "About me in Russian",
-    "bioEn": "About me in English"
+    "bioEn": "About me in English",
+    "photoTitle": "Profile photo",
+    "photoHint": "Not required, but clients will recognise you on their first visit. And when choosing a master, people look at faces.",
+    "photoUpload": "Upload photo",
+    "photoReplace": "Replace photo",
+    "photoRemove": "Remove"
   },
   "credentials": {
     "title": "Diplomas and certificates",
