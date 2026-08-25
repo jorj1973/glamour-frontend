@@ -1164,5 +1164,33 @@
     "inviteAll": "Invite to the app",
     "invited": "Invitations sent: {{count}}",
     "inviteError": "Could not send invitations. Please try later."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Nothing yet",
+    "created": {
+      "title": "Booking created",
+      "message": "The booking was created and awaits confirmation."
+    },
+    "moved": {
+      "title": "Booking moved",
+      "message": "The visit time has changed."
+    },
+    "confirmed": {
+      "title": "Booking confirmed",
+      "message": "The master confirmed your visit."
+    },
+    "cancelled": {
+      "title": "Booking cancelled",
+      "message": "The visit was cancelled."
+    },
+    "completed": {
+      "title": "Visit completed",
+      "message": "Thank you for your visit."
+    },
+    "importedClientJoined": {
+      "title": "A client joined the app",
+      "message": "{{clientName}} has registered and can now book online."
+    }
   }
 }

@@ -25,6 +25,7 @@ import {
 
 import api from '../api/api';
 import LanguageSwitcher from './LanguageSwitcher';
+import NotificationBell from './NotificationBell';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 
 type AppLayoutProps = {
@@ -454,6 +455,10 @@ function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className={isMenuOpen ? 'app-shell sidebar-open' : 'app-shell'}>
+      {/* Плавающий колокольчик: виден на всех страницах,
+          включая телефон, где меню скрыто. */}
+      <NotificationBell />
+
       <button
         type="button"
         className="mobile-menu-button"

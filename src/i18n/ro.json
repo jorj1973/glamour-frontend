@@ -1171,5 +1171,33 @@
     "inviteAll": "Invită în aplicație",
     "invited": "Invitații trimise: {{count}}",
     "inviteError": "Invitațiile nu au putut fi trimise. Încercați mai târziu."
+  },
+  "notifications": {
+    "title": "Notificări",
+    "empty": "Deocamdată nimic",
+    "created": {
+      "title": "Programare creată",
+      "message": "Programarea a fost creată și așteaptă confirmarea."
+    },
+    "moved": {
+      "title": "Programare mutată",
+      "message": "Ora vizitei s-a schimbat."
+    },
+    "confirmed": {
+      "title": "Programare confirmată",
+      "message": "Maestrul a confirmat vizita."
+    },
+    "cancelled": {
+      "title": "Programare anulată",
+      "message": "Vizita a fost anulată."
+    },
+    "completed": {
+      "title": "Vizită finalizată",
+      "message": "Vă mulțumim pentru vizită."
+    },
+    "importedClientJoined": {
+      "title": "Un client a trecut în aplicație",
+      "message": "{{clientName}} s-a înregistrat și acum se poate programa online."
+    }
   }
 }
