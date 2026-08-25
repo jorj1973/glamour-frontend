@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import BookingGreeting from '../components/BookingGreeting';
 import BookingCalendar from '../components/BookingCalendar';
 import {
+    isPushSupported,
+    pushPermission,
+    subscribeToPush,
+} from '../api/push';
+import {
     ArrowLeft,
     CalendarDays,
     Check,
@@ -237,6 +242,15 @@ function PublicBookingPage() {
     const [masters, setMasters] = useState<MasterItem[]>([]);
     const [slots, setSlots] = useState<AvailableSlot[]>([]);
     const [nextDays, setNextDays] = useState<NextDay[]>([]);
+
+    /**
+     * Показывать ли предложение включить напоминания.
+     *
+     * Прячем, если устройство не умеет или человек уже решил:
+     * повторная просьба выглядит навязчиво.
+     */
+    const [pushAsked, setPushAsked] = useState(false);
+    const [pushOn, setPushOn] = useState(false);
 
     // Кнопка кабинета имеет смысл только для тех, кто уже вошёл:
     // новому пользователю она обещает то, чего ещё нет.
@@ -1638,6 +1652,70 @@ function PublicBookingPage() {
                             >
                                 {t('booking.successText')}
                             </p>
+
+                            {/* Напоминание перед визитом — главная польза
+                                уведомлений, поэтому и просим о них здесь. */}
+                            {isPushSupported() &&
+                                pushPermission() === 'default' &&
+                                !pushAsked && (
+                                    <div
+                                        style={{
+                                            padding: '16px 18px',
+                                            marginBottom: 18,
+                                            borderRadius: 15,
+                                            border: '1px solid rgba(var(--app-accent-rgb), 0.3)',
+                                            background: 'rgba(var(--app-accent-rgb), 0.08)',
+                                        }}
+                                    >
+                                        <p
+                                            style={{
+                                                margin: 0,
+                                                color: 'var(--app-text)',
+                                                fontSize: 14,
+                                                lineHeight: 1.55,
+                                            }}
+                                        >
+                                            {t('booking.pushOffer')}
+                                        </p>
+
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const ok = await subscribeToPush();
+
+                                                setPushOn(ok);
+                                                setPushAsked(true);
+                                            }}
+                                            style={{
+                                                width: '100%',
+                                                minHeight: 44,
+                                                marginTop: 12,
+                                                borderRadius: 12,
+                                                border: 0,
+                                                background: 'var(--app-accent)',
+                                                color: 'var(--app-bg)',
+                                                fontSize: 14,
+                                                fontWeight: 800,
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            {t('booking.pushEnable')}
+                                        </button>
+                                    </div>
+                                )}
+
+                            {pushOn && (
+                                <p
+                                    style={{
+                                        margin: '0 0 18px',
+                                        color: 'var(--app-accent)',
+                                        fontSize: 13.5,
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {t('booking.pushDone')}
+                                </p>
+                            )}
 
                             {/* Без этих кнопок экран успеха был тупиком:
                                 клиент регистрировался и не знал, куда идти. */}

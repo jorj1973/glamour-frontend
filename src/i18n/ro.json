@@ -747,7 +747,10 @@
     "legendFree": "Liber",
     "legendBusy": "Parțial ocupat",
     "legendFull": "Ocupat",
-    "postpone": "Amână"
+    "postpone": "Amână",
+    "pushOffer": "Să vă amintim de vizită cu o zi și cu o oră înainte? Notificarea vine direct pe telefon — fără apeluri și fără întrebări.",
+    "pushEnable": "Activează memento-urile",
+    "pushDone": "Gata — vă amintim înainte de vizită."
   },
   "platform": {
     "adminTitle": "Admin platformă",

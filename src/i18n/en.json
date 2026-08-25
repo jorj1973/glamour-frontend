@@ -742,7 +742,10 @@
     "legendFree": "Available",
     "legendBusy": "Partly booked",
     "legendFull": "Fully booked",
-    "postpone": "Postpone"
+    "postpone": "Postpone",
+    "pushOffer": "Remind you a day and an hour before the visit? The notification comes straight to your phone — no calls, no checking.",
+    "pushEnable": "Enable reminders",
+    "pushDone": "Done — we will remind you before the visit."
   },
   "platform": {
     "adminTitle": "Platform Admin",
