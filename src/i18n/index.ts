@@ -11,11 +11,11 @@ i18n
   .use(initReactI18next)
   .init({
     resources: { ru: { translation: ru }, ro: { translation: ro }, en: { translation: en } },
-    fallbackLng: 'ru',
+    fallbackLng: 'ro',
     supportedLngs: ['ru', 'ro', 'en'],
     interpolation: { escapeValue: false },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       lookupLocalStorage: 'glamour_language',
       caches: ['localStorage'],
     },

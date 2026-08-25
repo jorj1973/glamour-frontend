@@ -11,21 +11,27 @@ import {
   LogOut,
   Mail,
   Megaphone,
+  Moon,
   Phone,
   Plus,
   RefreshCw,
   Search,
   ShieldCheck,
   Store,
+  Sun,
   Users,
   XCircle,
 } from "lucide-react";
 
 import api from "../api/api";
 import MarketingActionsPanel, {
+  type PlatformPromotion,
   type PlatformSubscriptionPlan,
 } from "../components/platform/MarketingActionsPanel";
+import PromotionsBoard from "../components/platform/PromotionsBoard";
 import SubscriptionPlanEditor from "../components/platform/SubscriptionPlanEditor";
+import AppReviewsModeration from "../components/platform/AppReviewsModeration";
+import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
 type SalonStatus =
   "trial" | "active" | "past_due" | "suspended" | "cancelled" | string;
@@ -259,6 +265,30 @@ function PlatformOwnerPage() {
     yearly: PlatformSubscriptionPlan | null;
   } | null>(null);
 
+  const [promotions, setPromotions] = useState<PlatformPromotion[]>([]);
+
+  const [promotionsError, setPromotionsError] = useState("");
+
+  const [isPromotionsBoardOpen, setIsPromotionsBoardOpen] = useState(false);
+
+  const [platformTheme, setPlatformTheme] = useState<"dark" | "light">(() => {
+    try {
+      return window.localStorage.getItem("platformOwnerTheme") === "light"
+        ? "light"
+        : "dark";
+    } catch {
+      return "dark";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("platformOwnerTheme", platformTheme);
+    } catch {
+      // Приватный режим браузера — просто не сохраняем выбор.
+    }
+  }, [platformTheme]);
+
   const [loadState, setLoadState] = useState<LoadState>("loading");
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -299,11 +329,13 @@ function PlatformOwnerPage() {
         salonsResponse,
         applicationsResponse,
         plansResponse,
+        promotionsResponse,
       ] = await Promise.all([
         api.get<PlatformOverview>("/platform-admin/overview"),
         api.get<PlatformSalon[]>("/platform-admin/salons"),
         api.get<PlatformApplication[]>("/platform-admin/applications"),
         api.get<PlatformSubscriptionPlan[]>("/platform-admin/plans"),
+        api.get<PlatformPromotion[]>("/platform-admin/promotions"),
       ]);
 
       setOverview(overviewResponse.data);
@@ -311,9 +343,12 @@ function PlatformOwnerPage() {
       setApplications(applicationsResponse.data);
       setPlans(plansResponse.data);
       setPlansError("");
+      setPromotions(promotionsResponse.data);
+      setPromotionsError("");
       setLoadState("ready");
     } catch {
       setPlansError("Не удалось загрузить тарифы из защищённого API.");
+      setPromotionsError("Не удалось загрузить акции из защищённого API.");
       setLoadState("error");
     }
   }, []);
@@ -544,7 +579,7 @@ function PlatformOwnerPage() {
   }
 
   return (
-    <div className="platform-shell">
+    <div className="platform-shell" data-platform-theme={platformTheme}>
       <aside className="platform-sidebar">
         <div className="platform-brand">
           <div className="platform-brand-icon">
@@ -592,6 +627,24 @@ function PlatformOwnerPage() {
         <div className="platform-sidebar-footer">
           <p>Защищённый кабинет</p>
           <strong>Владелец платформы</strong>
+
+          <button
+            type="button"
+            className="platform-theme-toggle"
+            onClick={() =>
+              setPlatformTheme((current) =>
+                current === "dark" ? "light" : "dark",
+              )
+            }
+            style={{ marginBottom: 8, width: "100%" }}
+          >
+            {platformTheme === "dark" ? (
+              <Sun size={17} aria-hidden="true" />
+            ) : (
+              <Moon size={17} aria-hidden="true" />
+            )}
+            {platformTheme === "dark" ? "Светлая тема" : "Тёмная тема"}
+          </button>
 
           <button
             type="button"
@@ -1153,6 +1206,39 @@ function PlatformOwnerPage() {
 
                 window.location.hash = "platform-marketing";
               }}
+              promotions={promotions}
+              isPromotionsLoading={loadState === "loading"}
+              onOpenPromotions={() => {
+                setIsPromotionsBoardOpen(true);
+                window.location.hash = "platform-marketing";
+              }}
+              promotionsBoardSlot={
+                isPromotionsBoardOpen ? (
+                  <PromotionsBoard
+                    promotions={promotions}
+                    salons={salons.map((salon) => ({
+                      id: salon.id,
+                      name: salon.name,
+                    }))}
+                    isLoading={loadState === "loading"}
+                    errorMessage={promotionsError}
+                    onClose={() => setIsPromotionsBoardOpen(false)}
+                    onReload={() => void loadPlatformData()}
+                    onPromotionCreated={(promotion) => {
+                      setPromotions((current) => [promotion, ...current]);
+                    }}
+                    onPromotionUpdated={(updatedPromotion) => {
+                      setPromotions((current) =>
+                        current.map((promotion) =>
+                          promotion.id === updatedPromotion.id
+                            ? updatedPromotion
+                            : promotion,
+                        ),
+                      );
+                    }}
+                  />
+                ) : null
+              }
             />
 
             {selectedPlanGroup ? (
@@ -1192,6 +1278,10 @@ function PlatformOwnerPage() {
                 }}
               />
             ) : null}
+
+            <AppReviewsModeration />
+
+            <SalonStaffReviewsModeration />
 
             <section id="platform-salons" className="platform-salons-panel">
               <div className="platform-panel-heading">

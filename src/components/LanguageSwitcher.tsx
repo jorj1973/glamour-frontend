@@ -17,10 +17,11 @@ function LanguageSwitcher() {
 
   return (
     <div style={{
-      display: 'flex',
-      gap: 4,
-      padding: '6px 8px',
-      borderRadius: 12,
+      display: 'inline-flex',
+      alignSelf: 'flex-start',
+      gap: 3,
+      padding: 3,
+      borderRadius: 13,
       background: 'rgba(255,255,255,0.05)',
       border: '1px solid rgba(255,255,255,0.08)',
     }}>
@@ -30,11 +31,16 @@ function LanguageSwitcher() {
           type="button"
           onClick={() => changeLanguage(lang.code)}
           style={{
-            padding: '4px 8px',
-            borderRadius: 8,
+            minWidth: 32,
+            height: 28,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            borderRadius: 9,
             border: 'none',
-            background: current === lang.code ? '#d682b8' : 'transparent',
-            color: current === lang.code ? '#17151c' : '#9d949f',
+            background: current === lang.code ? 'var(--app-accent)' : 'transparent',
+            color: current === lang.code ? '#17151c' : 'var(--app-text-muted)',
             fontSize: 11,
             fontWeight: 700,
             cursor: 'pointer',

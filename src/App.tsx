@@ -3,6 +3,7 @@ import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
 import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
+import PublicBookingPage from './pages/PublicBookingPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import PlatformOwnerPage from './pages/PlatformOwnerPage';
 import OwnerDashboardPage from './pages/OwnerDashboardPage';
@@ -14,8 +15,19 @@ import ServicesPage from './pages/ServicesPage';
 import FinancePage from './pages/FinancePage';
 import BrandingPage from './pages/BrandingPage';
 import MasterPaymentPage from './pages/MasterPaymentPage';
+import MasterProfilePage from './pages/MasterProfilePage';
+import MasterSchedulePage from './pages/MasterSchedulePage';
+import MasterCalendarPage from './pages/MasterCalendarPage';
 import PromotionLinksPage from './pages/PromotionLinksPage';
+import PublicMasterPage from './pages/PublicMasterPage';
+import ClientCabinetPage from './pages/ClientCabinetPage';
+import LoyaltyPage from './pages/LoyaltyPage';
+import SalonInfoPage from './pages/SalonInfoPage';
+import SalonReviewsPage from './pages/SalonReviewsPage';
+import MasterReviewsPage from './pages/MasterReviewsPage';
+
 import './App.css';
+import './mobile.css';
 
 type PlatformRole = 'platform_owner' | null;
 
@@ -60,6 +72,8 @@ function App() {
   const [platformRole, setPlatformRole] =
     useState<PlatformRole>(null);
 
+  const [userRole, setUserRole] = useState<string>('');
+
   const [isSessionLoading, setIsSessionLoading] = useState(
     Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
   );
@@ -103,6 +117,7 @@ function App() {
         }
 
         setPlatformRole(response.data.platformRole);
+        setUserRole(response.data.user?.role ?? '');
 
         const savedWorkspaceMode =
           localStorage.getItem(WORKSPACE_MODE_KEY);
@@ -197,12 +212,31 @@ function App() {
     }
   }
 
-  if (currentPage.startsWith('#reset-password')) {
+  // Сброс пароля ловим и по пути (/reset-password?token=...),
+  // и по хешу (#reset-password?token=...).
+  // Путь надёжнее: почтовые клиенты теряют фрагмент после # при редиректе.
+  if (
+    currentPage.startsWith('#reset-password') ||
+    window.location.pathname.startsWith('/reset-password')
+  ) {
     return <ResetPasswordPage />;
+  }
+
+  // Постоянная витрина мастера: адрес не меняется,
+  // содержимое обновляется вслед за «Обо мне».
+  if (currentPage.startsWith('#master/')) {
+    return <PublicMasterPage />;
   }
 
   if (currentPage.startsWith('#register?')) {
     return <SalonRegistrationPage />;
+  }
+
+  if (
+    currentPage === '#book' ||
+    currentPage.startsWith('#book?')
+  ) {
+    return <PublicBookingPage />;
   }
 
   if (
@@ -257,12 +291,28 @@ function App() {
       case '#finance':
         return <FinancePage />;
 
+      case '#loyalty':
+        return <LoyaltyPage />;
       case '#payment-settings':
         return <MasterPaymentPage />;
+      case '#my-profile':
+        return <MasterProfilePage />;
+      case '#schedule':
+        return <MasterCalendarPage />;
+      case '#schedule-template':
+        return <MasterSchedulePage />;
+      case '#reviews':
+        return <MasterReviewsPage />;
 
       default:
         return <MasterDashboardPage />;
     }
+  }
+
+  // Клиент не имеет отношения к кабинету салона: у него свой раздел
+  // со своими записями. Раньше он проваливался в интерфейс салона.
+  if (userRole === 'client') {
+    return <ClientCabinetPage />;
   }
 
   const isSalonWorkspace =
@@ -295,7 +345,13 @@ function App() {
     case '#promotion-links':
         return <PromotionLinksPage />;
 
-      case '#branding':
+      case '#salon-info':
+      return <SalonInfoPage />;
+
+    case '#reviews':
+      return <SalonReviewsPage />;
+
+    case '#branding':
       return <BrandingPage />;
 
     default:

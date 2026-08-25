@@ -11,8 +11,46 @@ import {
   UserPlus,
   X,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
+
+/**
+ * Значение поля на языке пользователя.
+ *
+ * Если перевода нет, возвращаем основное: строка на чужом языке
+ * лучше пустоты в карточке мастера.
+ */
+function byLanguage(
+  base: string | null | undefined,
+  ro: string | null | undefined,
+  ru: string | null | undefined,
+  en: string | null | undefined,
+  language: string,
+): string {
+  if (language.startsWith('ro')) return ro?.trim() || base || '';
+  if (language.startsWith('en')) return en?.trim() || base || '';
+  if (language.startsWith('ru')) return ru?.trim() || base || '';
+
+  return base || '';
+}
+
+/**
+ * Описание мастера на языке клиента.
+ *
+ * Если перевода нет, показываем то, что есть: пустой профиль
+ * хуже, чем описание на чужом языке.
+ */
+function masterBio(
+  master: { bio?: string | null; bioRo?: string | null; bioRu?: string | null; bioEn?: string | null },
+  language: string,
+): string {
+  if (language.startsWith('ro')) return master.bioRo?.trim() || master.bio || '';
+  if (language.startsWith('en')) return master.bioEn?.trim() || master.bio || '';
+  if (language.startsWith('ru')) return master.bioRu?.trim() || master.bio || '';
+
+  return master.bio || '';
+}
 
 type Master = {
   id: string;
@@ -20,6 +58,17 @@ type Master = {
   photoUrl?: string | null;
   profession?: string | null;
   bio?: string | null;
+
+  /** Описание по языкам. Мастер заполняет их в своём профиле. */
+  professionRo?: string | null;
+  professionRu?: string | null;
+  professionEn?: string | null;
+  specializationRo?: string | null;
+  specializationRu?: string | null;
+  specializationEn?: string | null;
+  bioRo?: string | null;
+  bioRu?: string | null;
+  bioEn?: string | null;
   experienceYears?: number | null;
   city?: string | null;
   salonName?: string | null;
@@ -73,9 +122,10 @@ function getInitials(master: Master): string {
 }
 
 function MastersPage() {
+  const { t, i18n } = useTranslation();
   const [masters, setMasters] = useState<Master[]>([]);
   const [salon, setSalon] = useState<SalonSummary | null>(null);
-  const [message, setMessage] = useState('Загрузка команды салона...');
+  const [message, setMessage] = useState(t('masters.loading'));
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -84,6 +134,7 @@ function MastersPage() {
   const [isLinkLoading, setIsLinkLoading] = useState(false);
   const [linkError, setLinkError] = useState('');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [savingCoopId, setSavingCoopId] = useState<string | null>(null);
 
   async function loadData() {
     setIsLoading(true);
@@ -91,12 +142,12 @@ function MastersPage() {
       const salonsResponse = await api.get<SalonSummary[]>('/salons/my');
       const currentSalon = salonsResponse.data[0] ?? null;
       setSalon(currentSalon);
-      if (!currentSalon) { setMessage('Салон не найден.'); return; }
+      if (!currentSalon) { setMessage(t('masters.salonNotFound')); return; }
       const mastersResponse = await api.get<Master[]>('/masters', { params: { salonId: currentSalon.id } });
       setMasters(mastersResponse.data);
       setMessage('');
     } catch {
-      setMessage('Не удалось загрузить данные команды салона.');
+      setMessage(t('masters.loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +168,26 @@ function MastersPage() {
       if (!permanentUrl) throw new Error('URL missing');
       setRegistrationUrl(permanentUrl);
     } catch {
-      setLinkError('Не удалось получить ссылку. Повторите попытку.');
+      setLinkError(t('masters.linkError'));
     } finally {
       setIsLinkLoading(false);
+    }
+  }
+
+  async function changeCooperationType(masterId: string, next: string) {
+    if (!salon) return;
+    setSavingCoopId(masterId);
+    try {
+      await api.patch(
+        `/masters/cooperation-type/${masterId}`,
+        { cooperationType: next },
+        { params: { salonId: salon.id } },
+      );
+      await loadData();
+    } catch {
+      setMessage(t('masters.coopError'));
+    } finally {
+      setSavingCoopId(null);
     }
   }
 
@@ -171,23 +239,22 @@ function MastersPage() {
       <main className="dashboard-page">
         <header className="dashboard-header">
           <div>
-            <p className="dashboard-eyebrow">МАСТЕРА</p>
-            <h1>Команда салона</h1>
-            <p className="dashboard-subtitle">Все мастера зарегистрированные в системе — управление командой и приглашения.</p>
+            <h1>{t("masters.title")}</h1>
+            <p className="dashboard-subtitle">{t("masters.subtitle")}</p>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div className="dashboard-period" style={{ minWidth: 110 }}>
-              <span>Всего мастеров</span>
+              <span>{t("masters.totalMasters")}</span>
               <strong>{masters.length}</strong>
             </div>
             {canManage && (
               <button
                 type="button"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minHeight: 46, padding: '0 18px', border: 0, borderRadius: 14, background: '#d682b8', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minHeight: 46, padding: '0 18px', border: 0, borderRadius: 14, background: 'var(--app-accent)', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                 onClick={isRegistrationPanelOpen ? () => setIsRegistrationPanelOpen(false) : openRegistrationPanel}
               >
                 {isRegistrationPanelOpen ? <X size={17} /> : <UserPlus size={17} />}
-                {isRegistrationPanelOpen ? 'Закрыть' : 'Пригласить мастера'}
+                {isRegistrationPanelOpen ? t('common.close') : t('masters.invite')}
               </button>
             )}
           </div>
@@ -198,9 +265,9 @@ function MastersPage() {
           <section className="platform-invitations-panel" style={{ marginBottom: 24 }}>
             <div className="platform-panel-heading">
               <div>
-                <p className="panel-kicker">РЕГИСТРАЦИЯ МАСТЕРОВ</p>
-                <h2>Постоянная ссылка салона</h2>
-                <p>Отправьте эту ссылку будущему мастеру. Он самостоятельно заполнит данные и зарегистрируется в вашем салоне.</p>
+                <p className="panel-kicker">{t('links.forMasterReg')}</p>
+                <h2>{t('masters.registrationLink')}</h2>
+                <p>{t('masters.regPanelDesc')}</p>
               </div>
             </div>
             <div className="platform-invitation-layout">
@@ -208,41 +275,41 @@ function MastersPage() {
                 <div className="platform-result-success">
                   <CheckCircle2 size={21} />
                   <div>
-                    <strong>Одна ссылка для всех мастеров</strong>
-                    <span>Ссылка не имеет срока действия и используется многократно.</span>
+                    <strong>{t('masters.oneLinkForAll')}</strong>
+                    <span>{t('masters.linkNoExpiry')}</span>
                   </div>
                 </div>
-                <p className="platform-security-note">Мастер сам вводит свои данные при регистрации — вам ничего заранее вводить не нужно.</p>
+                <p className="platform-security-note">{t('masters.selfEntry')}</p>
               </div>
               <aside className="platform-invitation-result">
                 {isLinkLoading && (
                   <div className="platform-result-placeholder">
                     <Link2 size={28} />
-                    <strong>Получаем ссылку...</strong>
-                    <p>Подождите несколько секунд.</p>
+                    <strong>{t('masters.gettingLink')}</strong>
+                    <p>{t('masters.waitSeconds')}</p>
                   </div>
                 )}
                 {!isLinkLoading && linkError && (
                   <div className="platform-result-placeholder">
-                    <strong>Ссылка не получена</strong>
+                    <strong>{t('masters.linkNotReceived')}</strong>
                     <p className="platform-invitation-error">{linkError}</p>
                     <button type="button" className="platform-create-invitation-button" onClick={() => void loadPermanentRegistrationLink()}>
-                      Повторить
+                      {t('common.retry')}
                     </button>
                   </div>
                 )}
                 {!isLinkLoading && !linkError && registrationUrl && (
                   <>
-                    <label>Постоянная регистрационная ссылка</label>
+                    <label>{t("masters.permanentLink")}</label>
                     <div className="platform-invite-url">
                       <input type="text" value={registrationUrl} readOnly onFocus={(e) => e.currentTarget.select()} />
                       <button type="button" onClick={() => void copyRegistrationUrl()}>
-                        <ClipboardCopy size={17} /> Копировать
+                        <ClipboardCopy size={17} /> {t('links.copy')}
                       </button>
                     </div>
-                    {copyStatus === 'copied' && <p className="platform-copy-success">Ссылка скопирована!</p>}
-                    {copyStatus === 'error' && <p className="platform-invitation-error">Не удалось скопировать. Скопируйте вручную.</p>}
-                    <p className="platform-security-note">При повторном открытии возвращается та же ссылка.</p>
+                    {copyStatus === 'copied' && <p className="platform-copy-success">{t("links.copied") + "!"}</p>}
+                    {copyStatus === 'error' && <p className="platform-invitation-error">{t('masters.copyFailed')}</p>}
+                    <p className="platform-security-note">{t('masters.sameLinkNote')}</p>
                   </>
                 )}
               </aside>
@@ -252,15 +319,15 @@ function MastersPage() {
 
         {/* Кнопка обновления и поиск */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#d7ced8', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadData()} disabled={isLoading}>
-            <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} /> Обновить
+          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadData()} disabled={isLoading}>
+            <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} /> {t('masters.refresh')}
           </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 13, background: 'rgba(255,255,255,0.05)', marginBottom: 16 }}>
-          <Search size={16} style={{ color: '#efb6d8', flexShrink: 0 }} />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Поиск по имени, профессии, городу..." style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: '#fff7fc', fontSize: 13 }} />
-          {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: '#9d949f', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
+          <Search size={16} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("masters.searchPlaceholder")} style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }} />
+          {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
         </div>
 
         {/* Список мастеров */}
@@ -269,17 +336,17 @@ function MastersPage() {
         ) : (
           <section className="dashboard-panel">
             <div className="panel-heading">
-              <div><p className="panel-kicker">КОМАНДА</p><h2>{filtered.length} мастеров</h2></div>
+              <div><p className="panel-kicker">{t("masters.team").toUpperCase()}</p><h2>{t('masters.count', { count: filtered.length })}</h2></div>
               <Scissors size={22} />
             </div>
 
             {filtered.length === 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: '#9d949f', textAlign: 'center' }}>
-                <Scissors size={40} style={{ color: '#d682b8', opacity: 0.4 }} />
-                <p>{search ? 'Мастера не найдены.' : 'В системе пока нет мастеров.'}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
+                <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+                <p>{search ? t('masters.notFound') : t('masters.noMasters')}</p>
                 {!search && canManage && (
-                  <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 16px', border: 0, borderRadius: 12, background: '#d682b8', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={openRegistrationPanel}>
-                    <UserPlus size={15} /> Пригласить первого мастера
+                  <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 16px', border: 0, borderRadius: 12, background: 'var(--app-accent)', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={openRegistrationPanel}>
+                    <UserPlus size={15} /> {t('masters.inviteFirst')}
                   </button>
                 )}
               </div>
@@ -292,34 +359,39 @@ function MastersPage() {
                   const fullName = [master.firstName, master.lastName].filter(Boolean).join(' ');
 
                   return (
-                    <div key={master.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(214,130,184,0.04)' : 'transparent' }}>
+                    <div key={master.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setExpandedId(isExpanded ? null : master.id)}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(214,130,184,0.12)', color: '#efb6d8', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
 
                         {master.photoUrl ? (
-                          <img src={master.photoUrl} alt={initials} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(214,130,184,0.3)' }} />
+                          <img src={master.photoUrl} alt={initials} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(var(--app-accent-rgb), 0.3)' }} />
                         ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: 'rgba(214,130,184,0.16)', color: '#efb6d8', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-accent-strong)', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                             {initials || <User size={18} />}
                           </div>
                         )}
 
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                            <strong style={{ color: '#fff7fc', fontSize: 14 }}>{fullName || master.profession || 'Мастер'}</strong>
-                            {master.cooperationType === 'INDEPENDENT' && (
-                              <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'rgba(114,167,255,0.12)', color: '#a8c9ff' }}>независимый</span>
-                            )}
-                            {master.isPublic && (
-                              <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'rgba(77,208,139,0.12)', color: '#8ee5b5' }}>публичный</span>
-                            )}
+                          <div className="master-name-row" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <strong style={{ color: 'var(--app-text)', fontSize: 14 }}>{fullName || byLanguage(master.profession, master.professionRo, master.professionRu, master.professionEn, i18n.language) || t('masters.master')}</strong>
+
+                            {/* Метки в общей обёртке: на телефоне уходят
+                                под имя одним рядом, а не по одной. */}
+                            <span className="master-badges" style={{ display: 'inline-flex', gap: 8, flexWrap: 'wrap' }}>
+                              {master.cooperationType?.toLowerCase() === 'independent' && (
+                                <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'rgba(114,167,255,0.12)', color: '#a8c9ff' }}>{t("masters.independent")}</span>
+                              )}
+                              {master.isPublic && (
+                                <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'rgba(77,208,139,0.12)', color: '#8ee5b5' }}>{t("masters.public")}</span>
+                              )}
+                            </span>
                           </div>
                           <div style={{ display: 'flex', gap: 12, marginTop: 4, flexWrap: 'wrap' }}>
                             {master.profession && fullName && (
-                              <span style={{ color: '#9d949f', fontSize: 12 }}>{master.profession}</span>
+                              <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>{byLanguage(master.profession, master.professionRo, master.professionRu, master.professionEn, i18n.language)}</span>
                             )}
                             {master.city && (
-                              <span style={{ color: '#9d949f', fontSize: 12 }}>📍 {master.city}</span>
+                              <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>📍 {master.city}</span>
                             )}
                           </div>
                         </div>
@@ -327,45 +399,60 @@ function MastersPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
                           {rating && (
                             <div style={{ textAlign: 'right' }}>
-                              <strong style={{ color: '#d682b8', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <strong style={{ color: 'var(--app-accent)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Star size={13} />{rating}
                               </strong>
-                              <div style={{ color: '#9d949f', fontSize: 11 }}>рейтинг</div>
+                              <div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t('masters.rating')}</div>
                             </div>
                           )}
                           {typeof master.experienceYears === 'number' && (
                             <div style={{ textAlign: 'right' }}>
-                              <strong style={{ color: '#fff7fc', fontSize: 14 }}>{master.experienceYears}</strong>
-                              <div style={{ color: '#9d949f', fontSize: 11 }}>лет опыта</div>
+                              <strong style={{ color: 'var(--app-text)', fontSize: 14 }}>{master.experienceYears}</strong>
+                              <div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("masters.experience")}</div>
                             </div>
                           )}
-                          <span style={{ color: '#9d949f', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</span>
+                          <span style={{ color: 'var(--app-text-muted)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</span>
                         </div>
                       </div>
 
                       {isExpanded && (
                         <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                           {master.bio && (
-                            <p style={{ color: '#c9beca', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>{master.bio}</p>
+                            // Абзацы разделяем: описание в одну строку
+                            // читается тяжело, а мастера пишут длинно.
+                            <div style={{ color: 'var(--app-text)', fontSize: 13.5, lineHeight: 1.65, marginBottom: 12, whiteSpace: 'pre-line', textAlign: 'left' }}>{masterBio(master, i18n.language)}</div>
                           )}
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Профессия</span><strong>{master.profession ?? '—'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.profession')}</span><strong>{byLanguage(master.profession, master.professionRo, master.professionRu, master.professionEn, i18n.language) || '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Город</span><strong>{master.city ?? '—'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.city')}</span><strong>{master.city ?? '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Опыт</span><strong>{master.experienceYears != null ? `${master.experienceYears} лет` : '—'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.experienceLabel')}</span><strong>{master.experienceYears != null ? `${master.experienceYears} ${t('masters.experience')}` : '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Рейтинг</span><strong style={{ color: '#d682b8' }}>{rating ? `${rating} ★` : '—'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.rating')}</span><strong style={{ color: 'var(--app-accent)' }}>{rating ? `${rating} ★` : '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Профиль</span><strong style={{ color: master.isPublic ? '#8ee5b5' : '#ffb6c6' }}>{master.isPublic ? 'Публичный' : 'Скрытый'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.profile')}</span><strong style={{ color: master.isPublic ? '#8ee5b5' : 'var(--app-accent-strong)' }}>{master.isPublic ? t('masters.profilePublic') : t('masters.profileHidden')}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: '#9d949f' }}>
-                              <span>Тип</span><strong>{master.cooperationType === 'INDEPENDENT' ? 'независимый' : 'Штатный'}</strong>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                              <span>{t('masters.type')}</span>
+                              {canManage ? (
+                                <select
+                                  value={master.cooperationType?.toLowerCase() === 'independent' ? 'independent' : 'staff'}
+                                  disabled={savingCoopId === master.id}
+                                  onChange={(e) => void changeCooperationType(master.id, e.target.value)}
+                                  style={{ marginTop: 2, padding: '6px 8px', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 8, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                  <option value="staff">{t('masters.staff')}</option>
+                                  <option value="independent">{t('masters.independent')}</option>
+                                </select>
+                              ) : (
+                                <strong>{master.cooperationType?.toLowerCase() === 'independent' ? t('masters.independent') : t('masters.staff')}</strong>
+                              )}
                             </div>
                           </div>
                         </div>

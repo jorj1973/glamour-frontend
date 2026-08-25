@@ -8,17 +8,24 @@ import {
   BarChart3,
   Building2,
   CalendarDays,
+  CalendarRange,
   CreditCard,
+  Gift,
+  Info,
   Palette,
   Scissors,
   Sparkles,
   UserRound,
   Users,
+  ChevronLeft,
   Link2,
+  Menu,
+  Star,
 } from 'lucide-react';
 
 import api from '../api/api';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -91,12 +98,21 @@ function getSavedWorkspaceMode(): WorkspaceMode {
 
 function AppLayout({ children }: AppLayoutProps) {
   const { t } = useTranslation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Кнопка «Назад» имеет смысл только если внутри приложения
+  // уже был переход — иначе она уведёт с сайта.
+  const canGoBack = window.history.length > 1;
+
   const [currentHash, setCurrentHash] = useState(
     window.location.hash,
   );
 
   const [workspaceMode, setWorkspaceMode] =
     useState<WorkspaceMode>(getSavedWorkspaceMode);
+
+  /** Заполненность салона: 100 означает «подсвечивать не нужно». */
+  const [salonPercent, setSalonPercent] = useState(100);
 
   const [salonName, setSalonName] =
     useState('Salon Studio');
@@ -157,6 +173,23 @@ function AppLayout({ children }: AppLayoutProps) {
           currentSalon.name ||
           'Salon Studio',
       );
+
+      // Владелец не узнает, что раздел не заполнен, пока сам
+      // туда не зайдёт. Подсвечиваем пункт меню.
+      try {
+        const healthResponse = await api.get<{
+          salonHealth?: { percent: number };
+        }>('/dashboard/owner', {
+          params: {
+            salonId: currentSalon.id,
+          },
+        });
+
+        setSalonPercent(healthResponse.data.salonHealth?.percent ?? 100);
+      } catch {
+        // Мастер не имеет доступа к сводке владельца — это нормально.
+        setSalonPercent(100);
+      }
 
       setLogoUrl(brandingResponse.data.logoUrl);
     } catch {
@@ -420,28 +453,72 @@ function AppLayout({ children }: AppLayoutProps) {
     workspaceMode === 'master';
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
+    <div className={isMenuOpen ? 'app-shell sidebar-open' : 'app-shell'}>
+      <button
+        type="button"
+        className="mobile-menu-button"
+        aria-label="Menu"
+        onClick={() => setIsMenuOpen((open) => !open)}
+      >
+        <Menu size={20} />
+      </button>
+
+      {canGoBack && (
+        <button
+          type="button"
+          className="mobile-back-button"
+          aria-label="Back"
+          onClick={() => window.history.back()}
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
+
+      {isMenuOpen && (
+        <button
+          type="button"
+          className="sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+
+      <aside className="sidebar" onClick={() => setIsMenuOpen(false)}>
         <div className="sidebar-brand">
           {logoUrl ? (
             <img
               className="sidebar-brand-logo"
               src={logoUrl}
-              alt={`Логотип ${salonName}`}
+              alt={salonName}
             />
           ) : (
             <span>GLAMOUR</span>
           )}
 
           <strong>{salonName}</strong>
+
+          {/* Салон видит своё название и логотип, платформа остаётся
+              узнаваемой: клиент понимает, каким приложением пользуется. */}
+          <span
+            style={{
+              display: 'block',
+              marginTop: 4,
+              color: 'var(--app-text-muted)',
+              fontSize: 10,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {t('nav.poweredBy')}
+          </span>
         </div>
 
         <section
           className="workspace-switcher"
-          aria-label="Выбор рабочего пространства"
+          aria-label={t('nav.workspace')}
         >
           <span className="workspace-switcher-label">
-            Рабочее пространство
+            {t('nav.workspace')}
           </span>
 
           <div className="workspace-switcher-options">
@@ -511,10 +588,10 @@ function AppLayout({ children }: AppLayoutProps) {
         masterSalons.length > 0 ? (
           <section
             className="workspace-switcher"
-            aria-label="Выбор салона мастера"
+            aria-label={t('nav.currentSalon')}
           >
             <span className="workspace-switcher-label">
-              Текущий салон
+              {t('nav.currentSalon')}
             </span>
 
             <select
@@ -525,7 +602,7 @@ function AppLayout({ children }: AppLayoutProps) {
                   event.target.value,
                 )
               }
-              aria-label="Текущий салон мастера"
+              aria-label={t('nav.currentSalon')}
             >
               {masterSalons.map((salon) => (
                 <option
@@ -604,6 +681,50 @@ function AppLayout({ children }: AppLayoutProps) {
               </a>
               <a
                 className={
+                  currentHash === '#schedule-template'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#schedule-template"
+              >
+                <CalendarRange size={18} />
+                {t('nav.scheduleTemplate')}
+              </a>
+              <a
+                className={
+                  currentHash === '#schedule'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#schedule"
+              >
+                <CalendarDays size={18} />
+                {t('nav.mySchedule')}
+              </a>
+              <a
+                className={
+                  currentHash === '#my-profile'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#my-profile"
+              >
+                <UserRound size={18} />
+                {t('nav.myProfile')}
+              </a>
+              <a
+                className={
+                  currentHash === '#loyalty'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#loyalty"
+              >
+                <Gift size={18} />
+                {t('nav.loyalty')}
+              </a>
+              <a
+                className={
                   currentHash === '#payment-settings'
                     ? 'sidebar-nav-link active'
                     : 'sidebar-nav-link'
@@ -612,6 +733,17 @@ function AppLayout({ children }: AppLayoutProps) {
               >
                 <CreditCard size={18} />
                 {t('nav.myPayment')}
+              </a>
+              <a
+                className={
+                  currentHash === '#reviews'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#reviews"
+              >
+                <Star size={18} />
+                {t('nav.reviews')}
               </a>
             </>
           ) : (
@@ -689,6 +821,51 @@ function AppLayout({ children }: AppLayoutProps) {
 
               <a
                 className={
+                  currentHash === '#salon-info'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#salon-info"
+                style={
+                  salonPercent < 70
+                    ? {
+                        color: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
+                        fontWeight: 700,
+                      }
+                    : undefined
+                }
+              >
+                <Info size={18} />
+                {t('nav.salonInfo')}
+
+                {/* Точка заметнее цвета текста: пункт меню мелкий,
+                    один оттенок легко пропустить. */}
+                {salonPercent < 70 && (
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      background: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
+                      marginLeft: 'auto',
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+              </a>
+              <a
+                className={
+                  currentHash === '#reviews'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#reviews"
+              >
+                <Star size={18} />
+                {t('nav.reviews')}
+              </a>
+              <a
+                className={
                   currentHash === '#branding'
                     ? 'active'
                     : ''
@@ -703,12 +880,43 @@ function AppLayout({ children }: AppLayoutProps) {
         </nav>
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto' }}>
           <LanguageSwitcher />
+
+                    <div style={{ height: 10 }} />
+
+                    <ThemeSwitcher />
         </div>
       </aside>
 
       <div className="app-content">
         {children}
       </div>
+
+      {/* Нижняя панель: частые разделы под большим пальцем. */}
+      <nav className="mobile-tabbar">
+        {(workspaceMode === 'master'
+          ? [
+              { hash: '#schedule', icon: <CalendarDays size={19} />, label: t('nav.mySchedule') },
+              { hash: '#appointments', icon: <Sparkles size={19} />, label: t('nav.myAppointments') },
+              { hash: '#clients', icon: <Users size={19} />, label: t('nav.myClients') },
+              { hash: '#finance', icon: <CreditCard size={19} />, label: t('nav.myFinance') },
+            ]
+          : [
+              { hash: '#appointments', icon: <CalendarDays size={19} />, label: t('nav.appointments') },
+              { hash: '#clients', icon: <Users size={19} />, label: t('nav.clients') },
+              { hash: '#masters', icon: <Scissors size={19} />, label: t('nav.masters') },
+              { hash: '#finance', icon: <CreditCard size={19} />, label: t('nav.finance') },
+            ]
+        ).map((item) => (
+          <a
+            key={item.hash}
+            href={item.hash}
+            className={currentHash === item.hash ? 'active' : ''}
+          >
+            {item.icon}
+            {item.label}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 }

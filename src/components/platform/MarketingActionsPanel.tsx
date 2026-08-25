@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import {
   BadgePercent,
   CalendarDays,
@@ -34,6 +36,24 @@ export type PlatformSubscriptionPlan = {
   historyCount: number;
 };
 
+export type PlatformPromotionType = "first_n_salons" | "promo_code" | "seasonal";
+
+export type PlatformPromotion = {
+  id: string;
+  name: string;
+  description: string | null;
+  type: PlatformPromotionType;
+  promoCode: string | null;
+  bonusDays: number;
+  maxRedemptions: number | null;
+  redeemedCount: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type MarketingActionsPanelProps = {
   plans: PlatformSubscriptionPlan[];
   isLoading: boolean;
@@ -43,6 +63,10 @@ type MarketingActionsPanelProps = {
     monthly: PlatformSubscriptionPlan | null,
     yearly: PlatformSubscriptionPlan | null,
   ) => void;
+  promotions: PlatformPromotion[];
+  isPromotionsLoading: boolean;
+  onOpenPromotions: () => void;
+  promotionsBoardSlot?: ReactNode;
 };
 
 type PlanGroup = {
@@ -102,12 +126,33 @@ function groupPlans(plans: PlatformSubscriptionPlan[]): PlanGroup[] {
   });
 }
 
+function formatPromotionsStatus(
+  isPromotionsLoading: boolean,
+  promotions: PlatformPromotion[],
+): string {
+  if (isPromotionsLoading) {
+    return "Загрузка…";
+  }
+
+  const activeCount = promotions.filter((promotion) => promotion.isActive).length;
+
+  if (promotions.length === 0) {
+    return "Создайте первую";
+  }
+
+  return `Активных: ${activeCount} из ${promotions.length}`;
+}
+
 function MarketingActionsPanel({
   plans,
   isLoading,
   errorMessage,
   onReload,
   onConfigurePlan,
+  promotions,
+  isPromotionsLoading,
+  onOpenPromotions,
+  promotionsBoardSlot,
 }: MarketingActionsPanelProps) {
   const planGroups = groupPlans(plans);
 
@@ -127,8 +172,7 @@ function MarketingActionsPanel({
         <button
           type="button"
           className="platform-marketing-create-button"
-          disabled
-          title="Конструктор правил будет подключён следующим этапом"
+          onClick={onOpenPromotions}
         >
           <Plus size={17} aria-hidden="true" />
           Создать условие
@@ -167,7 +211,18 @@ function MarketingActionsPanel({
           <span className="platform-marketing-card-status">Следующий этап</span>
         </article>
 
-        <article className="platform-marketing-builder-card">
+        <article
+          className="platform-marketing-builder-card platform-marketing-builder-card-active platform-marketing-builder-card-clickable"
+          role="button"
+          tabIndex={0}
+          onClick={onOpenPromotions}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onOpenPromotions();
+            }
+          }}
+        >
           <div className="platform-marketing-builder-icon">
             <Gift size={21} aria-hidden="true" />
           </div>
@@ -181,7 +236,9 @@ function MarketingActionsPanel({
             </p>
           </div>
 
-          <span className="platform-marketing-card-status">Подготовлено</span>
+          <span className="platform-marketing-card-status">
+            {formatPromotionsStatus(isPromotionsLoading, promotions)}
+          </span>
         </article>
 
         <article className="platform-marketing-builder-card">
@@ -200,6 +257,8 @@ function MarketingActionsPanel({
           </span>
         </article>
       </div>
+
+      {promotionsBoardSlot}
 
       <div className="platform-marketing-flow">
         <div>

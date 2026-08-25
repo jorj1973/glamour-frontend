@@ -10,6 +10,7 @@ import {
   Mail,
   RotateCcw,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 
 type PlatformRole = 'platform_owner' | null;
@@ -30,6 +31,7 @@ type MessageType = 'error' | 'success' | null;
 function LoginPage({
   onLoginSuccess,
 }: LoginPageProps) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -58,7 +60,7 @@ function LoginPage({
 
     if (!normalizedEmail || !password) {
       setMessage(
-        'Введите email и пароль своей учётной записи.',
+        t('login.enterCredentials'),
       );
       setMessageType('error');
       return;
@@ -88,7 +90,7 @@ function LoginPage({
       });
     } catch {
       setMessage(
-        'Не удалось войти. Проверьте email и пароль.',
+        t('login.failed'),
       );
       setMessageType('error');
     } finally {
@@ -105,7 +107,7 @@ function LoginPage({
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail) {
-      setMessage('Введите email своей учётной записи.');
+      setMessage(t('login.enterEmail'));
       setMessageType('error');
       return;
     }
@@ -120,12 +122,12 @@ function LoginPage({
       setEmail(normalizedEmail);
       setIsResetRequestSent(true);
       setMessage(
-        'Если учётная запись с таким email существует, письмо со ссылкой для восстановления пароля отправлено.',
+        t('login.resetSent'),
       );
       setMessageType('success');
     } catch {
       setMessage(
-        'Не удалось отправить запрос. Попробуйте ещё раз позднее.',
+        t('login.resetFailed'),
       );
       setMessageType('error');
     } finally {
@@ -166,14 +168,13 @@ function LoginPage({
           </p>
 
           <h1 id="password-reset-title">
-            Восстановление пароля
+            {t('login.resetTitle')}
           </h1>
 
           {!isResetRequestSent ? (
             <>
               <p className="login-subtitle">
-                Укажите email своей учётной записи. Мы
-                отправим ссылку для создания нового пароля.
+                {t('login.resetSubtitle')}
               </p>
 
               <form
@@ -216,10 +217,10 @@ function LoginPage({
                         className="login-spinner"
                         aria-hidden="true"
                       />
-                      Отправка…
+                      {t('login.sending')}
                     </>
                   ) : (
-                    'Отправить ссылку'
+                    t('login.sendLink')
                   )}
                 </button>
               </form>
@@ -231,18 +232,16 @@ function LoginPage({
                 aria-hidden="true"
               />
 
-              <h2>Проверьте почту</h2>
+              <h2>{t('login.checkEmail')}</h2>
 
               <p>
-                Инструкция по восстановлению пароля
-                отправлена на:
+                {t('login.instructionSentTo')}
               </p>
 
               <strong>{email}</strong>
 
               <p className="login-reset-hint">
-                Проверьте также папки «Спам» и
-                «Нежелательная почта».
+                {t('login.checkSpam')}
               </p>
 
               <button
@@ -251,7 +250,7 @@ function LoginPage({
                 className="login-secondary-button"
               >
                 <RotateCcw size={16} aria-hidden="true" />
-                Указать другой email
+                {t('login.otherEmail')}
               </button>
             </div>
           )}
@@ -277,7 +276,7 @@ function LoginPage({
             className="login-forgot-button"
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            Вернуться ко входу
+            {t('login.backToLogin')}
           </button>
         </section>
       </main>
@@ -294,11 +293,10 @@ function LoginPage({
           GLAMOUR Salon Studio
         </p>
 
-        <h1 id="login-title">Вход в систему</h1>
+        <h1 id="login-title">{t('login.title')}</h1>
 
         <p className="login-subtitle">
-          Используйте свою учётную запись для доступа к
-          панели управления.
+          {t('login.subtitle')}
         </p>
 
         <form
@@ -329,7 +327,7 @@ function LoginPage({
             />
           </div>
 
-          <label htmlFor="password">Пароль</label>
+          <label htmlFor="password">{t('login.password')}</label>
 
           <div className="login-field">
             <LockKeyhole size={18} aria-hidden="true" />
@@ -345,7 +343,7 @@ function LoginPage({
                 clearMessage();
               }}
               autoComplete="current-password"
-              placeholder="Введите пароль"
+              placeholder={t('login.passwordPlaceholder')}
               disabled={isLoading}
               required
             />
@@ -359,8 +357,8 @@ function LoginPage({
               disabled={isLoading}
               aria-label={
                 isPasswordVisible
-                  ? 'Скрыть пароль'
-                  : 'Показать пароль'
+                  ? t('login.hidePassword')
+                  : t('login.showPassword')
               }
               aria-pressed={isPasswordVisible}
             >
@@ -378,7 +376,7 @@ function LoginPage({
             disabled={isLoading}
             className="login-forgot-button"
           >
-            Забыли пароль?
+            {t('login.forgot')}
           </button>
 
           <button
@@ -393,10 +391,10 @@ function LoginPage({
                   className="login-spinner"
                   aria-hidden="true"
                 />
-                Выполняется вход…
+                {t('login.signingIn')}
               </>
             ) : (
-              'Войти'
+              t('login.signIn')
             )}
           </button>
         </form>

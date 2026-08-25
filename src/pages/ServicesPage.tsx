@@ -14,7 +14,9 @@ import {
   Zap,
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
+import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
 
 type WorkspaceMode = 'platform' | 'salon' | 'master';
@@ -27,13 +29,59 @@ type SalonSummary = {
   membershipStatus?: string | null;
 };
 
+/**
+ * Название услуги на языке пользователя.
+ *
+ * Если перевода нет, показываем основное: пустая строка
+ * в списке хуже, чем название на чужом языке.
+ */
+function serviceName(
+  service:
+    | {
+        name: string;
+        nameRo?: string | null;
+        nameRu?: string | null;
+        nameEn?: string | null;
+      }
+    | undefined,
+  language: string,
+): string {
+  if (!service) {
+    return '';
+  }
+
+  if (language.startsWith('ro')) {
+    return service.nameRo?.trim() || service.name;
+  }
+
+  if (language.startsWith('en')) {
+    return service.nameEn?.trim() || service.name;
+  }
+
+  if (language.startsWith('ru')) {
+    return service.nameRu?.trim() || service.name;
+  }
+
+  return service.name;
+}
+
 type Service = {
   id: string;
   name: string;
+
+  /** Названия по языкам: салон заполняет их при добавлении. */
+  nameRo?: string | null;
+  nameRu?: string | null;
+  nameEn?: string | null;
   description: string | null;
   durationMinutes: number;
   basePrice: number;
   isActive: boolean;
+  /**
+   * Заполнен у позиций из справочника платформы —
+   * такой услуги в салоне ещё нет, она создастся при добавлении.
+   */
+  catalogId?: string | null;
 };
 
 type MasterService = {
@@ -69,7 +117,6 @@ function getWorkspaceMode(): WorkspaceMode {
   return 'salon';
 }
 
-// ─── Маленький компонент переключателя ───────────────────────────────────────
 function Toggle({
   checked,
   onChange,
@@ -80,7 +127,7 @@ function Toggle({
   label: string;
 }) {
   return (
-    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', color: '#d7ced8', fontSize: 13 }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', color: 'var(--app-text)', fontSize: 13 }}>
       <span
         onClick={() => onChange(!checked)}
         style={{
@@ -88,7 +135,7 @@ function Toggle({
           width: 40,
           height: 22,
           borderRadius: 11,
-          background: checked ? '#d682b8' : 'rgba(255,255,255,0.12)',
+          background: checked ? 'var(--app-accent)' : 'rgba(255,255,255,0.12)',
           position: 'relative',
           transition: 'background 0.2s',
           cursor: 'pointer',
@@ -111,26 +158,101 @@ function Toggle({
   );
 }
 
-// ─── Главный компонент ────────────────────────────────────────────────────────
+type CatalogItem = {
+  id: string;
+  category: string;
+  nameRo: string;
+  nameRu: string;
+  nameEn: string;
+  defaultDurationMinutes: number;
+};
+
+const CATEGORY_ORDER = [
+  'hair',
+  'nails',
+  'brows',
+  'permanent',
+  'face',
+  'depilation',
+];
+
 function ServicesPage() {
   const workspaceMode = getWorkspaceMode();
+  const { t, i18n } = useTranslation();
   const isMasterWorkspace = workspaceMode === 'master';
 
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [masterServices, setMasterServices] = useState<MasterService[]>([]);
-  const [message, setMessage] = useState(isMasterWorkspace ? 'Загрузка ваших услуг...' : 'Загрузка услуг...');
+  const [message, setMessage] = useState(isMasterWorkspace ? t('services.loadingMy') : t('services.loading'));
   const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // ── Режим добавления (только мастер) ──────────────────────────────────────
   const [addMode, setAddMode] = useState<AddMode>(null);
   const [expandedServiceId, setExpandedServiceId] = useState<string | null>(null);
 
-  // ── Форма: выбор из каталога ───────────────────────────────────────────────
   const [selectedServiceId, setSelectedServiceId] = useState('');
+
+  /**
+   * Отмеченные услуги. Галочка меняет состояние, «Сохранить»
+   * применяет всё разом: отмеченные добавляются, снятые удаляются.
+   */
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+
+  /**
+   * Услуга, открытая на редактирование прямо в карточке.
+   * Форма разворачивается под кнопкой, без прыжков по странице.
+   */
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState('');
+  const [editDuration, setEditDuration] = useState('');
+  const [editBufferBefore, setEditBufferBefore] = useState('0');
+  const [editBufferAfter, setEditBufferAfter] = useState('0');
+  const [editOnline, setEditOnline] = useState(true);
+  const [editPublic, setEditPublic] = useState(true);
+
+  function startEdit(ms: MasterService) {
+    setEditingId(ms.id);
+    setEditPrice(String(ms.price ?? ''));
+    setEditDuration(String(ms.durationMinutes ?? ''));
+    setEditBufferBefore(String(ms.bufferBeforeMinutes ?? 0));
+    setEditBufferAfter(String(ms.bufferAfterMinutes ?? 0));
+    setEditOnline(ms.onlineBookingEnabled);
+    setEditPublic(ms.isPublic);
+  }
+
+  async function saveEdit(ms: MasterService) {
+    if (!salon) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await api.patch(
+        `/masters/me/services/${ms.id}`,
+        {
+          price: Number(editPrice) || 0,
+          durationMinutes: Number(editDuration) || ms.durationMinutes,
+          bufferBeforeMinutes: Number(editBufferBefore) || 0,
+          bufferAfterMinutes: Number(editBufferAfter) || 0,
+          onlineBookingEnabled: editOnline,
+          isPublic: editPublic,
+        },
+        { params: { salonId: salon.id } },
+      );
+
+      await reloadData(salon.id);
+      setEditingId(null);
+      showSuccess(t('services.addedToList'));
+    } catch (error) {
+      showError(t(getErrorKey(error)));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
   const [masterPrice, setMasterPrice] = useState('');
   const [masterDuration, setMasterDuration] = useState('');
   const [bufferBefore, setBufferBefore] = useState('0');
@@ -141,7 +263,11 @@ function ServicesPage() {
   const [catalogDepositAmount, setCatalogDepositAmount] = useState('');
   const [catalogConsultation, setCatalogConsultation] = useState(false);
 
-  // ── Форма: своя услуга ─────────────────────────────────────────────────────
+  /** Названия услуги салона по языкам. */
+  const [nameRo, setNameRo] = useState('');
+  const [nameRu, setNameRu] = useState('');
+  const [nameEn, setNameEn] = useState('');
+
   const [customTitle, setCustomTitle] = useState('');
   const [customDescription, setCustomDescription] = useState('');
   const [customPrice, setCustomPrice] = useState('');
@@ -155,13 +281,14 @@ function ServicesPage() {
   const [customConsultation, setCustomConsultation] = useState(false);
   const [customTags, setCustomTags] = useState('');
 
-  // ── Форма: каталог салона (owner/admin) ────────────────────────────────────
+  const [catalog, setCatalog] = useState<CatalogItem[]>([]);
+  const [selectedCatalogId, setSelectedCatalogId] = useState('');
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [durationMinutes, setDurationMinutes] = useState('60');
   const [basePrice, setBasePrice] = useState('300');
 
-  // ── Загрузка данных ────────────────────────────────────────────────────────
   async function loadSalon(): Promise<SalonSummary | null> {
     const response = await api.get<SalonSummary[]>('/salons/my');
     const available = response.data;
@@ -189,6 +316,9 @@ function ServicesPage() {
       ]);
       setServices(cat.data);
       setMasterServices(my.data);
+
+      // Отмечаем то, что уже подключено, чтобы галочки отражали прайс.
+      setCheckedIds(new Set(my.data.map((item) => item.serviceId)));
     } else {
       const res = await api.get<Service[]>('/services', { params: { salonId } });
       setServices(res.data);
@@ -202,18 +332,17 @@ function ServicesPage() {
         const s = await loadSalon();
         if (cancelled) return;
         setSalon(s);
-        if (!s) { setMessage('Салон не найден.'); return; }
+        if (!s) { setMessage(t('services.salonNotFound')); return; }
         await reloadData(s.id);
         setMessage('');
       } catch {
-        if (!cancelled) setMessage(isMasterWorkspace ? 'Не удалось загрузить услуги мастера.' : 'Не удалось загрузить услуги.');
+        if (!cancelled) setMessage(isMasterWorkspace ? t('services.loadMyError') : t('services.loadError'));
       }
     }
     void init();
     return () => { cancelled = true; };
   }, [isMasterWorkspace]);
 
-  // ── Мемо ─────────────────────────────────────────────────────────────────
   const serviceById = useMemo(
     () => new Map(services.map((s) => [s.id, s])),
     [services],
@@ -237,12 +366,11 @@ function ServicesPage() {
     if (!q) return masterServices;
     return masterServices.filter((ms) => {
       const svc = serviceById.get(ms.serviceId);
-      const title = ms.customTitle ?? svc?.name ?? '';
+      const title = ms.customTitle ?? serviceName(svc, i18n.language);
       return title.toLowerCase().includes(q);
     });
   }, [masterServices, search, serviceById]);
 
-  // ── Уведомления ──────────────────────────────────────────────────────────
   function showSuccess(msg: string) {
     setSuccessMessage(msg);
     setErrorMessage('');
@@ -254,7 +382,72 @@ function ServicesPage() {
     setSuccessMessage('');
   }
 
-  // ── Выбор услуги из каталога для формы мастера ───────────────────────────
+  function toggleService(serviceId: string) {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(serviceId)) {
+        next.delete(serviceId);
+      } else {
+        next.add(serviceId);
+      }
+
+      return next;
+    });
+  }
+
+  /**
+   * Применяет отметки: добавляет новые услуги, удаляет снятые.
+   * Цена берётся из справочника, править её можно потом в своём прайсе.
+   */
+  async function handleApplyChecked() {
+    if (!salon) {
+      showError(t('services.salonNotFound'));
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const toAdd = services.filter(
+        (s) => checkedIds.has(s.id) && !masterServiceByServiceId.has(s.id),
+      );
+
+      const toRemove = masterServices.filter(
+        (ms) => !checkedIds.has(ms.serviceId),
+      );
+
+      for (const item of toAdd) {
+        const isFromCatalog = Boolean(item.catalogId);
+
+        await api.post(
+          isFromCatalog ? '/masters/me/services/custom' : '/masters/me/services',
+          {
+            ...(isFromCatalog
+              ? { catalogId: item.catalogId, customTitle: item.name }
+              : { serviceId: item.id }),
+            price: Number(item.basePrice) || 0,
+            durationMinutes: item.durationMinutes,
+          },
+          { params: { salonId: salon.id } },
+        );
+      }
+
+      for (const item of toRemove) {
+        await api.delete(`/masters/me/services/${item.id}`, {
+          params: { salonId: salon.id },
+        });
+      }
+
+      await reloadData(salon.id);
+      showSuccess(t('services.addedToList'));
+    } catch (error) {
+      showError(t(getErrorKey(error)));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   function handleCatalogSelect(serviceId: string) {
     setSelectedServiceId(serviceId);
     const svc = serviceById.get(serviceId);
@@ -282,14 +475,23 @@ function ServicesPage() {
     }
   }
 
-  // ── Сохранить услугу из каталога ─────────────────────────────────────────
   async function handleSaveCatalogService(e: React.FormEvent) {
     e.preventDefault();
-    if (!salon || !selectedServiceId) { showError('Выберите услугу.'); return; }
+    if (!salon || !selectedServiceId) { showError(t('services.selectService')); return; }
     setIsSubmitting(true);
     try {
-      await api.post('/masters/me/services', {
-        serviceId: selectedServiceId,
+      // Услуги из справочника платформы приходят с заполненным catalogId
+      // и ещё не существуют в салоне. Их отправляем на другой эндпоинт —
+      // он создаёт услугу салона под капотом и подключает мастеру.
+      const chosen = services.find((s) => s.id === selectedServiceId);
+      const isFromCatalog = Boolean(chosen?.catalogId);
+
+      await api.post(
+        isFromCatalog ? '/masters/me/services/custom' : '/masters/me/services',
+        {
+        ...(isFromCatalog
+          ? { catalogId: chosen?.catalogId, customTitle: chosen?.name }
+          : { serviceId: selectedServiceId }),
         price: Number(masterPrice),
         durationMinutes: Number(masterDuration),
         bufferBeforeMinutes: Number(bufferBefore),
@@ -303,22 +505,20 @@ function ServicesPage() {
       await reloadData(salon.id);
       setAddMode(null);
       setSelectedServiceId('');
-      showSuccess('Услуга добавлена в ваш список!');
+      showSuccess(t('services.addedToList'));
     } catch {
-      showError('Не удалось сохранить услугу.');
+      showError(t('services.saveError'));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  // ── Создать свою услугу ───────────────────────────────────────────────────
   async function handleSaveCustomService(e: React.FormEvent) {
     e.preventDefault();
-    if (!salon) { showError('Салон не найден.'); return; }
-    if (!customTitle.trim()) { showError('Введите название услуги.'); return; }
+    if (!salon) { showError(t('services.salonNotFound')); return; }
+    if (!customTitle.trim()) { showError(t('services.enterTitle')); return; }
     setIsSubmitting(true);
     try {
-      // Backend создаёт Service + MasterService автоматически
       await api.post('/masters/me/services/custom', {
         customTitle: customTitle.trim(),
         customDescription: customDescription.trim() || null,
@@ -332,7 +532,7 @@ function ServicesPage() {
         depositAmount: customDeposit ? Number(customDepositAmount) : null,
         requiresConsultation: customConsultation,
         tags: customTags.trim()
-          ? customTags.split(',').map((t) => t.trim()).filter(Boolean)
+          ? customTags.split(',').map((tg) => tg.trim()).filter(Boolean)
           : null,
       }, { params: { salonId: salon.id } });
       await reloadData(salon.id);
@@ -344,15 +544,14 @@ function ServicesPage() {
       setCustomBufferBefore('0');
       setCustomBufferAfter('0');
       setCustomTags('');
-      showSuccess('Ваша услуга создана!');
+      showSuccess(t('services.customCreated'));
     } catch {
-      showError('Не удалось создать услугу. Убедитесь что backend поддерживает этот endpoint.');
+      showError(t('services.customCreateError'));
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  // ── Действия с мастер-услугой ─────────────────────────────────────────────
   async function handleToggleMasterService(id: string, isActive: boolean) {
     if (!salon) return;
     try {
@@ -362,45 +561,86 @@ function ServicesPage() {
         { params: { salonId: salon.id } },
       );
       await reloadData(salon.id);
-      showSuccess(isActive ? 'Услуга отключена.' : 'Услуга активирована.');
+      showSuccess(isActive ? t('services.deactivated') : t('services.activated'));
     } catch {
-      showError('Не удалось изменить статус услуги.');
+      showError(t('services.statusError'));
     }
   }
 
   async function handleRemoveMasterService(id: string) {
     if (!salon) return;
-    if (!confirm('Удалить услугу из вашего списка?')) return;
+    if (!confirm(t('services.confirmRemove'))) return;
     try {
       await api.delete(`/masters/me/services/${id}`, { params: { salonId: salon.id } });
       await reloadData(salon.id);
-      showSuccess('Услуга удалена.');
+      showSuccess(t('services.removed'));
     } catch {
-      showError('Не удалось удалить услугу.');
+      showError(t('services.removeError'));
     }
   }
 
-  // ── Действия с услугами салона ────────────────────────────────────────────
+  /**
+   * Справочник платформы: салон выбирает готовую услугу
+   * с переводами на трёх языках вместо ручного ввода.
+   */
+  function applyCatalogItem(catalogId: string) {
+    setSelectedCatalogId(catalogId);
+
+    const item = catalog.find((c) => c.id === catalogId);
+
+    if (!item) {
+      return;
+    }
+
+    const lang = localStorage.getItem('glamour_language') ?? 'ro';
+
+    setName(
+      lang === 'ru' ? item.nameRu : lang === 'en' ? item.nameEn : item.nameRo,
+    );
+    setDurationMinutes(String(item.defaultDurationMinutes));
+  }
+
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const res = await api.get<CatalogItem[]>('/services/catalog');
+        setCatalog(res.data);
+      } catch {
+        setCatalog([]);
+      }
+    }
+
+    void loadCatalog();
+  }, []);
+
   async function handleCreateSalonService(e: React.FormEvent) {
     e.preventDefault();
-    if (!salon) { showError('Салон не найден.'); return; }
+    if (!salon) { showError(t('services.salonNotFound')); return; }
     setIsSubmitting(true);
     try {
       await api.post('/services', {
         name,
+        // Незаполненный перевод заменяем основным названием:
+        // пустая строка в списке хуже, чем чужой язык.
+        nameRo: nameRo.trim() || name,
+        nameRu: nameRu.trim() || name,
+        nameEn: nameEn.trim() || name,
         description: description.trim() || null,
         durationMinutes: Number(durationMinutes),
         basePrice: Number(basePrice),
         isActive: true,
       }, { params: { salonId: salon.id } });
       setName('');
+      setNameRo('');
+      setNameRu('');
+      setNameEn('');
       setDescription('');
       setDurationMinutes('60');
       setBasePrice('300');
       await reloadData(salon.id);
-      showSuccess('Услуга добавлена в каталог!');
+      showSuccess(t('services.addedToCatalog'));
     } catch {
-      showError('Не удалось создать услугу.');
+      showError(t('services.createError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -411,13 +651,12 @@ function ServicesPage() {
     try {
       await api.patch(`/services/${id}/deactivate`, undefined, { params: { salonId: salon.id } });
       await reloadData(salon.id);
-      showSuccess('Услуга отключена.');
+      showSuccess(t('services.deactivated'));
     } catch {
-      showError('Не удалось отключить услугу.');
+      showError(t('services.deactivateError'));
     }
   }
 
-  // ── Общий лоадер ─────────────────────────────────────────────────────────
   if (message && !salon) {
     return (
       <AppLayout>
@@ -428,32 +667,23 @@ function ServicesPage() {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // МАСТЕР — кабинет
-  // ══════════════════════════════════════════════════════════════════════════
   if (isMasterWorkspace) {
     const activeCount = masterServices.filter((ms) => ms.isActive).length;
 
     return (
       <AppLayout>
         <main className="dashboard-page">
-          {/* Header */}
           <header className="dashboard-header">
             <div>
-              <p className="dashboard-eyebrow">МОЙ КАБИНЕТ</p>
-              <h1>Мои услуги</h1>
-              <p className="dashboard-subtitle">
-                Управляйте своим прайс-листом. Выбирайте услуги из каталога
-                или создавайте собственные с индивидуальными условиями.
-              </p>
+              <h1>{t('services.myTitle')}</h1>
+              <p className="dashboard-subtitle">{t('services.mySubtitle')}</p>
             </div>
             <div className="dashboard-period">
-              <span>Активных</span>
+              <span>{t('services.activeCount')}</span>
               <strong>{activeCount}</strong>
             </div>
           </header>
 
-          {/* Уведомления */}
           {successMessage && (
             <div style={styles.alert('success')}>
               <Check size={16} />{successMessage}
@@ -465,7 +695,6 @@ function ServicesPage() {
             </div>
           )}
 
-          {/* Кнопки добавления */}
           {addMode === null && (
             <div style={styles.addButtons}>
               <button
@@ -475,8 +704,8 @@ function ServicesPage() {
               >
                 <Scissors size={18} />
                 <div>
-                  <strong>Выбрать из каталога</strong>
-                  <span>Услуги вашего салона</span>
+                  <strong>{t('services.fromCatalog')}</strong>
+                  <span>{t('services.fromCatalogDesc')}</span>
                 </div>
               </button>
 
@@ -487,63 +716,139 @@ function ServicesPage() {
               >
                 <Sparkles size={18} />
                 <div>
-                  <strong>Создать свою услугу</strong>
-                  <span>Полностью ваши условия</span>
+                  <strong>{t('services.createOwn')}</strong>
+                  <span>{t('services.createOwnDesc')}</span>
                 </div>
               </button>
             </div>
           )}
 
-          {/* ── Форма: из каталога ── */}
           {addMode === 'catalog' && (
             <article className="dashboard-panel" style={{ marginBottom: 24 }}>
               <div className="panel-heading">
                 <div>
-                  <p className="panel-kicker">ИЗ КАТАЛОГА САЛОНА</p>
-                  <h2>Добавить услугу</h2>
+                  <p className="panel-kicker">{t('services.fromSalonCatalog').toUpperCase()}</p>
+                  <h2>{t('services.addService')}</h2>
                 </div>
                 <button type="button" style={styles.closeBtn} onClick={() => setAddMode(null)}>
                   <X size={20} />
                 </button>
               </div>
 
-              <form className="service-form" onSubmit={handleSaveCatalogService}>
-                <label>
-                  Услуга салона
-                  <select
-                    value={selectedServiceId}
-                    onChange={(e) => handleCatalogSelect(e.target.value)}
-                    required
-                    style={styles.select}
+              <form
+                id="service-edit-form"
+                className="service-form"
+                onSubmit={handleSaveCatalogService}
+              >
+                {/* Единый список: отмеченные подсвечены, мастер видит
+                    картину целиком, а не только доступное к добавлению. */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                    maxHeight: 320,
+                    overflowY: 'auto',
+                    padding: 4,
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    borderRadius: 14,
+                  }}
+                >
+                  {services.map((s) => {
+                    const isAdded = checkedIds.has(s.id);
+                    const isSelected = selectedServiceId === s.id;
+
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => {
+                          toggleService(s.id);
+                          handleCatalogSelect(s.id);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          padding: '10px 12px',
+                          border: isSelected
+                            ? '1px solid rgba(var(--app-accent-rgb), 0.5)'
+                            : '1px solid transparent',
+                          borderRadius: 11,
+                          background: isAdded
+                            ? 'rgba(77,208,139,0.09)'
+                            : isSelected
+                              ? 'rgba(var(--app-accent-rgb), 0.1)'
+                              : 'transparent',
+                          color: 'var(--app-text)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          minHeight: 44,
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 20,
+                            height: 20,
+                            flexShrink: 0,
+                            borderRadius: 6,
+                            border: isAdded
+                              ? '1px solid #4dd08b'
+                              : '1px solid rgba(255,255,255,0.25)',
+                            background: isAdded ? '#4dd08b' : 'transparent',
+                            color: '#17151c',
+                            fontSize: 13,
+                            fontWeight: 800,
+                          }}
+                        >
+                          {isAdded ? '✓' : ''}
+                        </span>
+
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 13 }}>
+                          {serviceName(s, i18n.language)}
+                        </span>
+
+                        <span style={{ color: 'var(--app-text-muted)', fontSize: 12, flexShrink: 0 }}>
+                          {s.durationMinutes} {t('services.min')}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="primary-action"
+                    style={{ width: '100%' }}
+                    disabled={isSubmitting}
+                    onClick={() => void handleApplyChecked()}
                   >
-                    <option value="">— Выберите услугу —</option>
-                    {services.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name} · {s.durationMinutes} мин · {s.basePrice} MDL
-                        {masterServiceByServiceId.has(s.id) ? ' ✓' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    {isSubmitting ? t('common.saving') : t('common.save')}
+                  </button>
+                </div>
 
                 <div className="service-form-grid">
                   <label>
-                    Моя цена, MDL
+                    {t('services.myPrice')}
                     <input type="number" min="0" step="0.01" value={masterPrice}
                       onChange={(e) => setMasterPrice(e.target.value)} required />
                   </label>
                   <label>
-                    Длительность, мин
+                    {t('services.durationLabel')}
                     <input type="number" min="5" max="1440" value={masterDuration}
                       onChange={(e) => setMasterDuration(e.target.value)} required />
                   </label>
                   <label>
-                    Буфер до, мин
+                    {t('services.bufferBefore')}
                     <input type="number" min="0" max="240" value={bufferBefore}
                       onChange={(e) => setBufferBefore(e.target.value)} />
                   </label>
                   <label>
-                    Буфер после, мин
+                    {t('services.bufferAfter')}
                     <input type="number" min="0" max="240" value={bufferAfter}
                       onChange={(e) => setBufferAfter(e.target.value)} />
                   </label>
@@ -551,38 +856,37 @@ function ServicesPage() {
 
                 {catalogDeposit && (
                   <label>
-                    Сумма депозита, MDL
+                    {t('services.depositAmount')}
                     <input type="number" min="0" step="0.01" value={catalogDepositAmount}
                       onChange={(e) => setCatalogDepositAmount(e.target.value)} />
                   </label>
                 )}
 
                 <div style={styles.togglesGrid}>
-                  <Toggle checked={catalogOnlineBooking} onChange={setCatalogOnlineBooking} label="Онлайн-запись" />
-                  <Toggle checked={catalogPublic} onChange={setCatalogPublic} label="Публичная" />
-                  <Toggle checked={catalogDeposit} onChange={setCatalogDeposit} label="Требует депозит" />
-                  <Toggle checked={catalogConsultation} onChange={setCatalogConsultation} label="Консультация" />
+                  <Toggle checked={catalogOnlineBooking} onChange={setCatalogOnlineBooking} label={t('services.onlineBooking')} />
+                  <Toggle checked={catalogPublic} onChange={setCatalogPublic} label={t('services.publicService')} />
+                  <Toggle checked={catalogDeposit} onChange={setCatalogDeposit} label={t('services.requiresDeposit')} />
+                  <Toggle checked={catalogConsultation} onChange={setCatalogConsultation} label={t('services.consultation')} />
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button type="submit" className="primary-action" style={{ flex: 1 }} disabled={isSubmitting}>
-                    {isSubmitting ? 'Сохраняем...' : 'Сохранить'}
+                    {isSubmitting ? t('common.saving') : t('common.save')}
                   </button>
                   <button type="button" className="danger-action" onClick={() => setAddMode(null)}>
-                    Отмена
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
             </article>
           )}
 
-          {/* ── Форма: своя услуга ── */}
           {addMode === 'custom' && (
             <article className="dashboard-panel" style={{ marginBottom: 24 }}>
               <div className="panel-heading">
                 <div>
-                  <p className="panel-kicker">МОЯ АВТОРСКАЯ УСЛУГА</p>
-                  <h2>Создать услугу</h2>
+                  <p className="panel-kicker">{t('services.myCustomService').toUpperCase()}</p>
+                  <h2>{t('services.createService')}</h2>
                 </div>
                 <button type="button" style={styles.closeBtn} onClick={() => setAddMode(null)}>
                   <X size={20} />
@@ -591,80 +895,79 @@ function ServicesPage() {
 
               <form className="service-form" onSubmit={handleSaveCustomService}>
                 <label>
-                  Название *
+                  {t('services.nameRequired')}
                   <input value={customTitle} onChange={(e) => setCustomTitle(e.target.value)}
-                    placeholder="Например: Авторская укладка" required />
+                    placeholder={t('services.customTitlePlaceholder')} required />
                 </label>
 
                 <label>
-                  Описание
+                  {t('services.description')}
                   <textarea value={customDescription} onChange={(e) => setCustomDescription(e.target.value)}
-                    placeholder="Что входит в услугу, особенности..." />
+                    placeholder={t('services.customDescPlaceholder')} />
                 </label>
 
                 <div className="service-form-grid">
                   <label>
-                    Цена, MDL *
+                    {t('services.priceRequired')}
                     <input type="number" min="0" step="0.01" value={customPrice}
                       onChange={(e) => setCustomPrice(e.target.value)} required />
                   </label>
                   <label>
-                    Длительность, мин *
+                    {t('services.durationRequired')}
                     <input type="number" min="5" max="1440" value={customDuration}
                       onChange={(e) => setCustomDuration(e.target.value)} required />
                   </label>
                   <label>
-                    Буфер до, мин
+                    {t('services.bufferBefore')}
                     <input type="number" min="0" max="240" value={customBufferBefore}
                       onChange={(e) => setCustomBufferBefore(e.target.value)} />
                   </label>
                   <label>
-                    Буфер после, мин
+                    {t('services.bufferAfter')}
                     <input type="number" min="0" max="240" value={customBufferAfter}
                       onChange={(e) => setCustomBufferAfter(e.target.value)} />
                   </label>
                 </div>
 
                 <label>
-                  Теги (через запятую)
+                  {t('services.tags')}
                   <input value={customTags} onChange={(e) => setCustomTags(e.target.value)}
-                    placeholder="Например: волосы, укладка, свадьба" />
+                    placeholder={t('services.tagsPlaceholder')} />
                 </label>
 
                 {customDeposit && (
                   <label>
-                    Сумма депозита, MDL
+                    {t('services.depositAmount')}
                     <input type="number" min="0" step="0.01" value={customDepositAmount}
                       onChange={(e) => setCustomDepositAmount(e.target.value)} />
                   </label>
                 )}
 
                 <div style={styles.togglesGrid}>
-                  <Toggle checked={customOnlineBooking} onChange={setCustomOnlineBooking} label="Онлайн-запись" />
-                  <Toggle checked={customPublic} onChange={setCustomPublic} label="Публичная" />
-                  <Toggle checked={customDeposit} onChange={setCustomDeposit} label="Требует депозит" />
-                  <Toggle checked={customConsultation} onChange={setCustomConsultation} label="Консультация" />
+                  <Toggle checked={customOnlineBooking} onChange={setCustomOnlineBooking} label={t('services.onlineBooking')} />
+                  <Toggle checked={customPublic} onChange={setCustomPublic} label={t('services.publicService')} />
+                  <Toggle checked={customDeposit} onChange={setCustomDeposit} label={t('services.requiresDeposit')} />
+                  <Toggle checked={customConsultation} onChange={setCustomConsultation} label={t('services.consultation')} />
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button type="submit" className="primary-action" style={{ flex: 1 }} disabled={isSubmitting}>
-                    {isSubmitting ? 'Создаём...' : 'Создать свою услугу'}
+                    {isSubmitting ? t('common.creating') : t('services.createOwn')}
                   </button>
                   <button type="button" className="danger-action" onClick={() => setAddMode(null)}>
-                    Отмена
+                    {t('common.cancel')}
                   </button>
                 </div>
               </form>
             </article>
           )}
 
-          {/* Поиск */}
           <div style={styles.searchBar}>
-            <Search size={17} style={{ color: '#efb6d8', flexShrink: 0 }} />
+            <Search size={17} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Поиск по названию..."
+              placeholder={t('common.search') + '...'}
               style={styles.searchInput}
             />
             {search && (
@@ -674,56 +977,55 @@ function ServicesPage() {
             )}
           </div>
 
-          {/* Список услуг мастера */}
           <section className="dashboard-panel services-panel">
             <div className="panel-heading">
               <div>
-                <p className="panel-kicker">МОЙ ПРАЙС-ЛИСТ</p>
-                <h2>{filteredMasterServices.length} услуг</h2>
+                <p className="panel-kicker">{t('services.myPriceList').toUpperCase()}</p>
+                <h2>{t('services.count', { count: filteredMasterServices.length })}</h2>
               </div>
               <Scissors size={22} />
             </div>
 
             {filteredMasterServices.length === 0 ? (
               <div style={styles.emptyState}>
-                <Scissors size={40} style={{ color: '#d682b8', opacity: 0.5 }} />
-                <p>У вас пока нет услуг.</p>
-                <p style={{ fontSize: 13, color: '#888' }}>
-                  Нажмите «Выбрать из каталога» или «Создать свою услугу» выше.
-                </p>
+                <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.5 }} />
+                <p>{t('services.noServices')}</p>
+                <p style={{ fontSize: 13, color: '#888' }}>{t('services.emptyHint')}</p>
               </div>
             ) : (
               <div className="ranking-list">
                 {filteredMasterServices.map((ms) => {
                   const svc = serviceById.get(ms.serviceId);
-                  const title = ms.customTitle ?? svc?.name ?? 'Услуга';
+                  const title =
+                    ms.customTitle ||
+                    serviceName(svc, i18n.language) ||
+                    t('services.service');
                   const desc = ms.customDescription ?? svc?.description;
                   const isExpanded = expandedServiceId === ms.id;
                   const isCustom = ms.customTitle != null;
 
                   return (
                     <div key={ms.id} style={styles.serviceCard(ms.isActive)}>
-                      {/* Верхняя строка */}
                       <div style={styles.serviceCardRow}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
                           <span style={styles.statusDot(ms.isActive)} />
                           <div style={{ minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                              <strong style={{ color: '#fff7fc', fontSize: 15 }}>{title}</strong>
+                              <strong style={{ color: 'var(--app-text)', fontSize: 15 }}>{title}</strong>
                               {isCustom && (
                                 <span style={styles.badge('custom')}>
-                                  <Zap size={11} /> авторская
+                                  <Zap size={11} /> {t('services.custom')}
                                 </span>
                               )}
                               {ms.onlineBookingEnabled && (
-                                <span style={styles.badge('online')}>онлайн</span>
+                                <span style={styles.badge('online')}>{t('services.online')}</span>
                               )}
                               {!ms.isActive && (
-                                <span style={styles.badge('inactive')}>отключена</span>
+                                <span style={styles.badge('inactive')}>{t('services.inactive')}</span>
                               )}
                             </div>
                             {desc && (
-                              <p style={{ color: '#9d949f', fontSize: 12, margin: '3px 0 0', lineHeight: 1.4 }}>
+                              <p style={{ color: 'var(--app-text-muted)', fontSize: 12, margin: '3px 0 0', lineHeight: 1.4 }}>
                                 {desc}
                               </p>
                             )}
@@ -732,11 +1034,11 @@ function ServicesPage() {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
                           <div style={{ textAlign: 'right' }}>
-                            <strong style={{ color: '#d682b8', fontSize: 16 }}>
+                            <strong style={{ color: 'var(--app-accent)', fontSize: 16 }}>
                               {Number(ms.price).toFixed(0)} MDL
                             </strong>
-                            <div style={{ color: '#9d949f', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <Clock size={11} /> {ms.durationMinutes} мин
+                            <div style={{ color: 'var(--app-text-muted)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <Clock size={11} /> {ms.durationMinutes} {t('services.min')}
                             </div>
                           </div>
 
@@ -744,7 +1046,7 @@ function ServicesPage() {
                             <button
                               type="button"
                               style={styles.iconBtn}
-                              title={isExpanded ? 'Свернуть' : 'Подробнее'}
+                              title={isExpanded ? t('services.collapse') : t('services.details')}
                               onClick={() => setExpandedServiceId(isExpanded ? null : ms.id)}
                             >
                               {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -752,7 +1054,7 @@ function ServicesPage() {
                             <button
                               type="button"
                               style={styles.iconBtn}
-                              title={ms.isActive ? 'Отключить' : 'Включить'}
+                              title={ms.isActive ? t('services.deactivate') : t('services.activate')}
                               onClick={() => handleToggleMasterService(ms.id, ms.isActive)}
                             >
                               {ms.isActive ? <X size={16} /> : <Check size={16} />}
@@ -760,7 +1062,7 @@ function ServicesPage() {
                             <button
                               type="button"
                               style={{ ...styles.iconBtn, color: '#ff6080' }}
-                              title="Удалить"
+                              title={t('common.delete')}
                               onClick={() => handleRemoveMasterService(ms.id)}
                             >
                               <Trash2 size={16} />
@@ -769,37 +1071,36 @@ function ServicesPage() {
                         </div>
                       </div>
 
-                      {/* Детали (раскрываются) */}
                       {isExpanded && (
                         <div style={styles.expandedDetails}>
                           <div style={styles.detailGrid}>
                             <div style={styles.detailItem}>
-                              <span>Буфер до</span>
-                              <strong>{ms.bufferBeforeMinutes ?? 0} мин</strong>
+                              <span>{t('services.bufferBeforeShort')}</span>
+                              <strong>{ms.bufferBeforeMinutes ?? 0} {t('services.min')}</strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Буфер после</span>
-                              <strong>{ms.bufferAfterMinutes ?? 0} мин</strong>
+                              <span>{t('services.bufferAfterShort')}</span>
+                              <strong>{ms.bufferAfterMinutes ?? 0} {t('services.min')}</strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Публичная</span>
-                              <strong>{ms.isPublic ? 'Да' : 'Нет'}</strong>
+                              <span>{t('services.publicService')}</span>
+                              <strong>{ms.isPublic ? t('common.yes') : t('common.no')}</strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Депозит</span>
+                              <span>{t('services.deposit')}</span>
                               <strong>
                                 {ms.requiresDeposit
                                   ? `${ms.depositAmount ?? '?'} MDL`
-                                  : 'Нет'}
+                                  : t('common.no')}
                               </strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Консультация</span>
-                              <strong>{ms.requiresConsultation ? 'Да' : 'Нет'}</strong>
+                              <span>{t('services.consultation')}</span>
+                              <strong>{ms.requiresConsultation ? t('common.yes') : t('common.no')}</strong>
                             </div>
                             {ms.tags && ms.tags.length > 0 && (
                               <div style={{ ...styles.detailItem, gridColumn: '1 / -1' }}>
-                                <span>Теги</span>
+                                <span>{t('services.tagsShort')}</span>
                                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                                   {ms.tags.map((tag) => (
                                     <span key={tag} style={styles.tag}>{tag}</span>
@@ -812,14 +1113,127 @@ function ServicesPage() {
                             type="button"
                             style={styles.editBtn}
                             onClick={() => {
-                              // Открываем форму редактирования из каталога
+                              startEdit(ms);
+                              return;
                               handleCatalogSelect(ms.serviceId);
                               setAddMode('catalog');
                               setExpandedServiceId(null);
+
+                              // Форма редактирования находится выше списка.
+                              // Без прокрутки нажатие выглядит как «ничего
+                              // не произошло»: форма заполнилась вне экрана.
+                              setTimeout(() => {
+                                document
+                                  .getElementById('service-edit-form')
+                                  ?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start',
+                                  });
+                              }, 80);
                             }}
                           >
-                            <Edit2 size={14} /> Редактировать
+                            <Edit2 size={14} /> {t('common.edit')}
                           </button>
+
+                          {/* Форма разворачивается прямо в карточке,
+                              под кнопкой — без прыжков по странице. */}
+                          {editingId === ms.id && (
+                            <div
+                              style={{
+                                marginTop: 14,
+                                padding: 14,
+                                borderRadius: 14,
+                                border: '1px solid rgba(var(--app-accent-rgb), 0.25)',
+                                background: 'rgba(var(--app-accent-rgb), 0.05)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 12,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: 'grid',
+                                  gridTemplateColumns:
+                                    'repeat(auto-fit, minmax(120px, 1fr))',
+                                  gap: 10,
+                                }}
+                              >
+                                <label style={{ display: 'grid', gap: 5, fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                  {t('services.priceLabel')}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={editPrice}
+                                    onChange={(e) => setEditPrice(e.target.value)}
+                                  />
+                                </label>
+
+                                <label style={{ display: 'grid', gap: 5, fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                  {t('services.durationLabel')}
+                                  <input
+                                    type="number"
+                                    min="5"
+                                    value={editDuration}
+                                    onChange={(e) => setEditDuration(e.target.value)}
+                                  />
+                                </label>
+
+                                <label style={{ display: 'grid', gap: 5, fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                  {t('services.bufferBefore')}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={editBufferBefore}
+                                    onChange={(e) => setEditBufferBefore(e.target.value)}
+                                  />
+                                </label>
+
+                                <label style={{ display: 'grid', gap: 5, fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                  {t('services.bufferAfter')}
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={editBufferAfter}
+                                    onChange={(e) => setEditBufferAfter(e.target.value)}
+                                  />
+                                </label>
+                              </div>
+
+                              <div style={styles.togglesGrid}>
+                                <Toggle
+                                  checked={editOnline}
+                                  onChange={setEditOnline}
+                                  label={t('services.onlineBooking')}
+                                />
+                                <Toggle
+                                  checked={editPublic}
+                                  onChange={setEditPublic}
+                                  label={t('services.publicService')}
+                                />
+                              </div>
+
+                              <div style={{ display: 'flex', gap: 10 }}>
+                                <button
+                                  type="button"
+                                  className="primary-action"
+                                  style={{ flex: 1 }}
+                                  disabled={isSubmitting}
+                                  onClick={() => void saveEdit(ms)}
+                                >
+                                  {isSubmitting ? t('common.saving') : t('common.save')}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  style={styles.editBtn}
+                                  onClick={() => setEditingId(null)}
+                                >
+                                  {t('common.cancel')}
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -833,23 +1247,16 @@ function ServicesPage() {
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // ВЛАДЕЛЕЦ / АДМИНИСТРАТОР — каталог услуг салона
-  // ══════════════════════════════════════════════════════════════════════════
   return (
     <AppLayout>
       <main className="dashboard-page">
         <header className="dashboard-header">
           <div>
-            <p className="dashboard-eyebrow">УСЛУГИ</p>
-            <h1>Каталог услуг</h1>
-            <p className="dashboard-subtitle">
-              Основные услуги салона. Мастера могут подключать их к своему прайсу
-              с индивидуальными ценами и условиями.
-            </p>
+            <h1>{t('services.title')}</h1>
+            <p className="dashboard-subtitle">{t('services.subtitle')}</p>
           </div>
           <div className="dashboard-period">
-            <span>Активных услуг</span>
+            <span>{t('services.activeServices')}</span>
             <strong>{services.filter((s) => s.isActive).length}</strong>
           </div>
         </header>
@@ -862,51 +1269,104 @@ function ServicesPage() {
         )}
 
         <section className="dashboard-columns">
-          {/* Форма создания */}
           <article className="dashboard-panel">
             <div className="panel-heading">
               <div>
-                <p className="panel-kicker">ДОБАВИТЬ</p>
-                <h2>Новая услуга</h2>
+                <p className="panel-kicker">{t('services.add').toUpperCase()}</p>
+                <h2>{t('services.addService')}</h2>
               </div>
               <Plus size={22} />
             </div>
 
             <form className="service-form" onSubmit={handleCreateSalonService}>
+              {catalog.length > 0 && (
+                <label>
+                  {t('services.fromCatalog')}
+                  <select
+                    value={selectedCatalogId}
+                    onChange={(e) => applyCatalogItem(e.target.value)}
+                  >
+                    <option value="">{t('services.customService')}</option>
+                    {CATEGORY_ORDER.filter((cat) =>
+                      catalog.some((c) => c.category === cat),
+                    ).map((cat) => (
+                      <optgroup key={cat} label={t('services.category.' + cat)}>
+                        {catalog
+                          .filter((c) => c.category === cat)
+                          .map((c) => {
+                            const lang =
+                              localStorage.getItem('glamour_language') ?? 'ro';
+
+                            return (
+                              <option key={c.id} value={c.id}>
+                                {lang === 'ru'
+                                  ? c.nameRu
+                                  : lang === 'en'
+                                    ? c.nameEn
+                                    : c.nameRo}
+                              </option>
+                            );
+                          })}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               <label>
-                Название *
+                {t('services.nameRequired')}
                 <input value={name} onChange={(e) => setName(e.target.value)}
-                  placeholder="Например: Укладка волос" required />
+                  placeholder={t('services.namePlaceholder')} required />
+              </label>
+
+              {/* Клиент видит название на своём языке. Незаполненное
+                  поле заменяется основным названием, но тогда румын
+                  увидит русское, и наоборот. */}
+              <label>
+                {t('services.nameRo')}
+                <input value={nameRo} onChange={(e) => setNameRo(e.target.value)}
+                  placeholder={name || t('services.namePlaceholder')} />
+              </label>
+
+              <label>
+                {t('services.nameRu')}
+                <input value={nameRu} onChange={(e) => setNameRu(e.target.value)}
+                  placeholder={name || t('services.namePlaceholder')} />
+              </label>
+
+              <label>
+                {t('services.nameEn')}
+                <input value={nameEn} onChange={(e) => setNameEn(e.target.value)}
+                  placeholder={name || t('services.namePlaceholder')} />
               </label>
               <label>
-                Описание
+                {t('services.description')}
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Краткое описание услуги" />
+                  placeholder={t('services.descPlaceholder')} />
               </label>
               <div className="service-form-grid">
                 <label>
-                  Длительность, мин
+                  {t('services.durationLabel')}
                   <input type="number" min="5" value={durationMinutes}
                     onChange={(e) => setDurationMinutes(e.target.value)} required />
                 </label>
                 <label>
-                  Базовая цена, MDL
+                  {t('services.priceLabel')}
                   <input type="number" min="0" step="0.01" value={basePrice}
                     onChange={(e) => setBasePrice(e.target.value)} required />
                 </label>
               </div>
               <button type="submit" className="primary-action" disabled={isSubmitting}>
-                {isSubmitting ? 'Добавляем...' : 'Добавить услугу'}
+                {isSubmitting ? t('services.adding') : t('services.addService')}
               </button>
             </form>
           </article>
 
-          {/* Поиск */}
           <article className="dashboard-panel">
             <div className="panel-heading">
               <div>
-                <p className="panel-kicker">ПОИСК</p>
-                <h2>Фильтр</h2>
+                <p className="panel-kicker">{t('services.searchKicker').toUpperCase()}</p>
+                <h2>{t('appointments.filter')}</h2>
               </div>
               <Search size={22} />
             </div>
@@ -914,29 +1374,28 @@ function ServicesPage() {
             <div className="service-search">
               <Search size={18} />
               <input value={search} onChange={(e) => setSearch(e.target.value)}
-                placeholder="Найти услугу..." />
+                placeholder={t('common.search') + '...'} />
             </div>
 
             <p className="empty-state" style={{ marginTop: 16 }}>
-              Найдено: {filteredServices.length} услуг
+              {t('services.found')}: {t('services.count', { count: filteredServices.length })}
             </p>
           </article>
         </section>
 
-        {/* Каталог */}
         <section className="dashboard-panel services-panel">
           <div className="panel-heading">
             <div>
-              <p className="panel-kicker">КАТАЛОГ</p>
-              <h2>{filteredServices.length} услуг</h2>
+              <p className="panel-kicker">{t('services.catalog').toUpperCase()}</p>
+              <h2>{t('services.count', { count: filteredServices.length })}</h2>
             </div>
             <Scissors size={22} />
           </div>
 
           {filteredServices.length === 0 ? (
             <div style={styles.emptyState}>
-              <Scissors size={40} style={{ color: '#d682b8', opacity: 0.5 }} />
-              <p>Услуги ещё не добавлены.</p>
+              <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.5 }} />
+              <p>{t('services.noServices')}</p>
             </div>
           ) : (
             <div className="ranking-list">
@@ -945,17 +1404,17 @@ function ServicesPage() {
                   <span className="ranking-number">{i + 1}</span>
 
                   <div className="ranking-main">
-                    <strong>{service.name}</strong>
-                    <span>{service.description ?? 'Описание не указано'}</span>
+                    <strong>{serviceName(service, i18n.language)}</strong>
+                    <span>{service.description ?? t('services.noDescription')}</span>
                     <span style={{ color: service.isActive ? '#8ee5b5' : '#ff8a8a', fontSize: 12 }}>
-                      {service.isActive ? '● Активна' : '● Отключена'}
+                      {service.isActive ? '● ' + t('services.statusActive') : '● ' + t('services.statusInactive')}
                     </span>
                   </div>
 
                   <div className="ranking-value">
                     <strong>{Number(service.basePrice).toFixed(0)} MDL</strong>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <Clock size={12} /> {service.durationMinutes} мин
+                      <Clock size={12} /> {service.durationMinutes} {t('services.min')}
                     </span>
                     {service.isActive && (
                       <button
@@ -963,7 +1422,7 @@ function ServicesPage() {
                         className="danger-action"
                         onClick={() => handleDeactivateSalonService(service.id)}
                       >
-                        <Trash2 size={14} /> Отключить
+                        <Trash2 size={14} /> {t('services.deactivate')}
                       </button>
                     )}
                   </div>
@@ -977,7 +1436,6 @@ function ServicesPage() {
   );
 }
 
-// ─── Инлайн-стили ─────────────────────────────────────────────────────────────
 const styles = {
   alert: (type: 'success' | 'error') => ({
     display: 'flex',
@@ -990,7 +1448,7 @@ const styles = {
     fontWeight: 700,
     border: `1px solid ${type === 'success' ? 'rgba(77,208,139,0.25)' : 'rgba(255,96,128,0.25)'}`,
     background: type === 'success' ? 'rgba(77,208,139,0.1)' : 'rgba(255,96,128,0.1)',
-    color: type === 'success' ? '#9ae9bd' : '#ffb6c6',
+    color: type === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
   } as React.CSSProperties),
 
   addButtons: {
@@ -1005,10 +1463,10 @@ const styles = {
     alignItems: 'center',
     gap: 14,
     padding: '18px 20px',
-    border: `1px solid ${type === 'catalog' ? 'rgba(214,130,184,0.3)' : 'rgba(114,167,255,0.3)'}`,
+    border: `1px solid ${type === 'catalog' ? 'rgba(var(--app-accent-rgb), 0.3)' : 'rgba(114,167,255,0.3)'}`,
     borderRadius: 18,
-    background: type === 'catalog' ? 'rgba(214,130,184,0.08)' : 'rgba(114,167,255,0.08)',
-    color: '#fff7fc',
+    background: type === 'catalog' ? 'rgba(var(--app-accent-rgb), 0.08)' : 'rgba(114,167,255,0.08)',
+    color: 'var(--app-text)',
     cursor: 'pointer',
     textAlign: 'left' as const,
     transition: 'all 0.2s',
@@ -1023,7 +1481,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: 10,
     background: 'rgba(255,255,255,0.05)',
-    color: '#b9b0bb',
+    color: 'var(--app-text-muted)',
     cursor: 'pointer',
   } as React.CSSProperties,
 
@@ -1033,7 +1491,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: 13,
     background: 'rgba(255,255,255,0.06)',
-    color: '#fff7fc',
+    color: 'var(--app-text)',
     fontSize: 14,
   } as React.CSSProperties,
 
@@ -1063,7 +1521,7 @@ const styles = {
     border: 0,
     outline: 0,
     background: 'transparent',
-    color: '#fff7fc',
+    color: 'var(--app-text)',
     fontSize: 14,
   } as React.CSSProperties,
 
@@ -1071,7 +1529,7 @@ const styles = {
     display: 'flex',
     border: 0,
     background: 'transparent',
-    color: '#9d949f',
+    color: 'var(--app-text-muted)',
     cursor: 'pointer',
   } as React.CSSProperties,
 
@@ -1081,7 +1539,7 @@ const styles = {
     alignItems: 'center',
     gap: 10,
     padding: '40px 20px',
-    color: '#9d949f',
+    color: 'var(--app-text-muted)',
     textAlign: 'center' as const,
   },
 
@@ -1127,7 +1585,7 @@ const styles = {
       ? '#a8c9ff'
       : type === 'online'
         ? '#8ee5b5'
-        : '#ffb6c6',
+        : 'var(--app-accent-strong)',
   } as React.CSSProperties),
 
   iconBtn: {
@@ -1139,7 +1597,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 9,
     background: 'rgba(255,255,255,0.05)',
-    color: '#b9b0bb',
+    color: 'var(--app-text-muted)',
     cursor: 'pointer',
   } as React.CSSProperties,
 
@@ -1164,14 +1622,14 @@ const styles = {
     borderRadius: 10,
     background: 'rgba(255,255,255,0.04)',
     fontSize: 12,
-    color: '#9d949f',
+    color: 'var(--app-text-muted)',
   },
 
   tag: {
     padding: '3px 8px',
     borderRadius: 999,
-    background: 'rgba(214,130,184,0.12)',
-    color: '#efb6d8',
+    background: 'rgba(var(--app-accent-rgb), 0.12)',
+    color: 'var(--app-accent-strong)',
     fontSize: 11,
   } as React.CSSProperties,
 
@@ -1180,10 +1638,10 @@ const styles = {
     alignItems: 'center',
     gap: 6,
     padding: '7px 14px',
-    border: '1px solid rgba(214,130,184,0.25)',
+    border: '1px solid rgba(var(--app-accent-rgb), 0.25)',
     borderRadius: 10,
-    background: 'rgba(214,130,184,0.1)',
-    color: '#efb6d8',
+    background: 'rgba(var(--app-accent-rgb), 0.1)',
+    color: 'var(--app-accent-strong)',
     fontSize: 13,
     fontWeight: 700,
     cursor: 'pointer',

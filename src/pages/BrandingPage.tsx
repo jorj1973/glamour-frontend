@@ -13,6 +13,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
 import { applyTheme } from '../theme';
@@ -55,11 +56,10 @@ const MAX_LOGO_SIZE_BYTES = 2 * 1024 * 1024;
 const MAX_COVER_SIZE_BYTES = 5 * 1024 * 1024;
 
 function BrandingPage() {
+  const { t } = useTranslation();
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [branding, setBranding] = useState<SalonBranding | null>(null);
-  const [status, setStatus] = useState(
-    'Загрузка настроек персонализации…',
-  );
+  const [status, setStatus] = useState(t('branding.loading'));
   const [isSaving, setIsSaving] = useState(false);
   const [activeImageAction, setActiveImageAction] =
     useState<BrandingImageType | null>(null);
@@ -76,7 +76,7 @@ function BrandingPage() {
 
         if (!currentSalon) {
           setStatus(
-            'Для вашей учётной записи не найден доступный салон.',
+            t('branding.noSalon'),
           );
           return;
         }
@@ -92,7 +92,7 @@ function BrandingPage() {
         setStatus('');
       } catch {
         setStatus(
-          'Не удалось загрузить настройки персонализации.',
+          t('branding.loadError'),
         );
       }
     }
@@ -119,7 +119,7 @@ function BrandingPage() {
     file: File,
   ): string | null {
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      return 'Разрешены только изображения PNG, JPEG и WebP.';
+      return t('branding.imageFormat');
     }
 
     const maximumSize =
@@ -129,8 +129,8 @@ function BrandingPage() {
 
     if (file.size > maximumSize) {
       return imageType === 'logo'
-        ? 'Размер логотипа не должен превышать 2 МБ.'
-        : 'Размер обложки не должен превышать 5 МБ.';
+        ? t('branding.logoTooBig')
+        : t('branding.coverTooBig');
     }
 
     return null;
@@ -169,14 +169,14 @@ function BrandingPage() {
       );
       setStatus(
         imageType === 'logo'
-          ? 'Логотип успешно загружен.'
-          : 'Обложка успешно загружена.',
+          ? t('branding.logo') + ' ' + t('common.success')
+          : t('branding.cover') + ' ' + t('common.success'),
       );
     } catch {
       setStatus(
         imageType === 'logo'
-          ? 'Не удалось загрузить логотип.'
-          : 'Не удалось загрузить обложку.',
+          ? t('branding.logoUploadError')
+          : t('branding.coverUploadError'),
       );
     } finally {
       setActiveImageAction(null);
@@ -217,14 +217,14 @@ function BrandingPage() {
       );
       setStatus(
         imageType === 'logo'
-          ? 'Логотип удалён.'
-          : 'Обложка удалена.',
+          ? t('branding.logo') + ' ' + t('common.deleted')
+          : t('branding.cover') + ' ' + t('common.deleted'),
       );
     } catch {
       setStatus(
         imageType === 'logo'
-          ? 'Не удалось удалить логотип.'
-          : 'Не удалось удалить обложку.',
+          ? t('branding.logoDeleteError')
+          : t('branding.coverDeleteError'),
       );
     } finally {
       setActiveImageAction(null);
@@ -266,9 +266,9 @@ function BrandingPage() {
       window.dispatchEvent(
         new Event('glamour-branding-updated'),
       );
-      setStatus('Настройки успешно сохранены.');
+      setStatus(t('branding.saved'));
     } catch {
-      setStatus('Не удалось сохранить настройки.');
+      setStatus(t('branding.saveError'));
     } finally {
       setIsSaving(false);
     }
@@ -289,13 +289,9 @@ function BrandingPage() {
       <main className="branding-page">
         <header className="dashboard-header">
           <div>
-            <p className="dashboard-eyebrow">
-              ОФОРМЛЕНИЕ САЛОНА
-            </p>
-            <h1>Персонализация</h1>
+            <h1>{t("branding.title")}</h1>
             <p className="dashboard-subtitle">
-              Настройте название, приветствие, изображения,
-              цвета и внешний вид приложения вашего салона.
+              {t('branding.subtitle')}
             </p>
           </div>
 
@@ -312,14 +308,14 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>ОСНОВНЫЕ ДАННЫЕ</span>
-                  <h2>Название и приветствие</h2>
+                  <span>{t("branding.basicData").toUpperCase()}</span>
+                  <h2>{t("branding.basicData")}</h2>
                 </div>
               </div>
 
               <div className="branding-fields">
                 <label>
-                  Название салона
+                  {t('branding.salonName')}
                   <input
                     type="text"
                     maxLength={180}
@@ -334,7 +330,7 @@ function BrandingPage() {
                 </label>
 
                 <label>
-                  Приветственный текст
+                  {t('branding.welcomeText')}
                   <textarea
                     maxLength={300}
                     value={branding.welcomeText ?? ''}
@@ -352,8 +348,8 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>ИЗОБРАЖЕНИЯ</span>
-                  <h2>Логотип и обложка</h2>
+                  <span>{t("branding.images").toUpperCase()}</span>
+                  <h2>{t("branding.images")}</h2>
                 </div>
                 <Image size={22} />
               </div>
@@ -361,15 +357,15 @@ function BrandingPage() {
               <div className="branding-image-grid">
                 <div className="branding-image-control">
                   <div className="branding-image-title">
-                    <strong>Логотип</strong>
-                    <span>PNG, JPEG или WebP, до 2 МБ</span>
+                    <strong>{t("branding.logo")}</strong>
+                    <span>{t('branding.logoHint')}</span>
                   </div>
 
                   <div className="branding-image-preview logo">
                     {branding.logoUrl ? (
                       <img
                         src={branding.logoUrl}
-                        alt="Логотип салона"
+                        alt={t('branding.logo')}
                       />
                     ) : (
                       <ImagePlus size={28} />
@@ -404,8 +400,8 @@ function BrandingPage() {
                         <ImagePlus size={18} />
                       )}
                       {branding.logoUrl
-                        ? 'Заменить'
-                        : 'Выбрать файл'}
+                        ? t('common.edit')
+                        : t('branding.chooseFile')}
                     </button>
 
                     {branding.logoUrl && (
@@ -416,7 +412,7 @@ function BrandingPage() {
                         onClick={() => deleteImage('logo')}
                       >
                         <Trash2 size={18} />
-                        Удалить
+                        {t('common.delete')}
                       </button>
                     )}
                   </div>
@@ -424,15 +420,15 @@ function BrandingPage() {
 
                 <div className="branding-image-control">
                   <div className="branding-image-title">
-                    <strong>Обложка</strong>
-                    <span>PNG, JPEG или WebP, до 5 МБ</span>
+                    <strong>{t("branding.cover")}</strong>
+                    <span>{t('branding.coverHint')}</span>
                   </div>
 
                   <div className="branding-image-preview cover">
                     {branding.coverImageUrl ? (
                       <img
                         src={branding.coverImageUrl}
-                        alt="Обложка салона"
+                        alt={t('branding.cover')}
                       />
                     ) : (
                       <ImagePlus size={28} />
@@ -467,8 +463,8 @@ function BrandingPage() {
                         <ImagePlus size={18} />
                       )}
                       {branding.coverImageUrl
-                        ? 'Заменить'
-                        : 'Выбрать файл'}
+                        ? t('common.edit')
+                        : t('branding.chooseFile')}
                     </button>
 
                     {branding.coverImageUrl && (
@@ -479,7 +475,7 @@ function BrandingPage() {
                         onClick={() => deleteImage('cover')}
                       >
                         <Trash2 size={18} />
-                        Удалить
+                        {t('common.delete')}
                       </button>
                     )}
                   </div>
@@ -490,18 +486,18 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>ЦВЕТОВАЯ СХЕМА</span>
-                  <h2>Фирменные цвета</h2>
+                  <span>{t("branding.colors").toUpperCase()}</span>
+                  <h2>{t("branding.colors")}</h2>
                 </div>
                 <Palette size={22} />
               </div>
 
               <div className="color-grid">
                 {[
-                  ['primaryColor', 'Основной цвет'],
-                  ['accentColor', 'Акцентный цвет'],
-                  ['backgroundColor', 'Цвет фона'],
-                  ['textColor', 'Цвет текста'],
+                  ['primaryColor', t('branding.primaryColor')],
+                  ['accentColor', t('branding.accentColor')],
+                  ['backgroundColor', t('branding.backgroundColor')],
+                  ['textColor', t('branding.textColor')],
                 ].map(([field, label]) => {
                   const key = field as
                     | 'primaryColor'
@@ -534,8 +530,8 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>ТЕМА</span>
-                  <h2>Режим отображения</h2>
+                  <span>{t("branding.theme").toUpperCase()}</span>
+                  <h2>{t("branding.theme")}</h2>
                 </div>
               </div>
 
@@ -543,17 +539,17 @@ function BrandingPage() {
                 {[
                   {
                     value: 'light' as ThemeMode,
-                    label: 'Светлая',
+                    label: t('branding.light'),
                     icon: <Sun size={20} />,
                   },
                   {
                     value: 'dark' as ThemeMode,
-                    label: 'Тёмная',
+                    label: t('branding.dark'),
                     icon: <Moon size={20} />,
                   },
                   {
                     value: 'system' as ThemeMode,
-                    label: 'Системная',
+                    label: t('branding.system'),
                     icon: <Monitor size={20} />,
                   },
                 ].map((option) => (
@@ -593,7 +589,7 @@ function BrandingPage() {
                   }
                 />
                 <span>
-                  Показывать надпись «Powered by Glamour»
+                  {t('branding.showPoweredBy')}
                 </span>
               </label>
             </section>
@@ -612,15 +608,15 @@ function BrandingPage() {
               >
                 <Save size={18} />
                 {isSaving
-                  ? 'Сохранение…'
-                  : 'Сохранить настройки'}
+                  ? t('common.saving')
+                  : t('branding.saveButton')}
               </button>
             </div>
           </div>
 
           <aside className="branding-preview">
             <div className="branding-preview-label">
-              ПРЕДПРОСМОТР
+              {t('branding.preview').toUpperCase()}
             </div>
 
             <div
@@ -631,10 +627,12 @@ function BrandingPage() {
               }}
             >
               <div className="preview-topbar">
+                {/* Предпросмотр показывает название салона:
+                    владелец настраивает свой вид и хочет видеть себя. */}
                 <span
                   style={{ color: branding.accentColor }}
                 >
-                  GLAMOUR
+                  {branding.displayName?.trim() || t('branding.previewName')}
                 </span>
                 <span>•••</span>
               </div>
@@ -643,7 +641,7 @@ function BrandingPage() {
                 <img
                   className="preview-cover"
                   src={branding.coverImageUrl}
-                  alt="Обложка салона"
+                  alt={t('branding.cover')}
                 />
               ) : (
                 <div
@@ -661,19 +659,19 @@ function BrandingPage() {
                   <img
                     className="preview-logo"
                     src={branding.logoUrl}
-                    alt="Логотип салона"
+                    alt={t('branding.logo')}
                   />
                 )}
 
                 <h3>
                   {branding.displayName ||
                     salon?.name ||
-                    'Ваш салон'}
+                    t('branding.yourSalon')}
                 </h3>
 
                 <p>
                   {branding.welcomeText ||
-                    'Приветственный текст салона'}
+                    t('branding.welcomeText')}
                 </p>
 
                 <button
@@ -684,7 +682,7 @@ function BrandingPage() {
                     color: branding.textColor,
                   }}
                 >
-                  Записаться
+                  {t('common.book')}
                 </button>
 
                 {branding.showPoweredByGlamour && (

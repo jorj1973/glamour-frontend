@@ -7,14 +7,18 @@ import {
   Clock,
   Filter,
   MessageSquare,
+  Phone,
   Plus,
   RefreshCw,
   Search,
+  Trash2,
   User,
   X,
   XCircle,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
+import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
 
 type WorkspaceMode = 'platform' | 'salon' | 'master';
@@ -25,6 +29,7 @@ type SalonSummary = {
   membershipRole?: string | null;
   membershipRoles?: string[];
   membershipStatus?: string | null;
+  cooperationType?: string | null;
 };
 
 type Appointment = {
@@ -40,6 +45,8 @@ type Appointment = {
   internalNote?: string;
   price?: number;
   clientName?: string;
+  clientPhone?: string | null;
+  clientEmail?: string | null;
   masterName?: string;
   serviceName?: string;
   createdAt: string;
@@ -72,13 +79,15 @@ type MasterService = {
 const WORKSPACE_MODE_KEY = 'glamour_workspace_mode';
 const CURRENT_SALON_ID_KEY = 'glamour_current_salon_id';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
-  pending: { label: 'Ожидает', color: '#ffd08b', bg: 'rgba(255,190,92,0.12)', icon: <Clock size={13} /> },
-  confirmed: { label: 'Подтверждена', color: '#a8c9ff', bg: 'rgba(114,167,255,0.12)', icon: <Check size={13} /> },
-  completed: { label: 'Завершена', color: '#8ee5b5', bg: 'rgba(77,208,139,0.12)', icon: <CheckCircle size={13} /> },
-  cancelled: { label: 'Отменена', color: '#ffb6c6', bg: 'rgba(255,96,128,0.12)', icon: <XCircle size={13} /> },
-  no_show: { label: 'Не явился', color: '#c9beca', bg: 'rgba(255,255,255,0.08)', icon: <X size={13} /> },
-};
+function getStatusConfig(t: (key: string) => string): Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> {
+  return {
+    pending: { label: t('appointments.status.pending'), color: '#ffd08b', bg: 'rgba(255,190,92,0.12)', icon: <Clock size={13} /> },
+    confirmed: { label: t('appointments.status.confirmed'), color: '#a8c9ff', bg: 'rgba(114,167,255,0.12)', icon: <Check size={13} /> },
+    completed: { label: t('appointments.status.completed'), color: '#8ee5b5', bg: 'rgba(77,208,139,0.12)', icon: <CheckCircle size={13} /> },
+    cancelled: { label: t('appointments.status.cancelled'), color: 'var(--app-accent-strong)', bg: 'rgba(255,96,128,0.12)', icon: <XCircle size={13} /> },
+    no_show: { label: t('appointments.status.no_show'), color: '#c9beca', bg: 'rgba(255,255,255,0.08)', icon: <X size={13} /> },
+  };
+}
 
 function getWorkspaceMode(): WorkspaceMode {
   const mode = localStorage.getItem(WORKSPACE_MODE_KEY);
@@ -87,7 +96,8 @@ function getWorkspaceMode(): WorkspaceMode {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_CONFIG[status] ?? { label: status, color: '#b9b0bb', bg: 'rgba(255,255,255,0.08)', icon: null };
+  const { t: tBadge } = useTranslation();
+  const cfg = getStatusConfig(tBadge)[status] ?? { label: status, color: 'var(--app-text-muted)', bg: 'rgba(255,255,255,0.08)', icon: null };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -102,10 +112,13 @@ function StatusBadge({ status }: { status: string }) {
 function AppointmentsPage() {
   const workspaceMode = getWorkspaceMode();
   const isMasterWorkspace = workspaceMode === 'master';
+  const { t, i18n } = useTranslation();
+  const STATUS_CONFIG = getStatusConfig(t);
+  const dateLocale = i18n.language?.startsWith('ro') ? 'ro-RO' : i18n.language?.startsWith('en') ? 'en-GB' : 'ru-RU';
 
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [message, setMessage] = useState('Загрузка записей…');
+  const [message, setMessage] = useState(t('appointments.loading'));
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -148,7 +161,7 @@ function AppointmentsPage() {
       setAppointments(res.data);
       setMessage('');
     } catch {
-      setMessage('Не удалось загрузить записи.');
+      setMessage(t('common.loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -179,13 +192,13 @@ function AppointmentsPage() {
         const s = await loadSalon();
         if (cancelled) return;
         setSalon(s);
-        if (!s) { setMessage('Салон не найден.'); return; }
+        if (!s) { setMessage(t('common.loadError')); return; }
         await Promise.all([
           loadAppointments(s.id),
           loadMasters(s.id),
         ]);
       } catch {
-        if (!cancelled) setMessage('Не удалось загрузить данные.');
+        if (!cancelled) setMessage(t('common.loadError'));
       }
     }
     void init();
@@ -211,22 +224,47 @@ function AppointmentsPage() {
     setSuccessMsg('');
   }
 
+  /**
+   * Мягкое удаление: запись скрывается, но остаётся в базе.
+   * Только для владельца и админа — мастеру не даём, иначе
+   * неудобная запись тихо исчезнет из его статистики.
+   */
+  async function handleDelete(id: string) {
+    if (!window.confirm(t('appointments.confirmDelete'))) {
+      return;
+    }
+
+    if (!salon) {
+      return;
+    }
+
+    try {
+      await api.delete(`/appointments/${id}`, {
+        params: { salonId: salon.id },
+      });
+
+      setAppointments((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    }
+  }
+
   async function handleUpdateStatus(id: string, status: string) {
     if (!salon) return;
     try {
       await api.patch(`/appointments/${id}/status`, { status }, { params: { salonId: salon.id } });
       await loadAppointments(salon.id);
-      showSuccess('Статус обновлён.');
+      showSuccess(t('appointments.statusUpdated'));
     } catch {
-      showError('Не удалось обновить статус.');
+      showError(t('common.loadError'));
     }
   }
 
   async function handleCreateAppointment(e: React.FormEvent) {
     e.preventDefault();
-    if (!salon) { showError('Салон не найден.'); return; }
+    if (!salon) { showError(t('common.loadError')); return; }
     if (!form.masterProfileId || !form.masterServiceId || !form.startTime) {
-      showError('Заполните все обязательные поля.');
+      showError(t('appointments.fillRequired'));
       return;
     }
     setIsSubmitting(true);
@@ -240,9 +278,9 @@ function AppointmentsPage() {
       await loadAppointments(salon.id);
       setShowForm(false);
       setForm({ masterProfileId: '', masterServiceId: '', startTime: '', clientComment: '' });
-      showSuccess('Запись создана!');
+      showSuccess(t('appointments.created'));
     } catch {
-      showError('Не удалось создать запись.');
+      showError(t('common.loadError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -275,7 +313,7 @@ function AppointmentsPage() {
   }, [appointments]);
 
   function formatDate(iso: string) {
-    return new Date(iso).toLocaleString('ru-RU', {
+    return new Date(iso).toLocaleString(dateLocale, {
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
@@ -283,30 +321,29 @@ function AppointmentsPage() {
 
   function formatDuration(start: string, end: string) {
     const diff = (new Date(end).getTime() - new Date(start).getTime()) / 60000;
-    return `${diff} мин`;
+    return `${diff} ${t('services.min')}`;
   }
 
   return (
     <AppLayout>
       <main className="dashboard-page">
         {/* Header */}
-        <header className="dashboard-header">
+        <header className="dashboard-header centered-header">
           <div>
-            <p className="dashboard-eyebrow">{isMasterWorkspace ? 'МОИ ЗАПИСИ' : 'ЗАПИСИ'}</p>
-            <h1>{isMasterWorkspace ? 'Мои записи' : 'Записи клиентов'}</h1>
+            <h1>{isMasterWorkspace ? t('appointments.myTitle') : t('appointments.title')}</h1>
             <p className="dashboard-subtitle">
               {isMasterWorkspace
-                ? 'Ваше расписание, история и управление записями.'
-                : 'Все записи салона, статусы и управление расписанием.'}
+                ? t('appointments.mySubtitle')
+                : t('appointments.subtitle')}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', flexWrap: 'wrap' }}>
             <div className="dashboard-period" style={{ minWidth: 120 }}>
-              <span>Сегодня</span>
+              <span>{t("appointments.today")}</span>
               <strong>{todayCount}</strong>
             </div>
             <div className="dashboard-period" style={{ minWidth: 120 }}>
-              <span>Всего</span>
+              <span>{t("appointments.total")}</span>
               <strong>{appointments.length}</strong>
             </div>
           </div>
@@ -324,7 +361,7 @@ function AppointmentsPage() {
         <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
           {!isMasterWorkspace && (
             <button type="button" style={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
-              <Plus size={16} /> Новая запись
+              <Plus size={16} /> {t('appointments.newAppointment')}
             </button>
           )}
           <button
@@ -334,7 +371,7 @@ function AppointmentsPage() {
             disabled={isLoading}
           >
             <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} />
-            Обновить
+            {t('appointments.refresh')}
           </button>
         </div>
 
@@ -343,8 +380,8 @@ function AppointmentsPage() {
           <article className="dashboard-panel" style={{ marginBottom: 24 }}>
             <div className="panel-heading">
               <div>
-                <p className="panel-kicker">НОВАЯ ЗАПИСЬ</p>
-                <h2>Создать запись</h2>
+                <p className="panel-kicker">{t('appointments.newAppointment').toUpperCase()}</p>
+                <h2>{t('appointments.createTitle')}</h2>
               </div>
               <button type="button" style={styles.closeBtn} onClick={() => setShowForm(false)}>
                 <X size={18} />
@@ -353,14 +390,14 @@ function AppointmentsPage() {
             <form className="service-form" onSubmit={handleCreateAppointment}>
               <div className="service-form-grid">
                 <label>
-                  Мастер *
+                  {t('appointments.master')} *
                   <select
                     style={styles.select}
                     value={form.masterProfileId}
                     onChange={(e) => setForm({ ...form, masterProfileId: e.target.value, masterServiceId: '' })}
                     required
                   >
-                    <option value="">— Выберите мастера —</option>
+                    <option value="">{t('appointments.selectMaster')}</option>
                     {masters.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.firstName} {m.lastName} · {m.profession}
@@ -369,7 +406,7 @@ function AppointmentsPage() {
                   </select>
                 </label>
                 <label>
-                  Услуга *
+                  {t('appointments.serviceLabel')} *
                   <select
                     style={styles.select}
                     value={form.masterServiceId}
@@ -377,16 +414,16 @@ function AppointmentsPage() {
                     required
                     disabled={!form.masterProfileId}
                   >
-                    <option value="">— Выберите услугу —</option>
+                    <option value="">{t('services.selectPlaceholder')}</option>
                     {masterServices.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.customTitle ?? 'Услуга'} · {s.durationMinutes} мин · {s.price} MDL
+                        {s.customTitle ?? t('appointments.service')} · {s.durationMinutes} {t('services.min')} · {s.price} MDL
                       </option>
                     ))}
                   </select>
                 </label>
                 <label>
-                  Дата и время *
+                  {t('appointments.dateTime')} *
                   <input
                     type="datetime-local"
                     style={styles.input}
@@ -396,22 +433,22 @@ function AppointmentsPage() {
                   />
                 </label>
                 <label>
-                  Комментарий клиента
+                  {t('appointments.clientComment')}
                   <input
                     type="text"
                     style={styles.input}
                     value={form.clientComment}
                     onChange={(e) => setForm({ ...form, clientComment: e.target.value })}
-                    placeholder="Необязательно"
+                    placeholder={t('common.optional')}
                   />
                 </label>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button type="submit" className="primary-action" style={{ flex: 1 }} disabled={isSubmitting}>
-                  {isSubmitting ? 'Создаём...' : 'Создать запись'}
+              <div style={{ display: 'flex', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
+                <button type="submit" className="primary-action" style={{ flex: '1 1 160px', minHeight: 48 }} disabled={isSubmitting}>
+                  {isSubmitting ? t('common.creating') : t('appointments.newAppointment')}
                 </button>
                 <button type="button" className="danger-action" onClick={() => setShowForm(false)}>
-                  Отмена
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>
@@ -421,11 +458,11 @@ function AppointmentsPage() {
         {/* Фильтры */}
         <div style={styles.filtersRow}>
           <div style={styles.searchBar}>
-            <Search size={15} style={{ color: '#efb6d8', flexShrink: 0 }} />
+            <Search size={15} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Поиск по клиенту, мастеру, услуге..."
+              placeholder={t("appointments.searchPlaceholder")}
               style={styles.searchInput}
             />
             {search && (
@@ -436,7 +473,7 @@ function AppointmentsPage() {
           </div>
 
           <div style={styles.statusFilters}>
-            <Filter size={15} style={{ color: '#efb6d8' }} />
+            <Filter size={15} style={{ color: 'var(--app-accent-strong)' }} />
             {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((s) => (
               <button
                 key={s}
@@ -444,7 +481,7 @@ function AppointmentsPage() {
                 style={styles.filterBtn(statusFilter === s)}
                 onClick={() => setStatusFilter(s)}
               >
-                {s === 'all' ? 'Все' : STATUS_CONFIG[s]?.label ?? s}
+                {s === 'all' ? t('common.all') : STATUS_CONFIG[s]?.label ?? s}
                 {counts[s] != null && (
                   <span style={styles.filterCount}>{counts[s]}</span>
                 )}
@@ -460,20 +497,20 @@ function AppointmentsPage() {
           <section className="dashboard-panel">
             <div className="panel-heading">
               <div>
-                <p className="panel-kicker">РАСПИСАНИЕ</p>
-                <h2>{filtered.length} записей</h2>
+                <p className="panel-kicker">{t("appointments.schedule").toUpperCase()}</p>
+                <h2>{t('appointments.count', { count: filtered.length })}</h2>
               </div>
               <CalendarDays size={22} />
             </div>
 
             {filtered.length === 0 ? (
               <div style={styles.emptyState}>
-                <Calendar size={40} style={{ color: '#d682b8', opacity: 0.4 }} />
-                <p>Записей не найдено.</p>
+                <Calendar size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+                <p>{t("appointments.noResults")}</p>
                 {search || statusFilter !== 'all' ? (
                   <button type="button" style={styles.secondaryBtn}
                     onClick={() => { setSearch(''); setStatusFilter('all'); }}>
-                    Сбросить фильтры
+                    {t('appointments.resetFilters')}
                   </button>
                 ) : null}
               </div>
@@ -492,11 +529,11 @@ function AppointmentsPage() {
                       >
                         {/* Дата/время */}
                         <div style={styles.dateBlock}>
-                          <strong style={{ color: '#fff7fc', fontSize: 14 }}>
-                            {new Date(a.startTime).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit' })}
+                          <strong style={{ color: 'var(--app-text)', fontSize: 14 }}>
+                            {new Date(a.startTime).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit' })}
                           </strong>
-                          <span style={{ color: '#9d949f', fontSize: 12 }}>
-                            {new Date(a.startTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                          <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>
+                            {new Date(a.startTime).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
 
@@ -506,14 +543,22 @@ function AppointmentsPage() {
                             <StatusBadge status={a.status} />
                             {isToday && (
                               <span style={{ ...styles.filterCount, background: 'rgba(114,167,255,0.15)', color: '#a8c9ff' }}>
-                                сегодня
+                                {t('appointments.todayBadge')}
                               </span>
                             )}
                           </div>
                           <div style={{ display: 'flex', gap: 14, marginTop: 6, flexWrap: 'wrap' }}>
+                            {/* Имя первым: мастер смотрит список, чтобы понять,
+                                кто придёт. Телефон нужен реже — только для звонка. */}
                             {a.clientName && (
                               <span style={styles.infoChip}>
                                 <User size={12} /> {a.clientName}
+                              </span>
+                            )}
+
+                            {a.clientPhone && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--app-text-muted)' }}>
+                                <Phone size={12} /> {a.clientPhone}
                               </span>
                             )}
                             {a.masterName && (
@@ -535,9 +580,9 @@ function AppointmentsPage() {
                         {/* Цена */}
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           {a.price != null && (
-                            <strong style={{ color: '#d682b8', fontSize: 15 }}>{a.price} MDL</strong>
+                            <strong style={{ color: 'var(--app-accent)', fontSize: 15 }}>{a.price} MDL</strong>
                           )}
-                          <div style={{ color: '#9d949f', fontSize: 11, marginTop: 3 }}>
+                          <div style={{ color: 'var(--app-text-muted)', fontSize: 11, marginTop: 3 }}>
                             {isExpanded ? '▲' : '▼'}
                           </div>
                         </div>
@@ -548,15 +593,15 @@ function AppointmentsPage() {
                         <div style={styles.expandedBlock}>
                           <div style={styles.detailGrid}>
                             <div style={styles.detailItem}>
-                              <span>Начало</span>
+                              <span>{t('appointments.start')}</span>
                               <strong>{formatDate(a.startTime)}</strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Конец</span>
+                              <span>{t('appointments.end')}</span>
                               <strong>{formatDate(a.endTime)}</strong>
                             </div>
                             <div style={styles.detailItem}>
-                              <span>Длительность</span>
+                              <span>{t('appointments.duration')}</span>
                               <strong>{formatDuration(a.startTime, a.endTime)}</strong>
                             </div>
                             <div style={styles.detailItem}>
@@ -567,7 +612,7 @@ function AppointmentsPage() {
 
                           {a.clientComment && (
                             <div style={styles.commentBlock}>
-                              <MessageSquare size={13} style={{ color: '#efb6d8' }} />
+                              <MessageSquare size={13} style={{ color: 'var(--app-accent-strong)' }} />
                               <span>{a.clientComment}</span>
                             </div>
                           )}
@@ -578,31 +623,63 @@ function AppointmentsPage() {
                               {a.status === 'pending' && (
                                 <button type="button" style={styles.actionBtn('confirm')}
                                   onClick={() => handleUpdateStatus(a.id, 'confirmed')}>
-                                  <Check size={13} /> Подтвердить
+                                  <Check size={13} /> {t('appointments.confirm')}
                                 </button>
                               )}
                               {a.status !== 'completed' && (
                                 <button type="button" style={styles.actionBtn('complete')}
                                   onClick={() => handleUpdateStatus(a.id, 'completed')}>
-                                  <CheckCircle size={13} /> Завершить
+                                  <CheckCircle size={13} /> {t('appointments.complete')}
                                 </button>
                               )}
                               <button type="button" style={styles.actionBtn('cancel')}
                                 onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
-                                <X size={13} /> Отменить
+                                <X size={13} /> {t('appointments.cancel')}
+                              </button>
+
+                              {/* Удаление — для ошибочных записей.
+                                  Отменённая остаётся видимой, удалённая исчезает. */}
+                              <button type="button" style={styles.actionBtn('cancel')}
+                                onClick={() => void handleDelete(a.id)}>
+                                <Trash2 size={13} /> {t('appointments.delete')}
                               </button>
                             </div>
                           )}
-                          {isMasterWorkspace && a.status === 'pending' && (
-                            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                              <button type="button" style={styles.actionBtn('confirm')}
-                                onClick={() => handleUpdateStatus(a.id, 'confirmed')}>
-                                <Check size={13} /> Подтвердить
-                              </button>
-                              <button type="button" style={styles.actionBtn('cancel')}
-                                onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
-                                <X size={13} /> Отменить
-                              </button>
+                          {isMasterWorkspace && (
+                            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                              {a.status === 'pending' && (
+                                <button type="button" style={styles.actionBtn('confirm')}
+                                  onClick={() => handleUpdateStatus(a.id, 'confirmed')}>
+                                  <Check size={13} /> {t('appointments.confirm')}
+                                </button>
+                              )}
+
+
+                              {/* Завершение визита — основное действие мастера.
+                                  При нём клиенту начисляются баллы за услугу. */}
+                              {a.status !== 'completed' && a.status !== 'cancelled' && (
+                                <button type="button" style={styles.actionBtn('complete')}
+                                  onClick={() => handleUpdateStatus(a.id, 'completed')}>
+                                  <CheckCircle size={13} /> {t('appointments.complete')}
+                                </button>
+                              )}
+
+                              {a.status === 'pending' && (
+                                <button type="button" style={styles.actionBtn('cancel')}
+                                  onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
+                                  <X size={13} /> {t('appointments.cancel')}
+                                </button>
+                              )}
+
+                              {/* Независимый мастер арендует кресло и ведёт своё дело —
+                                  его записи только его. Штатному нельзя: его выручка
+                                  входит в отчёты салона. */}
+                              {salon?.cooperationType === 'independent' && (
+                                <button type="button" style={styles.actionBtn('cancel')}
+                                  onClick={() => void handleDelete(a.id)}>
+                                  <Trash2 size={13} /> {t('appointments.delete')}
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -630,20 +707,20 @@ const styles = {
     fontSize: 13, fontWeight: 700,
     border: `1px solid ${type === 'success' ? 'rgba(77,208,139,0.25)' : 'rgba(255,96,128,0.25)'}`,
     background: type === 'success' ? 'rgba(77,208,139,0.1)' : 'rgba(255,96,128,0.1)',
-    color: type === 'success' ? '#9ae9bd' : '#ffb6c6',
+    color: type === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
   } as React.CSSProperties),
 
   primaryBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 7,
     minHeight: 42, padding: '0 16px', border: 0, borderRadius: 12,
-    background: '#d682b8', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    background: 'var(--app-accent)', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties,
 
   secondaryBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 7,
     minHeight: 42, padding: '0 14px',
     border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12,
-    background: 'rgba(255,255,255,0.05)', color: '#d7ced8',
+    background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)',
     fontSize: 13, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties,
 
@@ -651,19 +728,19 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 34, height: 34, border: '1px solid rgba(255,255,255,0.12)',
     borderRadius: 10, background: 'rgba(255,255,255,0.05)',
-    color: '#b9b0bb', cursor: 'pointer',
+    color: 'var(--app-text-muted)', cursor: 'pointer',
   } as React.CSSProperties,
 
   select: {
     width: '100%', padding: '11px 13px',
     border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)', color: '#fff7fc', fontSize: 14,
+    background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14,
   } as React.CSSProperties,
 
   input: {
     width: '100%', padding: '11px 13px',
     border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)', color: '#fff7fc', fontSize: 14,
+    background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14,
     outline: 'none',
   } as React.CSSProperties,
 
@@ -680,12 +757,12 @@ const styles = {
 
   searchInput: {
     flex: 1, border: 0, outline: 0,
-    background: 'transparent', color: '#fff7fc', fontSize: 13,
+    background: 'transparent', color: 'var(--app-text)', fontSize: 13,
   } as React.CSSProperties,
 
   clearBtn: {
     display: 'flex', border: 0,
-    background: 'transparent', color: '#9d949f', cursor: 'pointer',
+    background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer',
   } as React.CSSProperties,
 
   statusFilters: {
@@ -695,23 +772,23 @@ const styles = {
   filterBtn: (active: boolean) => ({
     display: 'inline-flex', alignItems: 'center', gap: 5,
     minHeight: 34, padding: '0 12px',
-    border: `1px solid ${active ? 'rgba(214,130,184,0.4)' : 'rgba(255,255,255,0.1)'}`,
+    border: `1px solid ${active ? 'rgba(var(--app-accent-rgb), 0.4)' : 'rgba(255,255,255,0.1)'}`,
     borderRadius: 10,
-    background: active ? 'rgba(214,130,184,0.14)' : 'rgba(255,255,255,0.04)',
-    color: active ? '#efb6d8' : '#9d949f',
+    background: active ? 'rgba(var(--app-accent-rgb), 0.14)' : 'rgba(255,255,255,0.04)',
+    color: active ? 'var(--app-accent-strong)' : 'var(--app-text-muted)',
     fontSize: 12, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties),
 
   filterCount: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     minWidth: 20, height: 18, padding: '0 5px', borderRadius: 999,
-    background: 'rgba(255,255,255,0.1)', color: '#d7ced8', fontSize: 10, fontWeight: 700,
+    background: 'rgba(255,255,255,0.1)', color: 'var(--app-text)', fontSize: 10, fontWeight: 700,
   } as React.CSSProperties,
 
   emptyState: {
     display: 'flex', flexDirection: 'column' as const,
     alignItems: 'center', gap: 10, padding: '40px 20px',
-    color: '#9d949f', textAlign: 'center' as const,
+    color: 'var(--app-text-muted)', textAlign: 'center' as const,
   },
 
   appointmentCard: (isToday: boolean) => ({
@@ -734,7 +811,7 @@ const styles = {
 
   infoChip: {
     display: 'inline-flex', alignItems: 'center', gap: 4,
-    color: '#9d949f', fontSize: 12,
+    color: 'var(--app-text-muted)', fontSize: 12,
   } as React.CSSProperties,
 
   expandedBlock: {
@@ -750,13 +827,13 @@ const styles = {
   detailItem: {
     display: 'flex', flexDirection: 'column' as const, gap: 3,
     padding: '9px 11px', borderRadius: 9,
-    background: 'rgba(255,255,255,0.04)', fontSize: 11, color: '#9d949f',
+    background: 'rgba(255,255,255,0.04)', fontSize: 11, color: 'var(--app-text-muted)',
   },
 
   commentBlock: {
     display: 'flex', alignItems: 'flex-start', gap: 8,
     padding: '10px 12px', borderRadius: 10, marginTop: 8,
-    background: 'rgba(214,130,184,0.07)', color: '#d7ced8', fontSize: 13,
+    background: 'rgba(var(--app-accent-rgb), 0.07)', color: 'var(--app-text)', fontSize: 13,
   } as React.CSSProperties,
 
   actionBtn: (type: 'confirm' | 'complete' | 'cancel') => ({
@@ -773,7 +850,7 @@ const styles = {
       : type === 'confirm'
         ? 'rgba(114,167,255,0.1)'
         : 'rgba(77,208,139,0.1)',
-    color: type === 'cancel' ? '#ffb6c6' : type === 'confirm' ? '#a8c9ff' : '#8ee5b5',
+    color: type === 'cancel' ? 'var(--app-accent-strong)' : type === 'confirm' ? '#a8c9ff' : '#8ee5b5',
   } as React.CSSProperties),
 };
 

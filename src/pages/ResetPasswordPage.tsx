@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { LockKeyhole } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 
 function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] =
     useState('');
@@ -12,6 +14,23 @@ function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const token = useMemo(() => {
+    // Токен ищем сначала в хеше (#reset-password?token=...),
+    // затем в строке запроса (?token=...) — для старых писем.
+    const hash = window.location.hash;
+    const queryStart = hash.indexOf('?');
+
+    if (queryStart !== -1) {
+      const hashParams = new URLSearchParams(
+        hash.slice(queryStart + 1),
+      );
+
+      const fromHash = hashParams.get('token')?.trim();
+
+      if (fromHash) {
+        return fromHash;
+      }
+    }
+
     const searchParams = new URLSearchParams(
       window.location.search,
     );
@@ -27,39 +46,39 @@ function ResetPasswordPage() {
 
     if (!token) {
       setMessage(
-        'Ссылка восстановления недействительна: отсутствует токен.',
+        t('reset.noToken'),
       );
       return;
     }
 
     if (password.length < 10) {
       setMessage(
-        'Пароль должен содержать не менее 10 символов.',
+        t('reset.minLength'),
       );
       return;
     }
 
     if (!/[a-z]/.test(password)) {
       setMessage(
-        'Пароль должен содержать строчную латинскую букву.',
+        t('reset.needLower'),
       );
       return;
     }
 
     if (!/[A-Z]/.test(password)) {
       setMessage(
-        'Пароль должен содержать заглавную латинскую букву.',
+        t('reset.needUpper'),
       );
       return;
     }
 
     if (!/[0-9]/.test(password)) {
-      setMessage('Пароль должен содержать цифру.');
+      setMessage(t('reset.needDigit'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setMessage('Введённые пароли не совпадают.');
+      setMessage(t('reset.mismatch'));
       return;
     }
 
@@ -75,11 +94,11 @@ function ResetPasswordPage() {
       setConfirmPassword('');
       setIsSuccess(true);
       setMessage(
-        'Пароль успешно изменён. Теперь вы можете войти в систему.',
+        t('reset.success'),
       );
     } catch {
       setMessage(
-        'Не удалось изменить пароль. Ссылка могла истечь или уже была использована.',
+        t('reset.failed'),
       );
     } finally {
       setIsLoading(false);
@@ -87,8 +106,10 @@ function ResetPasswordPage() {
   }
 
   function openLogin() {
+    // Уводим на корень: pathname здесь /reset-password,
+    // и возврат на него снова открыл бы форму смены пароля.
     window.location.assign(
-      `${window.location.origin}${window.location.pathname}`,
+      `${window.location.origin}/`,
     );
   }
 
@@ -99,10 +120,10 @@ function ResetPasswordPage() {
           GLAMOUR Salon Studio
         </p>
 
-        <h1>Новый пароль</h1>
+        <h1>{t('reset.title')}</h1>
 
         <p className="login-subtitle">
-          Создайте новый пароль для своей учётной записи.
+          {t('reset.subtitle')}
         </p>
 
         {!isSuccess ? (
@@ -111,7 +132,7 @@ function ResetPasswordPage() {
             className="login-form"
           >
             <label htmlFor="new-password">
-              Новый пароль
+              {t('reset.newPassword')}
             </label>
 
             <div className="login-field">
@@ -135,7 +156,7 @@ function ResetPasswordPage() {
             </div>
 
             <label htmlFor="confirm-password">
-              Повторите пароль
+              {t('reset.repeatPassword')}
             </label>
 
             <div className="login-field">
@@ -164,8 +185,8 @@ function ResetPasswordPage() {
               className="login-button"
             >
               {isLoading
-                ? 'Сохранение…'
-                : 'Установить новый пароль'}
+                ? t('common.saving')
+                : t('reset.setPassword')}
             </button>
           </form>
         ) : (
@@ -174,7 +195,7 @@ function ResetPasswordPage() {
             className="login-button"
             onClick={openLogin}
           >
-            Перейти ко входу
+            {t('reset.goToLogin')}
           </button>
         )}
 

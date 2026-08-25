@@ -1,10 +1,31 @@
 <!doctype html>
-<html lang="en">
+<html lang="ro">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>glamour-frontend</title>
+
+    <!-- viewport-fit=cover: под вырез iPhone, иначе контент
+         прячется под чёлкой при установке на домашний экран. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <title>GLAMOUR</title>
+    <meta
+      name="description"
+      content="Programare online la salon: alege serviciul, maestrul și ora potrivită."
+    />
+
+    <!-- Цвет строки состояния при установке. -->
+    <meta name="theme-color" content="#100b0b" />
+
+    <!-- Установка на домашний экран. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GLAMOUR" />
   </head>
   <body>
     <div id="root"></div>

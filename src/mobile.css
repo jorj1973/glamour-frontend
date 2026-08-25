@@ -1,0 +1,219 @@
+/*
+ * Мобильная вёрстка.
+ *
+ * Замер на ширине 430: sidebar занимает 260px (sticky),
+ * app-content остаётся 168px, содержимое вылезает до 599px.
+ *
+ * Решение: убрать sidebar из потока. Тогда app-content с flex: 1
+ * получит всю ширину. display у .app-shell НЕ трогаем —
+ * на нём держится вся раскладка.
+ */
+
+@media (max-width: 900px) {
+  /* .platform.sidebar имеет специфичность 0-2-0 и задаёт flex: 0 0 270px,
+     из-за чего сайдбар не сжимался. Перекрываем тем же весом. */
+  .sidebar,
+  .platform.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 80vw;
+    max-width: 300px;
+    flex: 0 0 auto;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+  }
+
+  .app-shell.sidebar-open .sidebar,
+  .app-shell.sidebar-open .platform.sidebar {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.55);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    border: 0;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .app-content {
+    padding-top: 58px;
+  }
+
+  .mobile-menu-button {
+    position: fixed;
+    top: 10px;
+    left: 12px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--app-border);
+    border-radius: 13px;
+    background: var(--app-panel);
+    color: var(--app-text);
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-menu-button,
+  .sidebar-backdrop {
+    display: none;
+  }
+}
+
+/* --- Нижняя панель навигации (только мобильные) --- */
+@media (max-width: 900px) {
+  .mobile-tabbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 45;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    border-top: 1px solid var(--app-border);
+    background: var(--app-panel);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-tabbar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 56px;
+    padding: 6px 2px;
+    color: var(--app-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    line-height: 1.2;
+  }
+
+  .mobile-tabbar a.active {
+    color: var(--app-accent);
+  }
+
+  /* Контент не должен прятаться под панелью. */
+  .app-content {
+    padding-bottom: 76px;
+  }
+
+}
+
+@media (min-width: 901px) {
+  .mobile-tabbar {
+    display: none;
+  }
+}
+
+/* Заголовки по центру — только на телефоне.
+   На широких экранах остаются слева, как на остальных страницах. */
+@media (max-width: 900px) {
+  .centered-header {
+    text-align: center;
+    align-items: center;
+  }
+
+  .centered-header h1,
+  .centered-header .dashboard-eyebrow,
+  .centered-header .dashboard-subtitle {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+/* Кнопка «Назад» — на всех экранах, не только на телефоне.
+   На мобильных стоит рядом с кнопкой меню, на широких — у края. */
+.mobile-back-button {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--app-border);
+  border-radius: 13px;
+  background: var(--app-panel);
+  color: var(--app-text);
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .mobile-back-button {
+    top: 10px;
+    left: 64px;
+  }
+}
+
+/* Формы в одну колонку на телефоне.
+   Две колонки по 50% на узком экране сжимают поля так,
+   что они наезжают друг на друга. */
+@media (max-width: 640px) {
+  .service-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Кнопки действий: в строку, но с переносом и нормальным
+     расстоянием — иначе слипаются на узком экране. */
+  .service-form .primary-action,
+  .service-form button {
+    min-height: 48px;
+  }
+}
+
+/* Безопасные зоны iPhone.
+   При установке на домашний экран приложение занимает весь экран,
+   и верх уходит под чёлку. Без этих отступов меню не видно. */
+@supports (padding: env(safe-area-inset-top)) {
+  .app-shell,
+  .platform-shell {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .sidebar {
+    padding-top: calc(env(safe-area-inset-top) + 12px);
+  }
+
+  .mobile-back-button {
+    top: calc(env(safe-area-inset-top) + 10px);
+  }
+
+  .mobile-menu-button {
+    top: calc(env(safe-area-inset-top) + 10px);
+  }
+
+  /* Нижняя панель — над домашним индикатором. */
+  .mobile-tabbar {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Кабинет клиента: он без общего каркаса, свой отступ. */
+  .client-cabinet {
+    padding-top: calc(env(safe-area-inset-top) + 16px);
+  }
+}
+
+/* Метки мастера на узком экране: под именем, но одним рядом.
+   Длинное имя иначе выталкивает вторую метку на новую строку
+   и ряд разъезжается. */
+@media (max-width: 640px) {
+  .master-name-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+}
