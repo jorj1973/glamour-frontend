@@ -1215,6 +1215,7 @@
     "pickTime": "Ore libere",
     "noSlots": "În ziua aceasta maestrul nu are ore libere. Alegeți altă zi.",
     "confirm": "Mută",
-    "tooLate": "Au rămas mai puțin de {{hours}} ore până la vizită — mutarea nu mai este posibilă. Sunați maestrul, vă va ajuta."
+    "tooLate": "Au rămas mai puțin de {{hours}} ore până la vizită — mutarea nu mai este posibilă. Sunați maestrul, vă va ajuta.",
+    "action": "Mută"
   }
 }

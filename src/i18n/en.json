@@ -1208,6 +1208,7 @@
     "pickTime": "Free times",
     "noSlots": "The master has no free time that day. Please pick another day.",
     "confirm": "Reschedule",
-    "tooLate": "Less than {{hours}} hours are left before the visit — rescheduling is no longer possible. Please call the master."
+    "tooLate": "Less than {{hours}} hours are left before the visit — rescheduling is no longer possible. Please call the master.",
+    "action": "Reschedule"
   }
 }

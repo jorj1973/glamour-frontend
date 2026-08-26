@@ -32,6 +32,8 @@ type SalonSummary = {
   cooperationType?: string | null;
 };
 
+import RescheduleDialog from '../components/RescheduleDialog';
+
 type Appointment = {
   id: string;
   clientUserId: string;
@@ -120,6 +122,11 @@ function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [message, setMessage] = useState(t('appointments.loading'));
   const [search, setSearch] = useState('');
+  /** Запись, которую сейчас переносят. */
+  const [rescheduleItem, setRescheduleItem] = useState<Appointment | null>(
+    null,
+  );
+
   const [statusFilter, setStatusFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -455,6 +462,18 @@ function AppointmentsPage() {
           </article>
         )}
 
+        {rescheduleItem && (
+          <RescheduleDialog
+            appointment={rescheduleItem}
+            allowLate
+            onClose={() => setRescheduleItem(null)}
+            onDone={() => {
+              setRescheduleItem(null);
+              if (salon) void loadAppointments(salon.id);
+            }}
+          />
+        )}
+
         {/* Фильтры */}
         <div style={styles.filtersRow}>
           <div style={styles.searchBar}>
@@ -632,6 +651,13 @@ function AppointmentsPage() {
                                   <CheckCircle size={13} /> {t('appointments.complete')}
                                 </button>
                               )}
+                              {a.status !== 'completed' && a.status !== 'cancelled' && (
+                                <button type="button" style={styles.actionBtn('confirm')}
+                                  onClick={() => setRescheduleItem(a)}>
+                                  <CalendarDays size={13} /> {t('reschedule.action')}
+                                </button>
+                              )}
+
                               <button type="button" style={styles.actionBtn('cancel')}
                                 onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
                                 <X size={13} /> {t('appointments.cancel')}
@@ -663,6 +689,14 @@ function AppointmentsPage() {
                                   <CheckCircle size={13} /> {t('appointments.complete')}
                                 </button>
                               )}
+
+                              {a.status !== 'completed' && a.status !== 'cancelled' && (
+                                <button type="button" style={styles.actionBtn('confirm')}
+                                  onClick={() => setRescheduleItem(a)}>
+                                  <CalendarDays size={13} /> {t('reschedule.action')}
+                                </button>
+                              )}
+
 
                               {a.status === 'pending' && (
                                 <button type="button" style={styles.actionBtn('cancel')}

@@ -15,6 +15,12 @@ type Props = {
   };
   onClose: () => void;
   onDone: () => void;
+  /**
+   * Салон и мастер переносят запись в любое время: ограничение
+   * в два часа придумано против поздних отмен клиентом, а не
+   * против работы администратора.
+   */
+  allowLate?: boolean;
 };
 
 /** За сколько часов до визита перенос ещё разрешён. */
@@ -41,7 +47,12 @@ function toDateInput(value: Date): string {
  * изменить её вручную, и переносить нужно ровно столько времени,
  * сколько занято сейчас.
  */
-function RescheduleDialog({ appointment, onClose, onDone }: Props) {
+function RescheduleDialog({
+  appointment,
+  onClose,
+  onDone,
+  allowLate = false,
+}: Props) {
   const { t } = useTranslation();
 
   const today = new Date();
@@ -130,7 +141,7 @@ function RescheduleDialog({ appointment, onClose, onDone }: Props) {
   const hoursLeft =
     (new Date(appointment.startTime).getTime() - Date.now()) / 3600000;
 
-  const isTooLate = hoursLeft < RESCHEDULE_HOURS;
+  const isTooLate = !allowLate && hoursLeft < RESCHEDULE_HOURS;
 
   return (
     <div
