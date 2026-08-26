@@ -214,13 +214,13 @@ function ClientsPage() {
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-accent-strong)', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{initials || <User size={16} />}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <strong style={{ color: 'var(--app-text)', fontSize: 14, display: 'block' }}>{fullName || t('clients.noName')}</strong>
+                          <strong style={{ color: 'var(--app-text)', fontSize: 14, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fullName || t('clients.noName')}</strong>
                           <div style={{ display: 'flex', gap: 12, marginTop: 4, flexWrap: 'wrap' }}>
                             {!!client.email && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--app-text-muted)', fontSize: 12 }}><Mail size={11} />{client.email}</span>}
                             {client.phone && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--app-text-muted)', fontSize: 12 }}><Phone size={11} />{client.phone}</span>}
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 3vw, 16px)', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                           {client.totalSpent != null && <div style={{ textAlign: 'right' }}><strong style={{ color: 'var(--app-accent)', fontSize: 14 }}>{client.totalSpent} MDL</strong><div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("clients.spent")}</div></div>}
                           {client.totalAppointments != null && <div style={{ textAlign: 'right' }}><strong style={{ color: 'var(--app-text)', fontSize: 14 }}>{client.totalAppointments}</strong><div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("clients.visits")}</div></div>}
                           <span style={{ color: 'var(--app-text-muted)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</span>
