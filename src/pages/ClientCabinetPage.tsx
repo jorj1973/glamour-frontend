@@ -7,6 +7,11 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import WelcomeDialog from '../components/WelcomeDialog';
 import PostponedList from '../components/PostponedList';
+import {
+  isPushSupported,
+  pushPermission,
+  subscribeToPush,
+} from '../api/push';
 import RescheduleDialog from '../components/RescheduleDialog';
 import ClientLoyaltyPage from './ClientLoyaltyPage';
 import ClientProfilePage from './ClientProfilePage';
@@ -59,6 +64,23 @@ function ClientCabinetPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+
+  /**
+   * Самовосстановление подписки.
+   *
+   * Разрешение браузер помнит навсегда, а подписка на сервере может
+   * пропасть — например, после смены ключей отправки. Тогда телефон
+   * считает себя подписанным, сервер о нём не знает, и уведомления
+   * молчат без единой ошибки.
+   *
+   * У клиента нет колокольчика, где это делается в других кабинетах,
+   * поэтому подписываемся здесь.
+   */
+  useEffect(() => {
+    if (isPushSupported() && pushPermission() === 'granted') {
+      void subscribeToPush();
+    }
+  }, []);
 
   useEffect(() => { void load(); }, []);
 
