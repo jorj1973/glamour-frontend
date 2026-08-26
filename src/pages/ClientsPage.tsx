@@ -206,7 +206,7 @@ function ClientsPage() {
                   const initials = getInitials(client.firstName, client.lastName);
                   return (
                     <div key={client.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', flexWrap: 'wrap' }} onClick={() => {
+                      <div className="client-row" style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => {
                         const next = isExpanded ? null : client.id;
                         setExpandedId(next);
                         if (next) void loadBalance(next);

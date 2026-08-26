@@ -234,3 +234,20 @@ main {
   max-width: 100%;
   overflow-x: hidden;
 }
+
+/* Строка клиента на узком экране: имя, контакты и сумма идут
+   друг под другом. В одну строку три колонки не помещаются —
+   блок суммы наезжал на почту. */
+@media (max-width: 720px) {
+  .client-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .client-row > div:last-child {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
+}
