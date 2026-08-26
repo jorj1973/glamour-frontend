@@ -1194,6 +1194,10 @@
     "importedClientJoined": {
       "title": "A client joined the app",
       "message": "{{clientName}} has registered and can now book online."
-    }
+    },
+    "testButton": "Test notifications",
+    "testSent": "Sent — the notification is on its way",
+    "testDenied": "Permission not granted. Enable notifications in your phone settings.",
+    "testFailed": "Could not send. Please try later."
   }
 }

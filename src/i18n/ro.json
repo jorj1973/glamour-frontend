@@ -1201,6 +1201,10 @@
     "importedClientJoined": {
       "title": "Un client a trecut în aplicație",
       "message": "{{clientName}} s-a înregistrat și acum se poate programa online."
-    }
+    },
+    "testButton": "Verifică notificările",
+    "testSent": "Trimis — notificarea vine acum",
+    "testDenied": "Permisiunea nu a fost acordată. Activați notificările din setările telefonului.",
+    "testFailed": "Trimiterea a eșuat. Încercați mai târziu."
   }
 }

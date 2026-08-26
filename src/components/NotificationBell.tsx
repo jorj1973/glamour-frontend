@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Bell, CalendarDays, Check, MessageSquare, UserPlus } from 'lucide-react';
 
 import api from '../api/api';
+import {
+    isPushSupported,
+    pushPermission,
+    subscribeToPush,
+} from '../api/push';
 
 type Notification = {
     id: string;
@@ -42,6 +47,35 @@ function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
 
     const boxRef = useRef<HTMLDivElement>(null);
+
+    const [testMsg, setTestMsg] = useState('');
+
+    /**
+     * Пробное уведомление.
+     *
+     * Если разрешения ещё нет, спрашиваем здесь: человек сам
+     * нажал, значит момент подходящий.
+     */
+    async function sendTest() {
+        setTestMsg('');
+
+        if (pushPermission() !== 'granted') {
+            const ok = await subscribeToPush();
+
+            if (!ok) {
+                setTestMsg(t('notifications.testDenied'));
+
+                return;
+            }
+        }
+
+        try {
+            await api.post('/push/test');
+            setTestMsg(t('notifications.testSent'));
+        } catch {
+            setTestMsg(t('notifications.testFailed'));
+        }
+    }
 
     async function loadCount() {
         try {
@@ -242,6 +276,46 @@ function NotificationBell() {
                     >
                         {t('notifications.title')}
                     </p>
+
+                    {isPushSupported() && (
+                        <div
+                            style={{
+                                padding: '12px 16px',
+                                borderBottom: '1px solid var(--app-border)',
+                            }}
+                        >
+                            <button
+                                type="button"
+                                onClick={() => void sendTest()}
+                                style={{
+                                    width: '100%',
+                                    minHeight: 38,
+                                    borderRadius: 11,
+                                    border: '1px solid var(--app-accent)',
+                                    background: 'transparent',
+                                    color: 'var(--app-accent)',
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {t('notifications.testButton')}
+                            </button>
+
+                            {testMsg && (
+                                <p
+                                    style={{
+                                        margin: '8px 0 0',
+                                        color: 'var(--app-text-muted)',
+                                        fontSize: 12,
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    {testMsg}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {items.length === 0 ? (
                         <p
