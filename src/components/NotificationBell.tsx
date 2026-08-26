@@ -208,10 +208,13 @@ function NotificationBell({ inline = false }: BellProps) {
             в углу легко пропустить взглядом. */}
         <style>{`
 @keyframes glamour-bell-swing {
-  0%, 60%, 100% { transform: rotate(0deg); }
-  70% { transform: rotate(-11deg); }
-  80% { transform: rotate(9deg); }
-  90% { transform: rotate(-5deg); }
+  0%, 45%, 100% { transform: rotate(0deg); }
+  52% { transform: rotate(-24deg); }
+  60% { transform: rotate(20deg); }
+  68% { transform: rotate(-15deg); }
+  76% { transform: rotate(11deg); }
+  84% { transform: rotate(-7deg); }
+  92% { transform: rotate(3deg); }
 }
 `}</style>
 
@@ -262,8 +265,11 @@ function NotificationBell({ inline = false }: BellProps) {
                 <Bell
                     size={18}
                     style={{
+                        // Колокол качается от крепления, а не вокруг
+                        // середины — иначе движение читается плохо.
+                        transformOrigin: '50% 18%',
                         animation: unread > 0
-                            ? 'glamour-bell-swing 1.4s ease-in-out infinite'
+                            ? 'glamour-bell-swing 1.6s ease-in-out infinite'
                             : undefined,
                     }}
                 />
