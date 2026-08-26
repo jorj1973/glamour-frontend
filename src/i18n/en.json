@@ -957,7 +957,8 @@
     "postponedWhy": "Why did this happen",
     "noticeTitle": "Time is not reserved in advance",
     "noticeText": "A postponed booking only reminds you of your choice — the slot stays open to everyone. To get the time you want, finish the booking right away: masters are booked tightly and good hours go fast.",
-    "noticeClose": "Got it"
+    "noticeClose": "Got it",
+    "rescheduleButton": "Reschedule"
   },
   "reviews": {
     "title": "Reviews",
@@ -1199,5 +1200,14 @@
     "testSent": "Sent — the notification is on its way",
     "testDenied": "Permission not granted. Enable notifications in your phone settings.",
     "testFailed": "Could not send. Please try later."
+  },
+  "reschedule": {
+    "title": "Reschedule booking",
+    "hint": "Pick another day and a free time with the same master. The service and its duration stay the same.",
+    "pickDate": "Day",
+    "pickTime": "Free times",
+    "noSlots": "The master has no free time that day. Please pick another day.",
+    "confirm": "Reschedule",
+    "tooLate": "Less than {{hours}} hours are left before the visit — rescheduling is no longer possible. Please call the master."
   }
 }

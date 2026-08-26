@@ -963,7 +963,8 @@
     "postponedWhy": "De ce s-a întâmplat",
     "noticeTitle": "Ora nu se rezervă în avans",
     "noticeText": "Programarea amânată doar îți amintește alegerea — ora rămâne liberă pentru toți. Ca să prinzi ora dorită, finalizează programarea imediat: maeștrii au agenda plină, iar orele bune se ocupă repede.",
-    "noticeClose": "Am înțeles"
+    "noticeClose": "Am înțeles",
+    "rescheduleButton": "Mută programarea"
   },
   "reviews": {
     "title": "Recenzii",
@@ -1206,5 +1207,14 @@
     "testSent": "Trimis — notificarea vine acum",
     "testDenied": "Permisiunea nu a fost acordată. Activați notificările din setările telefonului.",
     "testFailed": "Trimiterea a eșuat. Încercați mai târziu."
+  },
+  "reschedule": {
+    "title": "Mută programarea",
+    "hint": "Alegeți altă zi și o oră liberă la același maestru. Serviciul și durata rămân aceleași.",
+    "pickDate": "Ziua",
+    "pickTime": "Ore libere",
+    "noSlots": "În ziua aceasta maestrul nu are ore libere. Alegeți altă zi.",
+    "confirm": "Mută",
+    "tooLate": "Au rămas mai puțin de {{hours}} ore până la vizită — mutarea nu mai este posibilă. Sunați maestrul, vă va ajuta."
   }
 }

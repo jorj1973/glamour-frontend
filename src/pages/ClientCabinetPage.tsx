@@ -7,6 +7,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import WelcomeDialog from '../components/WelcomeDialog';
 import PostponedList from '../components/PostponedList';
+import RescheduleDialog from '../components/RescheduleDialog';
 import ClientLoyaltyPage from './ClientLoyaltyPage';
 import ClientProfilePage from './ClientProfilePage';
 import ClientMastersPage from './ClientMastersPage';
@@ -15,6 +16,7 @@ import ClientReviewsPage from './ClientReviewsPage';
 
 type ClientAppointment = {
   id: string;
+  masterProfileId: string;
   startTime: string;
   endTime: string;
   status: string;
@@ -50,6 +52,10 @@ function ClientCabinetPage() {
   const [bookingTab, setBookingTab] = useState<'my' | 'postponed' | 'create'>(
     'my',
   );
+
+  /** Запись, которую клиент сейчас переносит. */
+  const [rescheduleItem, setRescheduleItem] =
+    useState<ClientAppointment | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
@@ -179,6 +185,26 @@ function ClientCabinetPage() {
 
         {new Date(item.startTime).getTime() > Date.now() &&
           item.status !== 'cancelled' && (
+            <>
+            <button
+              type="button"
+              onClick={() => setRescheduleItem(item)}
+              style={{
+                marginTop: 12,
+                minHeight: 40,
+                width: '100%',
+                border: '1px solid rgba(var(--app-accent-rgb), 0.32)',
+                borderRadius: 12,
+                background: 'rgba(var(--app-accent-rgb), 0.1)',
+                color: 'var(--app-accent)',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {t('clientCabinet.rescheduleButton')}
+            </button>
+
             <button
               type="button"
               onClick={() => void handleCancel(item)}
@@ -197,6 +223,7 @@ function ClientCabinetPage() {
             >
               {t('clientCabinet.cancelButton')}
             </button>
+            </>
           )}
       </div>
     );
@@ -205,6 +232,17 @@ function ClientCabinetPage() {
   return (
     <>
       <WelcomeDialog role="client" />
+
+      {rescheduleItem && (
+        <RescheduleDialog
+          appointment={rescheduleItem}
+          onClose={() => setRescheduleItem(null)}
+          onDone={() => {
+            setRescheduleItem(null);
+            void load();
+          }}
+        />
+      )}
 
     <main
       className="client-cabinet"
