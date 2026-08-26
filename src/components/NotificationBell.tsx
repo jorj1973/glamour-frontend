@@ -239,9 +239,9 @@ function NotificationBell({ inline = false }: BellProps) {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
+                    width: 44,
+                    height: 44,
+                    borderRadius: 13,
                     border: unread > 0
                         ? '1px solid #e05a76'
                         : '1px solid var(--app-border)',
@@ -250,29 +250,39 @@ function NotificationBell({ inline = false }: BellProps) {
                         : 'var(--app-panel)',
                     color: unread > 0 ? '#e05a76' : 'var(--app-text)',
                     cursor: 'pointer',
-                    boxShadow: '0 6px 20px var(--app-shadow)',
-                    animation: unread > 0
-                        ? 'glamour-bell-swing 1.4s ease-in-out infinite'
-                        : undefined,
+                    // В строке кнопка стоит среди других: тень
+                    // делала бы её тяжелее соседних.
+                    boxShadow: inline
+                        ? undefined
+                        : '0 6px 20px var(--app-shadow)',
                 }}
             >
-                <Bell size={18} />
+                {/* Качается только колокольчик: когда дёргается вся
+                    кнопка с рамкой, это выглядит неаккуратно. */}
+                <Bell
+                    size={18}
+                    style={{
+                        animation: unread > 0
+                            ? 'glamour-bell-swing 1.4s ease-in-out infinite'
+                            : undefined,
+                    }}
+                />
 
                 {unread > 0 && (
                     <span
                         style={{
                             position: 'absolute',
-                            top: -5,
-                            right: -5,
-                            minWidth: 19,
-                            height: 19,
-                            padding: '0 5px',
-                            borderRadius: 10,
+                            top: -4,
+                            right: -4,
+                            minWidth: 17,
+                            height: 17,
+                            padding: '0 4px',
+                            borderRadius: 9,
                             background: '#e05a76',
                             color: '#fff',
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: 800,
-                            lineHeight: '19px',
+                            lineHeight: '17px',
                             textAlign: 'center',
                         }}
                     >
@@ -285,7 +295,7 @@ function NotificationBell({ inline = false }: BellProps) {
                 <div
                     style={{
                         position: 'absolute',
-                        top: 48,
+                        top: 52,
                         right: 0,
                         zIndex: 500,
                         width: 'min(88vw, 360px)',
