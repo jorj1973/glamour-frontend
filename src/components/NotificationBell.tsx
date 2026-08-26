@@ -245,12 +245,20 @@ function NotificationBell({ inline = false }: BellProps) {
                     width: 44,
                     height: 44,
                     borderRadius: 13,
-                    border: unread > 0
-                        ? '1px solid #e05a76'
-                        : '1px solid var(--app-border)',
-                    background: unread > 0
-                        ? 'rgba(224, 90, 118, 0.12)'
-                        : 'var(--app-panel)',
+                    // В строке — голый значок: рядом стоят такие же
+                    // лёгкие кнопки, и коробка вокруг делала
+                    // колокольчик вдвое заметнее соседей. О непрочитанных
+                    // говорят цвет значка, кружок с числом и покачивание.
+                    border: inline
+                        ? 0
+                        : unread > 0
+                          ? '1px solid #e05a76'
+                          : '1px solid var(--app-border)',
+                    background: inline
+                        ? 'transparent'
+                        : unread > 0
+                          ? 'rgba(224, 90, 118, 0.12)'
+                          : 'var(--app-panel)',
                     color: unread > 0 ? '#e05a76' : 'var(--app-text)',
                     cursor: 'pointer',
                     // В строке кнопка стоит среди других: тень
@@ -263,7 +271,9 @@ function NotificationBell({ inline = false }: BellProps) {
                 {/* Качается только колокольчик: когда дёргается вся
                     кнопка с рамкой, это выглядит неаккуратно. */}
                 <Bell
-                    size={18}
+                    // Без рамки значок кажется мелким рядом
+                    // с соседними кнопками — увеличиваем.
+                    size={inline ? 22 : 18}
                     style={{
                         // Колокол качается от крепления, а не вокруг
                         // середины — иначе движение читается плохо.
