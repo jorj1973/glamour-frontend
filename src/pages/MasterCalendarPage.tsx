@@ -492,7 +492,7 @@ function MasterCalendarPage() {
           <div className="panel-heading">
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <button type="button" onClick={() => shiftMonth(-1)} style={navBtnStyle}><ChevronLeft size={18} /></button>
-              <h2 style={{ margin: 0, textTransform: 'capitalize', minWidth: 190, textAlign: 'center' }}>{monthLabel}</h2>
+              <h2 style={{ margin: 0, textTransform: 'capitalize', minWidth: 'clamp(120px, 40vw, 190px)', textAlign: 'center', fontSize: 'clamp(15px, 4vw, 20px)' }}>{monthLabel}</h2>
               <button type="button" onClick={() => shiftMonth(1)} style={navBtnStyle}><ChevronRight size={18} /></button>
             </div>
             <CalendarDays size={22} />
@@ -502,7 +502,7 @@ function MasterCalendarPage() {
             <p className="dashboard-status">{t('calendar.loading')}</p>
           ) : (
             <div style={{ padding: '8px 16px 20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8, marginBottom: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 'clamp(3px, 1vw, 8px)', marginBottom: 10 }}>
                 {['mon','tue','wed','thu','fri','sat','sun'].map((d) => (
                   <div key={d} style={{ textAlign: 'center', color: 'var(--app-text-muted)', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     {t('calendar.short.' + d)}
@@ -510,7 +510,7 @@ function MasterCalendarPage() {
                 ))}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 'clamp(3px, 1vw, 8px)' }}>
                 {Array.from({ length: firstWeekday }).map((_, i) => <div key={'e' + i} />)}
 
                 {days.map((day) => {
