@@ -547,9 +547,9 @@ function MasterCalendarPage() {
                       )}
 
                       {day.isWorkingDay && day.startTime ? (
-                        <span style={{ fontSize: 10 }}>{trimTime(day.startTime)}–{trimTime(day.endTime)}</span>
+                        <span style={{ fontSize: 'clamp(8px, 2.2vw, 10px)', lineHeight: 1.25, textAlign: 'center', overflowWrap: 'anywhere', hyphens: 'auto', maxWidth: '100%' }}>{trimTime(day.startTime)}–{trimTime(day.endTime)}</span>
                       ) : (
-                        <span style={{ fontSize: 10 }}>{t('calendar.status.' + day.status)}</span>
+                        <span style={{ fontSize: 'clamp(8px, 2.2vw, 10px)', lineHeight: 1.25, textAlign: 'center', overflowWrap: 'anywhere', hyphens: 'auto', maxWidth: '100%' }}>{t('calendar.status.' + day.status)}</span>
                       )}
                       {day.ruleId && day.type !== 'regular' && (
                         <span style={{ width: 5, height: 5, borderRadius: '50%', background: c.color }} />
