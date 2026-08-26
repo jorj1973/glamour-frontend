@@ -256,8 +256,6 @@ function ClientCabinetPage() {
     <>
       <WelcomeDialog role="client" />
 
-      <NotificationBell />
-
       {rescheduleItem && (
         <RescheduleDialog
           appointment={rescheduleItem}
@@ -271,13 +269,7 @@ function ClientCabinetPage() {
 
     <main
       className="client-cabinet"
-      style={{
-        minHeight: '100vh',
-        // Та же высота, что у колокольчика: иначе шапка и он
-        // оказываются на разных уровнях и ряд распадается.
-        padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 48px',
-        background: 'var(--app-bg)',
-      }}
+      style={{ minHeight: '100vh', padding: '24px 16px 48px', background: 'var(--app-bg)' }}
     >
       <div style={{ maxWidth: 620, margin: '0 auto' }}>
         <header
@@ -286,9 +278,6 @@ function ClientCabinetPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 12,
-            // Справа стоит колокольчик, закреплённый к углу экрана:
-            // оставляем ему место, иначе он ляжет на кнопку выхода.
-            paddingRight: 48,
             marginBottom: 22,
           }}
         >
@@ -299,6 +288,8 @@ function ClientCabinetPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <LanguageSwitcher />
                     <ThemeSwitcher />
+
+            <NotificationBell inline />
 
             <button
               type="button"

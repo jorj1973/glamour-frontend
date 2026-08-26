@@ -39,7 +39,19 @@ function dateLocale(lang: string): string {
     return 'ru-RU';
 }
 
-function NotificationBell() {
+type BellProps = {
+    /**
+     * Колокольчик стоит внутри строки, а не прикреплён к углу окна.
+     *
+     * В кабинете салона и мастера шапки нет, поэтому он висит
+     * в углу. У клиента шапка есть, и там ему место рядом с
+     * остальными кнопками: иначе на широком экране он оказывается
+     * далеко от содержимого.
+     */
+    inline?: boolean;
+};
+
+function NotificationBell({ inline = false }: BellProps) {
     const { t, i18n } = useTranslation();
 
     const [items, setItems] = useState<Notification[]>([]);
@@ -205,14 +217,18 @@ function NotificationBell() {
 
         <div
             ref={boxRef}
-            style={{
-                position: 'fixed',
-                // Ниже строки состояния телефона и кнопки меню:
-                // иначе колокольчик перекрывает их.
-                top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
-                right: 16,
-                zIndex: 600,
-            }}
+            style={
+                inline
+                    ? { position: 'relative', zIndex: 600 }
+                    : {
+                          position: 'fixed',
+                          // Ниже строки состояния телефона и кнопки
+                          // меню: иначе колокольчик перекрывает их.
+                          top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
+                          right: 16,
+                          zIndex: 600,
+                      }
+            }
         >
             <button
                 type="button"
