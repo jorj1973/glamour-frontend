@@ -1199,7 +1199,15 @@
     "testButton": "Test notifications",
     "testSent": "Sent — the notification is on its way",
     "testDenied": "Permission not granted. Enable notifications in your phone settings.",
-    "testFailed": "Could not send. Please try later."
+    "testFailed": "Could not send. Please try later.",
+    "masterCreated": {
+      "title": "New booking",
+      "message": "A client booked with you. Open \"Appointments\" to see it."
+    },
+    "masterMoved": {
+      "title": "Booking moved",
+      "message": "The client moved the booking to another time."
+    }
   },
   "reschedule": {
     "title": "Reschedule booking",

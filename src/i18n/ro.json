@@ -1206,7 +1206,15 @@
     "testButton": "Verifică notificările",
     "testSent": "Trimis — notificarea vine acum",
     "testDenied": "Permisiunea nu a fost acordată. Activați notificările din setările telefonului.",
-    "testFailed": "Trimiterea a eșuat. Încercați mai târziu."
+    "testFailed": "Trimiterea a eșuat. Încercați mai târziu.",
+    "masterCreated": {
+      "title": "Programare nouă",
+      "message": "Un client s-a programat la dvs. Deschideți „Programări\"."
+    },
+    "masterMoved": {
+      "title": "Programare mutată",
+      "message": "Clientul a mutat programarea la altă oră."
+    }
   },
   "reschedule": {
     "title": "Mută programarea",
