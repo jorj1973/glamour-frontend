@@ -20,6 +20,11 @@ export type ChatMessage = {
   authorUserId: string;
   text: string | null;
   imageUrl: string | null;
+  audioUrl: string | null;
+  audioSeconds: number | null;
+  /** Сгорает после первого прослушивания — выбор отправителя. */
+  playOnce: boolean;
+  playedAt: string | null;
   editedAt: string | null;
   createdAt: string;
 };
@@ -121,7 +126,13 @@ export async function fetchChatMessages(
 
 export async function sendChatMessage(
   roomId: string,
-  body: { text?: string; imageUrl?: string },
+  body: {
+    text?: string;
+    imageUrl?: string;
+    audioUrl?: string;
+    audioSeconds?: number;
+    playOnce?: boolean;
+  },
 ): Promise<ChatMessage> {
   const res = await api.post<ChatMessage>(
     '/chat/rooms/' + roomId + '/messages',
@@ -129,6 +140,43 @@ export async function sendChatMessage(
   );
 
   return res.data;
+}
+
+/**
+ * Отправить вложение и получить ссылку на него.
+ *
+ * Отдельным шагом от сообщения: файл едет с телефона по мобильной
+ * сети и может идти секунды, а текст должен уходить сразу.
+ */
+export async function uploadChatAttachment(
+  roomId: string,
+  file: File,
+): Promise<{ url: string; kind: 'image' | 'audio' }> {
+  const form = new FormData();
+
+  form.append('file', file);
+
+  const res = await api.post<{ url: string; kind: 'image' | 'audio' }>(
+    '/chat/rooms/' + roomId + '/attachment',
+    form,
+    {
+      /**
+       * Заголовок ставит браузер, а не мы.
+       *
+       * К multipart он дописывает границу между частями, и без неё
+       * сервер не разберёт форму. Свой заголовок эту границу затрёт,
+       * поэтому здесь мы его именно убираем.
+       */
+      headers: { 'Content-Type': undefined },
+    },
+  );
+
+  return res.data;
+}
+
+/** Одноразовое голосовое дослушали — сервер стирает файл. */
+export async function markAudioPlayed(messageId: string): Promise<void> {
+  await api.post('/chat/messages/' + messageId + '/played', {});
 }
 
 export async function markChatRoomRead(roomId: string): Promise<void> {

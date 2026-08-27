@@ -1273,6 +1273,15 @@
       "colleague": "colleague"
     },
     "sent": "Sent",
-    "seen": "Read"
+    "seen": "Read",
+    "photo": "Photo",
+    "record": "Record a voice message",
+    "once": "Once",
+    "onceShort": "once",
+    "play": "Play",
+    "pause": "Pause",
+    "audioBurned": "Voice message played and deleted",
+    "micDenied": "No access to the microphone. Allow it in the browser settings and try again.",
+    "noRecorder": "This browser cannot record audio."
   }
 }

@@ -1280,6 +1280,15 @@
       "colleague": "coleg din salon"
     },
     "sent": "Trimis",
-    "seen": "Citit"
+    "seen": "Citit",
+    "photo": "Fotografie",
+    "record": "Înregistrează un mesaj vocal",
+    "once": "O singură dată",
+    "onceShort": "o singură dată",
+    "play": "Ascultă",
+    "pause": "Pauză",
+    "audioBurned": "Mesajul vocal a fost ascultat și șters",
+    "micDenied": "Nu există acces la microfon. Permiteți-l în setările browserului și încercați din nou.",
+    "noRecorder": "Acest browser nu poate înregistra sunet."
   }
 }
