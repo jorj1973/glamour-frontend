@@ -32,6 +32,42 @@ function ChatPage() {
   const [isPicking, setIsPicking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  /** Сколько экрана заняла клавиатура. */
+  const [keyboardInset, setKeyboardInset] = useState(0);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+
+    if (!viewport) {
+      return;
+    }
+
+    /**
+     * Клавиатура на iOS не сдвигает закреплённый слой: поле ввода
+     * уезжает под неё, и человек печатает вслепую. Меряем, сколько
+     * экрана она заняла, и на столько же поднимаем низ окна.
+     */
+    function update() {
+      if (!viewport) {
+        return;
+      }
+
+      const hidden = window.innerHeight - viewport.height - viewport.offsetTop;
+
+      setKeyboardInset(Math.max(0, Math.round(hidden)));
+    }
+
+    update();
+
+    viewport.addEventListener('resize', update);
+    viewport.addEventListener('scroll', update);
+
+    return () => {
+      viewport.removeEventListener('resize', update);
+      viewport.removeEventListener('scroll', update);
+    };
+  }, []);
+
   useEffect(() => {
     let alive = true;
 
@@ -153,16 +189,42 @@ function ChatPage() {
   }
 
   return (
+    /**
+     * Экран общения закреплён к виду, а не стоит в потоке страницы.
+     *
+     * В mobile.css у html и body задан overflow-x: hidden — страница
+     * из-за него становится собственным контейнером прокрутки. Экран
+     * чата единственный, кто рисуется вне обычной обёртки и при этом
+     * сам держит высоту с прокручиваемой лентой внутри; на iOS такая
+     * пара схлопывала внутреннюю высоту в ноль, и от чата оставался
+     * тёмный фон да полоска поля ввода.
+     *
+     * Закрепление снимает зависимость от правил страницы целиком —
+     * и это же обычное устройство любого полноэкранного разговора.
+     */
     <div
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: keyboardInset,
+        zIndex: 70,
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
-        padding:
-          'calc(env(safe-area-inset-top, 0px) + 14px) 16px ' +
-          'calc(env(safe-area-inset-bottom, 0px) + 14px)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 14px)',
+        paddingLeft: 16,
+        paddingRight: 16,
+        // Под клавиатурой полосы жеста не видно — отступ под неё
+        // держим только пока её действительно видно.
+        paddingBottom:
+          keyboardInset > 0
+            ? 14
+            : 'calc(env(safe-area-inset-bottom, 0px) + 14px)',
         background: 'var(--app-bg)',
+        color: 'var(--app-text)',
         boxSizing: 'border-box',
+        overscrollBehavior: 'contain',
       }}
     >
       <div
