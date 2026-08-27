@@ -58,7 +58,8 @@
       "cabinet": "My cabinet",
       "platform": "Platform"
     },
-    "scheduleTemplate": "My schedule"
+    "scheduleTemplate": "My schedule",
+    "chat": "Chat"
   },
   "auth": {
     "login": "Sign In",
@@ -1207,6 +1208,14 @@
     "masterMoved": {
       "title": "Booking moved",
       "message": "The client moved the booking to another time."
+    },
+    "chatOpened": {
+      "title": "Chat is now open",
+      "message": "You can now write inside the app."
+    },
+    "chatMessage": {
+      "title": "New message",
+      "message": "You have a new message."
     }
   },
   "reschedule": {
@@ -1218,5 +1227,41 @@
     "confirm": "Reschedule",
     "tooLate": "Less than {{hours}} hours are left before the visit — rescheduling is no longer possible. Please call the master.",
     "action": "Reschedule"
+  },
+  "chatAccess": {
+    "title": "Chat access",
+    "hint": "Find a salon by the email, phone or name it registered with. The switch opens chat and tells everyone connected to the salon: the owner, the masters and the clients.",
+    "placeholder": "Email, phone or name",
+    "search": "Find",
+    "tooShort": "Enter at least three characters.",
+    "results": "FOUND",
+    "nothing": "Nothing found. Check the email or the phone number.",
+    "alreadyOpen": "CHAT IS OPEN",
+    "noneOpen": "Nobody yet.",
+    "people": "will be told: {{people}}",
+    "toggle": "Open access",
+    "confirm": "Open chat for “{{salon}}”? {{people}} people will be told — in the app, by push and by email.",
+    "opened": "Done. Chat is open for “{{salon}}”, {{people}} people are being told.",
+    "closed": "Chat is closed for “{{salon}}”."
+  },
+  "chat": {
+    "title": "Chat",
+    "write": "Message",
+    "emptyList": "Your conversations will appear here. Start from a master card — the “Message” button.",
+    "emptyRoom": "Nothing yet. Write the first message.",
+    "noMessages": "No messages",
+    "untitled": "Conversation",
+    "placeholder": "Message…",
+    "send": "Send",
+    "emoji": "Emoji",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this message?",
+    "editing": "Editing message",
+    "edited": "edited",
+    "report": "Report",
+    "reportReason": "What is wrong with this message?",
+    "reportSent": "Report sent, we will look into it.",
+    "disabled": "Chat is not open to every salon yet."
   }
 }

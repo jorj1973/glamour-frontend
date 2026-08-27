@@ -58,7 +58,8 @@
       "cabinet": "Cabinetul meu",
       "platform": "Platformă"
     },
-    "scheduleTemplate": "Programul meu"
+    "scheduleTemplate": "Programul meu",
+    "chat": "Comunicare"
   },
   "auth": {
     "login": "Autentificare",
@@ -1214,6 +1215,14 @@
     "masterMoved": {
       "title": "Programare mutată",
       "message": "Clientul a mutat programarea la altă oră."
+    },
+    "chatOpened": {
+      "title": "S-a deschis comunicarea",
+      "message": "Acum puteți scrie direct în aplicație."
+    },
+    "chatMessage": {
+      "title": "Mesaj nou",
+      "message": "Ai primit un mesaj."
     }
   },
   "reschedule": {
@@ -1225,5 +1234,41 @@
     "confirm": "Mută",
     "tooLate": "Au rămas mai puțin de {{hours}} ore până la vizită — mutarea nu mai este posibilă. Sunați maestrul, vă va ajuta.",
     "action": "Mută"
+  },
+  "chatAccess": {
+    "title": "Acces la comunicare",
+    "hint": "Găsiți salonul după e-mail, telefon sau denumire — datele cu care s-a înregistrat. Comutatorul deschide comunicarea și anunță pe toți cei legați de salon: proprietarul, maeștrii și clienții.",
+    "placeholder": "E-mail, telefon sau denumire",
+    "search": "Caută",
+    "tooShort": "Introduceți cel puțin trei caractere.",
+    "results": "GĂSITE",
+    "nothing": "Nu s-a găsit nimic. Verificați e-mailul sau telefonul.",
+    "alreadyOpen": "COMUNICARE DESCHISĂ",
+    "noneOpen": "Deocamdată nimănui.",
+    "people": "vor fi anunțați: {{people}}",
+    "toggle": "Deschide accesul",
+    "confirm": "Deschideți comunicarea pentru «{{salon}}»? Anunțul va ajunge la {{people}} persoane — în aplicație, prin push și pe e-mail.",
+    "opened": "Gata. Comunicarea pentru «{{salon}}» este deschisă, anunțul pleacă la {{people}} persoane.",
+    "closed": "Comunicarea pentru «{{salon}}» este închisă."
+  },
+  "chat": {
+    "title": "Comunicare",
+    "write": "Scrie",
+    "emptyList": "Aici vor apărea conversațiile tale. Începe din fișa maestrului — butonul «Scrie».",
+    "emptyRoom": "Încă nimic. Scrie primul mesaj.",
+    "noMessages": "Niciun mesaj",
+    "untitled": "Conversație",
+    "placeholder": "Mesaj…",
+    "send": "Trimite",
+    "emoji": "Emoji",
+    "edit": "Modifică",
+    "delete": "Șterge",
+    "deleteConfirm": "Ștergi mesajul?",
+    "editing": "Modificare mesaj",
+    "edited": "modificat",
+    "report": "Raportează",
+    "reportReason": "Ce nu este în regulă cu acest mesaj?",
+    "reportSent": "Raportul a fost trimis, vom verifica.",
+    "disabled": "Comunicarea este deschisă deocamdată doar unor saloane."
   }
 }

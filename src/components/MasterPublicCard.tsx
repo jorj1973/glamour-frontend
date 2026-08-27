@@ -3,6 +3,7 @@ import { Award, BadgeCheck, MessageSquareText, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StarRating from './StarRating';
 import RatingSummary from './RatingSummary';
+import ChatWithButton from './ChatWithButton';
 
 /**
  * Значение на языке клиента.
@@ -320,6 +321,10 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
           {t('booking.title')}
         </a>
       )}
+
+      {/* Кнопка сама решает, показываться ли: чат включён
+          не всем салонам, и писать можно не всем подряд. */}
+      {!compact && <ChatWithButton masterProfileId={profile.id} block />}
     </div>
   );
 }

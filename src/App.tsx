@@ -25,6 +25,7 @@ import LoyaltyPage from './pages/LoyaltyPage';
 import SalonInfoPage from './pages/SalonInfoPage';
 import SalonReviewsPage from './pages/SalonReviewsPage';
 import MasterReviewsPage from './pages/MasterReviewsPage';
+import ChatPage from './pages/ChatPage';
 
 import './App.css';
 import './mobile.css';
@@ -272,6 +273,13 @@ function App() {
         </section>
       </main>
     );
+  }
+
+  // Общение одинаково для салона, мастера и клиента, поэтому
+  // ловим адрес до развилки: клиент до разбора адреса ниже
+  // просто не доходит — его сразу уводят в кабинет.
+  if (currentPage === '#chat') {
+    return <ChatPage />;
   }
 
   const workspaceMode =

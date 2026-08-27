@@ -4,6 +4,7 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MessageCircle } from 'lucide-react';
 import {
   BarChart3,
   Building2,
@@ -882,6 +883,20 @@ function AppLayout({ children }: AppLayoutProps) {
               </a>
             </>
           )}
+
+          {/* Общение есть и у салона, и у мастера, поэтому пункт
+              стоит вне ветки: она только для салона. */}
+          <a
+            className={
+              currentHash === '#chat'
+                ? 'sidebar-nav-link active'
+                : 'sidebar-nav-link'
+            }
+            href="#chat"
+          >
+            <MessageCircle size={18} />
+            {t('nav.chat')}
+          </a>
         </nav>
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto' }}>
           <LanguageSwitcher />

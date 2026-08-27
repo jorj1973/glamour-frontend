@@ -13,6 +13,7 @@ import {
   subscribeToPush,
 } from '../api/push';
 import NotificationBell from '../components/NotificationBell';
+import ChatOpenButton from '../components/ChatOpenButton';
 import RescheduleDialog from '../components/RescheduleDialog';
 import ClientLoyaltyPage from './ClientLoyaltyPage';
 import ClientProfilePage from './ClientProfilePage';
@@ -288,6 +289,8 @@ function ClientCabinetPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <LanguageSwitcher />
                     <ThemeSwitcher />
+
+            <ChatOpenButton />
 
             <NotificationBell inline />
 
