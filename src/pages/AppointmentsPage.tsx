@@ -33,6 +33,7 @@ type SalonSummary = {
 };
 
 import RescheduleDialog from '../components/RescheduleDialog';
+import ChatWithButton from '../components/ChatWithButton';
 
 type Appointment = {
   id: string;
@@ -658,6 +659,13 @@ function AppointmentsPage() {
                                 </button>
                               )}
 
+                              {/* Кнопка сама решает, показываться ли:
+                                  чат открыт не всем салонам. */}
+                              <ChatWithButton
+                                userId={a.clientUserId}
+                                small
+                              />
+
                               <button type="button" style={styles.actionBtn('cancel')}
                                 onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
                                 <X size={13} /> {t('appointments.cancel')}
@@ -696,6 +704,13 @@ function AppointmentsPage() {
                                   <CalendarDays size={13} /> {t('reschedule.action')}
                                 </button>
                               )}
+
+                              {/* Кнопка сама решает, показываться ли:
+                                  чат открыт не всем салонам. */}
+                              <ChatWithButton
+                                userId={a.clientUserId}
+                                small
+                              />
 
 
                               {a.status === 'pending' && (

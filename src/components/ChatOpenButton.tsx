@@ -83,6 +83,11 @@ function ChatOpenButton() {
         window.location.hash = CHAT_HASH;
       }}
       aria-label={t('nav.chat')}
+      /**
+       * Ровно та же коробка, что у колокольчика рядом: 44 на 44,
+       * без рамки и заливки, значок на 22. Иначе два соседних значка
+       * читаются как разные по величине, хотя стоят в одном ряду.
+       */
       style={{
         position: 'relative',
         display: 'inline-flex',
@@ -90,14 +95,15 @@ function ChatOpenButton() {
         justifyContent: 'center',
         width: 44,
         height: 44,
-        border: '1px solid rgba(var(--app-overlay-rgb), 0.12)',
+        padding: 0,
+        border: 0,
         borderRadius: 13,
-        background: 'rgba(var(--app-overlay-rgb), 0.05)',
-        color: 'var(--app-text)',
+        background: 'transparent',
+        color: 'var(--app-accent)',
         cursor: 'pointer',
       }}
     >
-      <MessageCircle size={20} />
+      <MessageCircle size={22} />
 
       {unread > 0 && (
         <span

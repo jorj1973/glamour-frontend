@@ -42,6 +42,8 @@ type Props = {
   salonId?: string | null;
   /** Растянуть на всю ширину — для колонки кнопок на карточке. */
   block?: boolean;
+  /** Мелкая — для ряда действий под записью, рядом с «Перенести». */
+  small?: boolean;
 };
 
 /**
@@ -55,6 +57,7 @@ function ChatWithButton({
   userId,
   salonId,
   block = false,
+  small = false,
 }: Props) {
   const { t } = useTranslation();
 
@@ -122,21 +125,22 @@ function ChatWithButton({
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 7,
+          gap: small ? 6 : 7,
           width: block ? '100%' : undefined,
-          minHeight: 44,
-          padding: '0 15px',
+          minHeight: small ? 34 : 44,
+          padding: small ? '0 12px' : '0 15px',
           border: '1px solid var(--app-border)',
-          borderRadius: 13,
+          borderRadius: small ? 10 : 13,
           background: 'transparent',
           color: 'var(--app-text)',
-          fontSize: 14,
+          fontSize: small ? 12 : 14,
           fontWeight: 700,
+          whiteSpace: 'nowrap',
           cursor: isOpening ? 'default' : 'pointer',
           opacity: isOpening ? 0.6 : 1,
         }}
       >
-        <MessageCircle size={16} color="var(--app-accent)" />
+        <MessageCircle size={small ? 13 : 16} color="var(--app-accent)" />
         {t('chat.write')}
       </button>
 

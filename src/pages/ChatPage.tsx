@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { getErrorKey } from '../api/errorMessage';
@@ -9,6 +9,7 @@ import {
   takeRoomToOpen,
 } from '../api/chat';
 import type { ChatRoomSummary } from '../api/chat';
+import ChatCompanionPicker from '../components/ChatCompanionPicker';
 import ChatConversation from '../components/ChatConversation';
 
 /** Как часто обновляем список бесед, пока он открыт. */
@@ -28,6 +29,7 @@ function ChatPage() {
   const [openRoomId, setOpenRoomId] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPicking, setIsPicking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -220,9 +222,39 @@ function ChatPage() {
                 <ArrowLeft size={18} />
               </button>
 
-              <strong style={{ color: 'var(--app-text)', fontSize: 17 }}>
+              <strong
+                style={{ flex: 1, color: 'var(--app-text)', fontSize: 17 }}
+              >
                 {t('chat.title')}
               </strong>
+
+              {/* Начать разговор можно отсюда, а не только с карточки
+                  мастера: иначе экран открывается пустым и никуда
+                  не ведёт. */}
+              <button
+                type="button"
+                onClick={() => setIsPicking(true)}
+                aria-label={t('chat.newTitle')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  minHeight: 40,
+                  padding: '0 15px',
+                  flexShrink: 0,
+                  border: 0,
+                  borderRadius: 13,
+                  background: 'var(--app-accent)',
+                  color: '#17151c',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                <Plus size={16} />
+                {t('chat.new')}
+              </button>
             </div>
 
             {!isEnabled && (
@@ -279,6 +311,30 @@ function ChatPage() {
                   >
                     {t('chat.emptyList')}
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPicking(true)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      minHeight: 46,
+                      padding: '0 20px',
+                      marginTop: 4,
+                      border: 0,
+                      borderRadius: 14,
+                      background: 'var(--app-accent)',
+                      color: '#17151c',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Plus size={17} />
+                    {t('chat.new')}
+                  </button>
                 </div>
               ) : (
                 <div
@@ -401,6 +457,17 @@ function ChatPage() {
           </>
         )}
       </div>
+
+      {isPicking && (
+        <ChatCompanionPicker
+          onClose={() => setIsPicking(false)}
+          onOpened={(roomId) => {
+            setIsPicking(false);
+            setOpenRoomId(roomId);
+            void reloadRooms();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -130,6 +130,16 @@ function ChatAccessPanel() {
     }
   }
 
+  /**
+   * Салон, уже показанный в находке, ниже не повторяем.
+   *
+   * Иначе один и тот же салон стоит на экране дважды, с двумя
+   * переключателями, и непонятно, чем они друг от друга отличаются.
+   */
+  const othersOpen = enabledSalons.filter(
+    (salon) => !found?.some((item) => item.salonId === salon.salonId),
+  );
+
   function renderSalon(salon: ChatAccessSalon) {
     const isBusy = busyId === salon.salonId;
 
@@ -393,13 +403,21 @@ function ChatAccessPanel() {
         {t('chatAccess.alreadyOpen')}
       </p>
 
-      {enabledSalons.length === 0 ? (
-        <p style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>
-          {t('chatAccess.noneOpen')}
+      {othersOpen.length === 0 ? (
+        <p
+          style={{
+            color: 'var(--app-text-muted)',
+            fontSize: 13,
+            lineHeight: 1.55,
+          }}
+        >
+          {enabledSalons.length === 0
+            ? t('chatAccess.noneOpen')
+            : t('chatAccess.allShown')}
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {enabledSalons.map(renderSalon)}
+          {othersOpen.map(renderSalon)}
         </div>
       )}
     </section>

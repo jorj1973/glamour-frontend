@@ -1249,12 +1249,13 @@
     "toggle": "Deschide accesul",
     "confirm": "Deschideți comunicarea pentru «{{salon}}»? Anunțul va ajunge la {{people}} persoane — în aplicație, prin push și pe e-mail.",
     "opened": "Gata. Comunicarea pentru «{{salon}}» este deschisă, anunțul pleacă la {{people}} persoane.",
-    "closed": "Comunicarea pentru «{{salon}}» este închisă."
+    "closed": "Comunicarea pentru «{{salon}}» este închisă.",
+    "allShown": "Toate saloanele deschise sunt afișate mai sus."
   },
   "chat": {
     "title": "Comunicare",
     "write": "Scrie",
-    "emptyList": "Aici vor apărea conversațiile tale. Începe din fișa maestrului — butonul «Scrie».",
+    "emptyList": "Aici vor apărea conversațiile tale. Apasă «Scrie» și alege cui.",
     "emptyRoom": "Încă nimic. Scrie primul mesaj.",
     "noMessages": "Niciun mesaj",
     "untitled": "Conversație",
@@ -1269,6 +1270,14 @@
     "report": "Raportează",
     "reportReason": "Ce nu este în regulă cu acest mesaj?",
     "reportSent": "Raportul a fost trimis, vom verifica.",
-    "disabled": "Comunicarea este deschisă deocamdată doar unor saloane."
+    "disabled": "Comunicarea este deschisă deocamdată doar unor saloane.",
+    "new": "Scrie",
+    "newTitle": "Cui scrieți",
+    "noCompanions": "Deocamdată nu aveți cui scrie. Clientul îi poate scrie maestrului după prima programare, iar maestrul — clienților și colegilor din salon.",
+    "kind": {
+      "master": "maestru",
+      "client": "client",
+      "colleague": "coleg din salon"
+    }
   }
 }

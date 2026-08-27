@@ -1242,12 +1242,13 @@
     "toggle": "Open access",
     "confirm": "Open chat for “{{salon}}”? {{people}} people will be told — in the app, by push and by email.",
     "opened": "Done. Chat is open for “{{salon}}”, {{people}} people are being told.",
-    "closed": "Chat is closed for “{{salon}}”."
+    "closed": "Chat is closed for “{{salon}}”.",
+    "allShown": "Every open salon is shown above."
   },
   "chat": {
     "title": "Chat",
     "write": "Message",
-    "emptyList": "Your conversations will appear here. Start from a master card — the “Message” button.",
+    "emptyList": "Your conversations will appear here. Press “Message” and pick someone.",
     "emptyRoom": "Nothing yet. Write the first message.",
     "noMessages": "No messages",
     "untitled": "Conversation",
@@ -1262,6 +1263,14 @@
     "report": "Report",
     "reportReason": "What is wrong with this message?",
     "reportSent": "Report sent, we will look into it.",
-    "disabled": "Chat is not open to every salon yet."
+    "disabled": "Chat is not open to every salon yet.",
+    "new": "Message",
+    "newTitle": "Who to write to",
+    "noCompanions": "Nobody to write to yet. A client can message a master after the first appointment; a master can message their clients and colleagues.",
+    "kind": {
+      "master": "master",
+      "client": "client",
+      "colleague": "colleague"
+    }
   }
 }

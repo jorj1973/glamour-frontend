@@ -47,6 +47,29 @@ export async function fetchChatRooms(): Promise<ChatRoomSummary[]> {
   return res.data;
 }
 
+/** Кем приходится собеседник. */
+export type ChatCompanionKind = 'master' | 'client' | 'colleague';
+
+/** Человек, которому разрешено написать. */
+export type ChatCompanion = {
+  userId: string;
+  salonId: string;
+  name: string;
+  kind: ChatCompanionKind;
+};
+
+/**
+ * С кем можно завести разговор.
+ *
+ * Без этого списка начать беседу удавалось только с карточки
+ * мастера: экран общения открывался пустым и никуда не вёл.
+ */
+export async function fetchChatCompanions(): Promise<ChatCompanion[]> {
+  const res = await api.get<ChatCompanion[]>('/chat/companions');
+
+  return res.data;
+}
+
 /**
  * Открыть диалог.
  *
