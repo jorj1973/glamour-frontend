@@ -22,11 +22,17 @@ import {
   editChatMessage,
   fetchChatMessages,
   markChatRoomRead,
+  reactToMessage,
   reportChatMessage,
   sendChatMessage,
   uploadChatAttachment,
 } from '../api/chat';
-import type { ChatMessage, ChatRoomSummary } from '../api/chat';
+import type {
+  ChatMessage,
+  ChatReaction,
+  ChatReplyPreview,
+  ChatRoomSummary,
+} from '../api/chat';
 import {
   audioFileName,
   canRecordAudio,
@@ -88,6 +94,15 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
   /** До какого времени собеседник всё прочитал. */
   const [companionReadAt, setCompanionReadAt] = useState<string | null>(null);
+
+  /** Цитируемые сообщения и реакции — приходят вместе с лентой. */
+  const [replies, setReplies] = useState<Record<string, ChatReplyPreview>>({});
+  const [reactions, setReactions] = useState<Record<string, ChatReaction[]>>(
+    {},
+  );
+
+  /** Сообщение, на которое сейчас отвечают. */
+  const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
 
   /**
    * Прикреплённое, но не отправленное.
@@ -171,6 +186,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
     setMessages(page.messages);
     setCompanionReadAt(page.companionLastReadAt);
+    setReplies(page.replies);
+    setReactions(page.reactions);
 
     lastIdRef.current = page.messages.length
       ? page.messages[page.messages.length - 1].id
@@ -195,6 +212,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
         setMessages(list);
         setCompanionReadAt(page.companionLastReadAt);
+        setReplies(page.replies);
+        setReactions(page.reactions);
         setErrorMsg('');
 
         const newestId = list.length ? list[list.length - 1].id : null;
@@ -341,6 +360,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         await sendChatMessage(room.id, {
           imageUrl: uploaded.url,
           text: caption || undefined,
+          replyToId: replyTo?.id,
         });
 
         caption = '';
@@ -353,11 +373,15 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
           audioUrl: uploaded.url,
           audioSeconds: voice.seconds,
           playOnce,
+          replyToId: replyTo?.id,
         });
       }
 
       if (caption) {
-        await sendChatMessage(room.id, { text: caption });
+        await sendChatMessage(room.id, {
+          text: caption,
+          replyToId: replyTo?.id,
+        });
       }
 
       photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
@@ -371,6 +395,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
       setPlayOnce(false);
       setDraft('');
       setShowEmoji(false);
+      setReplyTo(null);
 
       await reload();
     } catch (error) {
@@ -487,6 +512,17 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   }
 
   /* ─────────── Действия над сообщением ─────────── */
+
+  async function react(messageId: string, emoji: string) {
+    setActionsFor(null);
+
+    try {
+      await reactToMessage(messageId, emoji);
+      await reload();
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    }
+  }
 
   async function remove(messageId: string) {
     if (!window.confirm(t('chat.deleteConfirm'))) {
@@ -686,6 +722,27 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                         cursor: 'pointer',
                       }}
                     >
+                      {/* Цитата: к чему относится сообщение */}
+                      {message.replyToId && replies[message.replyToId] && (
+                        <span
+                          style={{
+                            display: 'block',
+                            padding: '6px 9px',
+                            marginBottom: 7,
+                            borderLeft: '3px solid var(--app-accent)',
+                            borderRadius: '4px 9px 9px 4px',
+                            background: 'rgba(var(--app-accent-rgb), 0.09)',
+                            color: 'var(--app-text-muted)',
+                            fontSize: 12.5,
+                            lineHeight: 1.45,
+                            maxHeight: 54,
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {quoteOf(replies[message.replyToId], t)}
+                        </span>
+                      )}
+
                       {message.imageUrl && (
                         <a
                           href={message.imageUrl}
@@ -726,6 +783,50 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
                       {message.text}
                     </div>
+
+                    {(reactions[message.id]?.length ?? 0) > 0 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          justifyContent: mine ? 'flex-end' : 'flex-start',
+                          gap: 4,
+                          marginTop: 4,
+                        }}
+                      >
+                        {reactions[message.id].map((item) => (
+                          <button
+                            key={item.emoji}
+                            type="button"
+                            onClick={() => void react(message.id, item.emoji)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              minHeight: 26,
+                              padding: '0 8px',
+                              border: item.mine
+                                ? '1px solid var(--app-accent)'
+                                : '1px solid var(--app-border)',
+                              borderRadius: 13,
+                              background: item.mine
+                                ? 'rgba(var(--app-accent-rgb), 0.14)'
+                                : 'var(--app-panel)',
+                              color: 'var(--app-text-muted)',
+                              fontSize: 13,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {item.emoji}
+                            {item.count > 1 && (
+                              <span style={{ fontSize: 11, fontWeight: 700 }}>
+                                {item.count}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                     <p
                       style={{
@@ -850,6 +951,77 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
             }}
           >
             <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {replyTo && !isRecording && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 11px',
+            marginBottom: 7,
+            borderLeft: '3px solid var(--app-accent)',
+            borderRadius: '4px 12px 12px 4px',
+            background: 'rgba(var(--app-accent-rgb), 0.1)',
+          }}
+        >
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span
+              style={{
+                display: 'block',
+                color: 'var(--app-accent)',
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              {t('chat.replyTo')}
+            </span>
+
+            <span
+              style={{
+                display: 'block',
+                marginTop: 2,
+                color: 'var(--app-text-muted)',
+                fontSize: 12.5,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {quoteOf(
+                {
+                  id: replyTo.id,
+                  authorUserId: replyTo.authorUserId,
+                  text: replyTo.text,
+                  kind:
+                    replyTo.audioUrl || replyTo.playOnce
+                      ? 'audio'
+                      : replyTo.imageUrl
+                        ? 'image'
+                        : 'text',
+                },
+                t,
+              )}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setReplyTo(null)}
+            aria-label={t('common.cancel')}
+            style={{
+              display: 'inline-flex',
+              flexShrink: 0,
+              border: 0,
+              background: 'transparent',
+              color: 'var(--app-text-muted)',
+              cursor: 'pointer',
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
       )}
@@ -1028,7 +1200,13 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         <ChatMessageActions
           message={actionsFor}
           mine={isMine(actionsFor)}
+          reactions={reactions[actionsFor.id] ?? []}
           onClose={() => setActionsFor(null)}
+          onReply={() => {
+            setReplyTo(actionsFor);
+            setActionsFor(null);
+          }}
+          onReact={(emoji) => void react(actionsFor.id, emoji)}
           onEdit={() => {
             startEdit(actionsFor);
             setActionsFor(null);
@@ -1235,6 +1413,31 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
       )}
     </div>
   );
+}
+
+/**
+ * Что показать в цитате.
+ *
+ * У вложения текста может не быть вовсе — тогда вместо пустоты
+ * пишем, что именно цитируют.
+ */
+function quoteOf(
+  preview: ChatReplyPreview,
+  t: (key: string) => string,
+): string {
+  if (preview.text) {
+    return preview.text;
+  }
+
+  if (preview.kind === 'audio') {
+    return '🎤 ' + t('chat.voice');
+  }
+
+  if (preview.kind === 'image') {
+    return '📷 ' + t('chat.photo');
+  }
+
+  return t('chat.deletedQuote');
 }
 
 function roundButton(isActive: boolean, isBusy = false): CSSProperties {

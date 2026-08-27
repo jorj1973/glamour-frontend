@@ -1298,6 +1298,10 @@
     "actions": "Ce faci cu mesajul",
     "copy": "Copiază",
     "copied": "Copiat",
-    "save": "Salvează"
+    "save": "Salvează",
+    "reply": "Răspunde",
+    "replyTo": "Ca răspuns la",
+    "voice": "Mesaj vocal",
+    "deletedQuote": "Mesaj șters"
   }
 }

@@ -1291,6 +1291,10 @@
     "actions": "Message actions",
     "copy": "Copy",
     "copied": "Copied",
-    "save": "Save"
+    "save": "Save",
+    "reply": "Reply",
+    "replyTo": "Replying to",
+    "voice": "Voice message",
+    "deletedQuote": "Message deleted"
   }
 }

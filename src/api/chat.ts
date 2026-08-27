@@ -25,8 +25,25 @@ export type ChatMessage = {
   /** Сгорает после первого прослушивания — выбор отправителя. */
   playOnce: boolean;
   playedAt: string | null;
+  /** На какое сообщение это отвечает. */
+  replyToId: string | null;
   editedAt: string | null;
   createdAt: string;
+};
+
+/** Короткая выжимка сообщения, на которое отвечают. */
+export type ChatReplyPreview = {
+  id: string;
+  authorUserId: string;
+  text: string | null;
+  kind: 'text' | 'image' | 'audio';
+};
+
+/** Сколько раз поставили смайлик и есть ли среди них мой. */
+export type ChatReaction = {
+  emoji: string;
+  count: number;
+  mine: boolean;
 };
 
 /**
@@ -106,6 +123,10 @@ export type ChatMessagesPage = {
   messages: ChatMessage[];
   /** До какого времени собеседник всё прочитал. */
   companionLastReadAt: string | null;
+  /** Цитируемые сообщения по их же опознанию. */
+  replies: Record<string, ChatReplyPreview>;
+  /** Реакции по опознанию сообщения. */
+  reactions: Record<string, ChatReaction[]>;
 };
 
 export async function fetchChatMessages(
@@ -119,9 +140,22 @@ export async function fetchChatMessages(
 
   // Прежний сервер отдавал просто список. Пока он не обновлён,
   // переписка должна работать — без отметки прочтения, но работать.
-  return Array.isArray(res.data)
-    ? { messages: res.data, companionLastReadAt: null }
-    : res.data;
+  // Прежний сервер отдавал просто список, а следующий — без цитат
+  // и реакций. Пока он не обновлён, переписка должна работать.
+  if (Array.isArray(res.data)) {
+    return {
+      messages: res.data,
+      companionLastReadAt: null,
+      replies: {},
+      reactions: {},
+    };
+  }
+
+  return {
+    ...res.data,
+    replies: res.data.replies ?? {},
+    reactions: res.data.reactions ?? {},
+  };
 }
 
 export async function sendChatMessage(
@@ -132,6 +166,7 @@ export async function sendChatMessage(
     audioUrl?: string;
     audioSeconds?: number;
     playOnce?: boolean;
+    replyToId?: string;
   },
 ): Promise<ChatMessage> {
   const res = await api.post<ChatMessage>(
@@ -172,6 +207,19 @@ export async function uploadChatAttachment(
   );
 
   return res.data;
+}
+
+/**
+ * Поставить или снять реакцию.
+ *
+ * Одна на человека и сообщение: другой смайлик заменяет прежний,
+ * тот же — снимает.
+ */
+export async function reactToMessage(
+  messageId: string,
+  emoji: string,
+): Promise<void> {
+  await api.post('/chat/messages/' + messageId + '/reaction', { emoji });
 }
 
 /** Одноразовое голосовое дослушали — сервер стирает файл. */
