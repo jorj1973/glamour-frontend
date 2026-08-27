@@ -1302,6 +1302,21 @@
     "reply": "Răspunde",
     "replyTo": "Ca răspuns la",
     "voice": "Mesaj vocal",
-    "deletedQuote": "Mesaj șters"
+    "deletedQuote": "Mesaj șters",
+    "typing": "scrie…",
+    "search": "Caută",
+    "searchHint": "Caută în conversații",
+    "searchResults": "GĂSITE",
+    "searchEmpty": "Nu s-a găsit nimic.",
+    "topicsTitle": "TEMELE SALONULUI",
+    "topicJoin": "Intră",
+    "topicLeave": "Ieși",
+    "topicMembers": "participanți: {{people}}",
+    "topics": {
+      "general": "Chatul general al salonului",
+      "materials": "Materiale și furnizori",
+      "education": "Instruire și cursuri",
+      "jobs": "Lucru și înlocuiri"
+    }
   }
 }

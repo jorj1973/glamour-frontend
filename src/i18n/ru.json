@@ -1307,6 +1307,21 @@
     "reply": "Ответить",
     "replyTo": "В ответ на",
     "voice": "Голосовое",
-    "deletedQuote": "Сообщение удалено"
+    "deletedQuote": "Сообщение удалено",
+    "typing": "печатает…",
+    "search": "Найти",
+    "searchHint": "Поиск по переписке",
+    "searchResults": "НАЙДЕНО",
+    "searchEmpty": "Ничего не нашлось.",
+    "topicsTitle": "ТЕМЫ САЛОНА",
+    "topicJoin": "Войти",
+    "topicLeave": "Выйти",
+    "topicMembers": "участников: {{people}}",
+    "topics": {
+      "general": "Общий чат салона",
+      "materials": "Материалы и поставщики",
+      "education": "Обучение и курсы",
+      "jobs": "Работа и подмена"
+    }
   }
 }

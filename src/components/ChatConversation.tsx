@@ -41,6 +41,8 @@ import {
   pickAudioMime,
 } from '../api/chatMedia';
 
+import { getChatSocket, isSocketLive } from '../api/chatSocket';
+
 import ChatAudioMessage from './ChatAudioMessage';
 import ChatMessageActions from './ChatMessageActions';
 import EmojiPicker from './EmojiPicker';
@@ -54,6 +56,18 @@ import EmojiPicker from './EmojiPicker';
  * тесно, и переделывать придётся только этот файл.
  */
 const POLL_MS = 3000;
+
+/**
+ * Как редко опрашивать, когда есть живое соединение.
+ *
+ * Совсем отключать опрос нельзя: соединение может тихо умереть —
+ * телефон уснул, сеть сменилась, — и человек останется без
+ * сообщений, ничего не заметив. Раз в полминуты это ловит.
+ */
+const POLL_LIVE_MS = 30000;
+
+/** Сколько держать надпись «печатает…» после последнего знака. */
+const TYPING_MS = 3500;
 
 /** Предел записи: длиннее голосовые всё равно не слушают. */
 const MAX_RECORD_SECONDS = 120;
@@ -104,6 +118,13 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   /** Сообщение, на которое сейчас отвечают. */
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
 
+  /** Кто смотрит и как зовут авторов — приходят вместе с лентой. */
+  const [viewerUserId, setViewerUserId] = useState('');
+  const [authors, setAuthors] = useState<Record<string, string>>({});
+
+  /** Собеседник печатает прямо сейчас. */
+  const [typing, setTyping] = useState(false);
+
   /**
    * Прикреплённое, но не отправленное.
    *
@@ -130,6 +151,9 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const secondsRef = useRef(0);
   const keepOnStopRef = useRef(true);
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingSentAtRef = useRef(0);
+  const lastPollRef = useRef(0);
+  const typingHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Удержание открывает меню действий.
@@ -160,6 +184,12 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
    * не зависит от того, где лежит опознание вошедшего.
    */
   function isMine(message: ChatMessage): boolean {
+    if (viewerUserId) {
+      return message.authorUserId === viewerUserId;
+    }
+
+    // Пока лента не пришла — считаем по-старому, от собеседника.
+    // В комнате это неверно, но там ещё и рисовать нечего.
     return message.authorUserId !== room.companionUserId;
   }
 
@@ -188,6 +218,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     setCompanionReadAt(page.companionLastReadAt);
     setReplies(page.replies);
     setReactions(page.reactions);
+    setViewerUserId(page.viewerUserId);
+    setAuthors(page.authors);
 
     lastIdRef.current = page.messages.length
       ? page.messages[page.messages.length - 1].id
@@ -214,6 +246,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         setCompanionReadAt(page.companionLastReadAt);
         setReplies(page.replies);
         setReactions(page.reactions);
+        setViewerUserId(page.viewerUserId);
+        setAuthors(page.authors);
         setErrorMsg('');
 
         const newestId = list.length ? list[list.length - 1].id : null;
@@ -241,20 +275,77 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
     void load();
 
+    /**
+     * Опрос остаётся, но при живом соединении становится редким.
+     *
+     * Он теперь не способ узнавать новости, а страховка: соединение
+     * может тихо умереть — телефон уснул, сеть сменилась, — и без
+     * страховки человек остался бы без сообщений, ничего не заметив.
+     */
     const timer = setInterval(() => {
-      // Вкладку в фоне не опрашиваем: телефон, забытый на этом
-      // экране, иначе весь день будит сеть.
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState !== 'visible') {
+        return;
+      }
+
+      const now = Date.now();
+      const gap = isSocketLive() ? POLL_LIVE_MS : POLL_MS;
+
+      if (now - lastPollRef.current >= gap) {
+        lastPollRef.current = now;
         void load();
       }
     }, POLL_MS);
 
+    /* ── Живое соединение ── */
+
+    const socket = getChatSocket();
+
+    function onRoomEvent(payload: { roomId?: string }) {
+      if (payload?.roomId === room.id) {
+        lastPollRef.current = Date.now();
+        void load();
+      }
+    }
+
+    function onTyping(payload: { roomId?: string; userId?: string }) {
+      if (payload?.roomId !== room.id || payload.userId === viewerUserId) {
+        return;
+      }
+
+      setTyping(true);
+
+      if (typingHideRef.current) {
+        clearTimeout(typingHideRef.current);
+      }
+
+      typingHideRef.current = setTimeout(() => setTyping(false), TYPING_MS);
+    }
+
+    if (socket) {
+      // Беседа могла завестись уже после соединения — подписываемся.
+      socket.emit('chat:join', { roomId: room.id });
+
+      socket.on('chat:message', onRoomEvent);
+      socket.on('chat:changed', onRoomEvent);
+      socket.on('chat:read', onRoomEvent);
+      socket.on('chat:typing', onTyping);
+    }
+
     return () => {
       alive = false;
       clearInterval(timer);
+
+      if (typingHideRef.current) {
+        clearTimeout(typingHideRef.current);
+      }
+
+      socket?.off('chat:message', onRoomEvent);
+      socket?.off('chat:changed', onRoomEvent);
+      socket?.off('chat:read', onRoomEvent);
+      socket?.off('chat:typing', onTyping);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room.id]);
+  }, [room.id, viewerUserId]);
 
   /** Уход с экрана обрывает запись — иначе микрофон останется занят. */
   useEffect(() => {
@@ -511,6 +602,24 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     setRecordSeconds(0);
   }
 
+  /**
+   * Сообщить собеседнику, что идёт набор.
+   *
+   * Не чаще раза в две секунды: событие ничего не хранит и живёт
+   * секунды, но отправлять его на каждую букву — это поток из сотни
+   * сообщений на одну фразу.
+   */
+  function notifyTyping() {
+    const now = Date.now();
+
+    if (now - typingSentAtRef.current < 2000) {
+      return;
+    }
+
+    typingSentAtRef.current = now;
+    getChatSocket()?.emit('chat:typing', { roomId: room.id });
+  }
+
   /* ─────────── Действия над сообщением ─────────── */
 
   async function react(messageId: string, emoji: string) {
@@ -687,6 +796,22 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                   }}
                 >
                   <div style={{ maxWidth: '82%' }}>
+                    {/* В комнате собеседников много: без имени
+                        непонятно, кто это сказал. В личном диалоге
+                        оно лишнее — там их двое. */}
+                    {!mine && room.kind === 'topic' && (
+                      <span
+                        style={{
+                          display: 'block',
+                          marginBottom: 3,
+                          color: 'var(--app-accent)',
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {authors[message.authorUserId] ?? ''}
+                      </span>
+                    )}
                     <div
                       onTouchStart={() => startPress(message)}
                       onTouchEnd={cancelPress}
@@ -893,6 +1018,19 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
               </div>
             );
           })
+        )}
+
+        {typing && (
+          <p
+            style={{
+              margin: '2px 4px 0',
+              color: 'var(--app-text-muted)',
+              fontSize: 12,
+              fontStyle: 'italic',
+            }}
+          >
+            {t('chat.typing')}
+          </p>
         )}
 
         <div ref={bottomRef} />
@@ -1356,7 +1494,10 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
           <textarea
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              notifyTyping();
+            }}
             onKeyDown={(event) => {
               // Enter отправляет, Shift+Enter переносит строку —
               // на телефоне переносят редко, а отправляют постоянно.

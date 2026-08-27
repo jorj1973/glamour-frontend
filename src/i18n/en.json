@@ -1295,6 +1295,21 @@
     "reply": "Reply",
     "replyTo": "Replying to",
     "voice": "Voice message",
-    "deletedQuote": "Message deleted"
+    "deletedQuote": "Message deleted",
+    "typing": "typing…",
+    "search": "Find",
+    "searchHint": "Search the conversations",
+    "searchResults": "FOUND",
+    "searchEmpty": "Nothing found.",
+    "topicsTitle": "SALON TOPICS",
+    "topicJoin": "Join",
+    "topicLeave": "Leave",
+    "topicMembers": "members: {{people}}",
+    "topics": {
+      "general": "Salon general chat",
+      "materials": "Materials and suppliers",
+      "education": "Training and courses",
+      "jobs": "Work and cover shifts"
+    }
   }
 }

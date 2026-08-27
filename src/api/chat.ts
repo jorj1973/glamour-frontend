@@ -8,6 +8,8 @@ export type ChatRoomSummary = {
   id: string;
   kind: ChatRoomKind;
   title: string;
+  /** У комнаты — ключ темы: название переводится по нему. */
+  topicKey: string | null;
   companionUserId: string | null;
   lastMessageAt: string | null;
   lastMessagePreview: string | null;
@@ -127,6 +129,29 @@ export type ChatMessagesPage = {
   replies: Record<string, ChatReplyPreview>;
   /** Реакции по опознанию сообщения. */
   reactions: Record<string, ChatReaction[]>;
+  /** Кто смотрит — по нему отличаем своё сообщение от чужого. */
+  viewerUserId: string;
+  /** Имена авторов: в комнате подписываем каждое сообщение. */
+  authors: Record<string, string>;
+};
+
+/** Тема салона и участие в ней. */
+export type ChatTopic = {
+  key: string;
+  title: string;
+  salonId: string;
+  roomId: string | null;
+  members: number;
+  joined: boolean;
+};
+
+/** Найденное сообщение. */
+export type ChatSearchHit = {
+  messageId: string;
+  roomId: string;
+  roomTitle: string;
+  text: string;
+  createdAt: string;
 };
 
 export async function fetchChatMessages(
@@ -148,6 +173,8 @@ export async function fetchChatMessages(
       companionLastReadAt: null,
       replies: {},
       reactions: {},
+      viewerUserId: '',
+      authors: {},
     };
   }
 
@@ -155,6 +182,8 @@ export async function fetchChatMessages(
     ...res.data,
     replies: res.data.replies ?? {},
     reactions: res.data.reactions ?? {},
+    viewerUserId: res.data.viewerUserId ?? '',
+    authors: res.data.authors ?? {},
   };
 }
 
@@ -220,6 +249,36 @@ export async function reactToMessage(
   emoji: string,
 ): Promise<void> {
   await api.post('/chat/messages/' + messageId + '/reaction', { emoji });
+}
+
+/* ─────────── Темы и поиск ─────────── */
+
+export async function fetchChatTopics(): Promise<ChatTopic[]> {
+  const res = await api.get<ChatTopic[]>('/chat/topics');
+
+  return res.data;
+}
+
+/** Вступить в тему: комната заводится при первом вступившем. */
+export async function joinChatTopic(key: string): Promise<string> {
+  const res = await api.post<{ roomId: string }>(
+    '/chat/topics/' + key + '/join',
+    {},
+  );
+
+  return res.data.roomId;
+}
+
+export async function leaveChatRoom(roomId: string): Promise<void> {
+  await api.post('/chat/rooms/' + roomId + '/leave', {});
+}
+
+export async function searchChat(query: string): Promise<ChatSearchHit[]> {
+  const res = await api.get<ChatSearchHit[]>('/chat/search', {
+    params: { query },
+  });
+
+  return res.data;
 }
 
 /** Одноразовое голосовое дослушали — сервер стирает файл. */

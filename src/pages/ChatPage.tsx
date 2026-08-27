@@ -1,14 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MessageCircle, Plus } from 'lucide-react';
+import {
+  ArrowLeft,
+  Hash,
+  LogOut,
+  MessageCircle,
+  Plus,
+  Search,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { getErrorKey } from '../api/errorMessage';
 import {
   fetchChatAvailability,
   fetchChatRooms,
+  fetchChatTopics,
+  joinChatTopic,
+  leaveChatRoom,
+  searchChat,
   takeRoomToOpen,
 } from '../api/chat';
-import type { ChatRoomSummary } from '../api/chat';
+import type {
+  ChatRoomSummary,
+  ChatSearchHit,
+  ChatTopic,
+} from '../api/chat';
+import { getChatSocket } from '../api/chatSocket';
 import ChatCompanionPicker from '../components/ChatCompanionPicker';
 import ChatConversation from '../components/ChatConversation';
 
@@ -31,6 +47,17 @@ function ChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPicking, setIsPicking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  /** Темы салона и участие в них. */
+  const [topics, setTopics] = useState<ChatTopic[]>([]);
+
+  /** Поиск по переписке. */
+  const [query, setQuery] = useState('');
+  const [hits, setHits] = useState<ChatSearchHit[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  /** Кто из собеседников сейчас в сети. */
+  const [online, setOnline] = useState<string[]>([]);
 
   /** Сколько экрана заняла клавиатура. */
   const [keyboardInset, setKeyboardInset] = useState(0);
@@ -120,6 +147,120 @@ function ChatPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /** Темы и живое соединение. */
+  useEffect(() => {
+    let alive = true;
+
+    void fetchChatTopics()
+      .then((list) => {
+        if (alive) {
+          setTopics(list);
+        }
+      })
+      .catch(() => undefined);
+
+    const socket = getChatSocket();
+
+    function onPresenceState(payload: { online?: string[] }) {
+      if (alive) {
+        setOnline(payload?.online ?? []);
+      }
+    }
+
+    function onPresenceChanged(payload: {
+      userId?: string;
+      online?: boolean;
+    }) {
+      if (!alive || !payload?.userId) {
+        return;
+      }
+
+      setOnline((list) =>
+        payload.online
+          ? [...new Set([...list, payload.userId as string])]
+          : list.filter((id) => id !== payload.userId),
+      );
+    }
+
+    function onRoomsChanged() {
+      if (alive) {
+        void reloadRooms();
+      }
+    }
+
+    if (socket) {
+      socket.on('presence:state', onPresenceState);
+      socket.on('presence:changed', onPresenceChanged);
+      socket.on('chat:message', onRoomsChanged);
+      socket.on('chat:changed', onRoomsChanged);
+    }
+
+    return () => {
+      alive = false;
+
+      socket?.off('presence:state', onPresenceState);
+      socket?.off('presence:changed', onPresenceChanged);
+      socket?.off('chat:message', onRoomsChanged);
+      socket?.off('chat:changed', onRoomsChanged);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Спрашиваем о собеседниках, когда список бесед меняется.
+   *
+   * Отдельно от подписки: собеседники становятся известны только
+   * после загрузки списка, а он приходит позже соединения.
+   */
+  useEffect(() => {
+    const ids = rooms
+      .map((room) => room.companionUserId)
+      .filter((id): id is string => Boolean(id));
+
+    if (ids.length > 0) {
+      getChatSocket()?.emit('presence:ask', { userIds: ids });
+    }
+  }, [rooms]);
+
+  async function runSearch() {
+    const value = query.trim();
+
+    if (value.length < 2) {
+      setHits(null);
+      return;
+    }
+
+    setIsSearching(true);
+
+    try {
+      setHits(await searchChat(value));
+    } catch (error) {
+      setHits([]);
+      setErrorMsg(t(getErrorKey(error)));
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  async function toggleTopic(topic: ChatTopic) {
+    setErrorMsg('');
+
+    try {
+      if (topic.joined && topic.roomId) {
+        await leaveChatRoom(topic.roomId);
+      } else {
+        const roomId = await joinChatTopic(topic.key);
+
+        getChatSocket()?.emit('chat:join', { roomId });
+      }
+
+      setTopics(await fetchChatTopics());
+      await reloadRooms();
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    }
+  }
 
   async function reloadRooms(): Promise<ChatRoomSummary[] | null> {
     try {
@@ -345,8 +486,152 @@ function ChatPage() {
               </p>
             )}
 
+            {/* Поиск по всем беседам */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <input
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+
+                  if (!event.target.value.trim()) {
+                    setHits(null);
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    void runSearch();
+                  }
+                }}
+                placeholder={t('chat.searchHint')}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  minHeight: 42,
+                  padding: '0 12px',
+                  borderRadius: 13,
+                  border: '1px solid var(--app-border)',
+                  background: 'var(--app-input)',
+                  color: 'var(--app-text)',
+                  fontSize: 14,
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() => void runSearch()}
+                disabled={isSearching}
+                aria-label={t('chat.search')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 42,
+                  height: 42,
+                  flexShrink: 0,
+                  border: 0,
+                  borderRadius: 13,
+                  background: 'var(--app-accent)',
+                  color: '#17151c',
+                  cursor: isSearching ? 'default' : 'pointer',
+                  opacity: isSearching ? 0.6 : 1,
+                }}
+              >
+                <Search size={17} />
+              </button>
+            </div>
+
             <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-              {isLoading ? (
+              {hits !== null ? (
+                <div
+                  style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
+                >
+                  <p
+                    style={{
+                      margin: 0,
+                      color: 'var(--app-text-muted)',
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('chat.searchResults')}
+                  </p>
+
+                  {hits.length === 0 ? (
+                    <p
+                      style={{
+                        color: 'var(--app-text-muted)',
+                        fontSize: 13,
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      {t('chat.searchEmpty')}
+                    </p>
+                  ) : (
+                    hits.map((hit) => (
+                      <button
+                        key={hit.messageId}
+                        type="button"
+                        onClick={() => {
+                          setHits(null);
+                          setQuery('');
+                          setOpenRoomId(hit.roomId);
+                        }}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '11px 13px',
+                          border: '1px solid var(--app-border)',
+                          borderRadius: 14,
+                          background: 'var(--app-panel)',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: 'block',
+                            color: 'var(--app-accent)',
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {hit.roomTitle || t('chat.untitled')}
+                        </span>
+
+                        <span
+                          style={{
+                            display: 'block',
+                            marginTop: 3,
+                            color: 'var(--app-text)',
+                            fontSize: 13,
+                            lineHeight: 1.45,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {hit.text}
+                        </span>
+
+                        <span
+                          style={{
+                            display: 'block',
+                            marginTop: 3,
+                            color: 'var(--app-text-muted)',
+                            fontSize: 11,
+                          }}
+                        >
+                          {new Date(hit.createdAt).toLocaleDateString(
+                            undefined,
+                            { day: 'numeric', month: 'short' },
+                          )}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              ) : isLoading ? (
                 <p style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>
                   {t('common.loading')}
                 </p>
@@ -427,6 +712,7 @@ function ChatPage() {
                     >
                       <span
                         style={{
+                          position: 'relative',
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -441,6 +727,24 @@ function ChatPage() {
                         }}
                       >
                         {(room.title || '?').trim().charAt(0).toUpperCase()}
+
+                        {/* Зелёная точка: видно, ответит собеседник
+                            сейчас или завтра. */}
+                        {room.companionUserId &&
+                          online.includes(room.companionUserId) && (
+                            <span
+                              style={{
+                                position: 'absolute',
+                                right: -1,
+                                bottom: -1,
+                                width: 12,
+                                height: 12,
+                                borderRadius: '50%',
+                                background: '#33c481',
+                                border: '2px solid var(--app-panel)',
+                              }}
+                            />
+                          )}
                       </span>
 
                       <span style={{ flex: 1, minWidth: 0 }}>
@@ -513,6 +817,110 @@ function ChatPage() {
                       </span>
                     </button>
                   ))}
+                </div>
+              )}
+
+              {/* Тематические комнаты салона */}
+              {hits === null && topics.length > 0 && (
+                <div style={{ marginTop: 22 }}>
+                  <p
+                    style={{
+                      margin: '0 0 8px',
+                      color: 'var(--app-text-muted)',
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t('chat.topicsTitle')}
+                  </p>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 8,
+                    }}
+                  >
+                    {topics.map((topic) => (
+                      <div
+                        key={topic.key}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 11,
+                          padding: '10px 13px',
+                          border: '1px solid var(--app-border)',
+                          borderRadius: 15,
+                          background: 'var(--app-panel)',
+                        }}
+                      >
+                        <Hash size={17} color="var(--app-accent)" />
+
+                        <span style={{ flex: 1, minWidth: 0 }}>
+                          <span
+                            style={{
+                              display: 'block',
+                              color: 'var(--app-text)',
+                              fontSize: 14,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {t('chat.topics.' + topic.key, topic.title)}
+                          </span>
+
+                          <span
+                            style={{
+                              display: 'block',
+                              marginTop: 2,
+                              color: 'var(--app-text-muted)',
+                              fontSize: 12,
+                            }}
+                          >
+                            {t('chat.topicMembers', { people: topic.members })}
+                          </span>
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => void toggleTopic(topic)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            minHeight: 34,
+                            padding: '0 12px',
+                            flexShrink: 0,
+                            border: topic.joined
+                              ? '1px solid var(--app-border)'
+                              : 0,
+                            borderRadius: 11,
+                            background: topic.joined
+                              ? 'transparent'
+                              : 'var(--app-accent)',
+                            color: topic.joined
+                              ? 'var(--app-text-muted)'
+                              : '#17151c',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {topic.joined ? (
+                            <>
+                              <LogOut size={13} />
+                              {t('chat.topicLeave')}
+                            </>
+                          ) : (
+                            <>
+                              <Plus size={13} />
+                              {t('chat.topicJoin')}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
