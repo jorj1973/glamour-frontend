@@ -9,6 +9,8 @@ import {
     subscribeToPush,
 } from '../api/push';
 
+import { HEADER_ICON_SIZE, headerIconButton } from './headerControls';
+
 type Notification = {
     id: string;
     type: string;
@@ -238,29 +240,19 @@ function NotificationBell({ inline = false }: BellProps) {
                 onClick={() => void toggle()}
                 aria-label={t('notifications.title')}
                 style={{
-                    position: 'relative',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 44,
-                    height: 44,
-                    borderRadius: 13,
-                    // В строке — голый значок: рядом стоят такие же
-                    // лёгкие кнопки, и коробка вокруг делала
-                    // колокольчик вдвое заметнее соседей. О непрочитанных
-                    // говорят цвет значка, кружок с числом и покачивание.
-                    border: inline
-                        ? 0
-                        : unread > 0
-                          ? '1px solid #e05a76'
-                          : '1px solid var(--app-border)',
-                    background: inline
-                        ? 'transparent'
-                        : unread > 0
-                          ? 'rgba(224, 90, 118, 0.12)'
+                    ...headerIconButton,
+                    // В строке коробка общая со всей шапкой; вне
+                    // строки колокольчик висит сам по себе, и фон
+                    // ему нужен плотный, а не как у поля ввода.
+                    border: unread > 0
+                        ? '1px solid #e05a76'
+                        : '1px solid var(--app-border)',
+                    background: unread > 0
+                        ? 'rgba(224, 90, 118, 0.12)'
+                        : inline
+                          ? 'var(--app-input)'
                           : 'var(--app-panel)',
                     color: unread > 0 ? '#e05a76' : 'var(--app-text)',
-                    cursor: 'pointer',
                     // В строке кнопка стоит среди других: тень
                     // делала бы её тяжелее соседних.
                     boxShadow: inline
@@ -271,9 +263,7 @@ function NotificationBell({ inline = false }: BellProps) {
                 {/* Качается только колокольчик: когда дёргается вся
                     кнопка с рамкой, это выглядит неаккуратно. */}
                 <Bell
-                    // Без рамки значок кажется мелким рядом
-                    // с соседними кнопками — увеличиваем.
-                    size={inline ? 22 : 18}
+                    size={HEADER_ICON_SIZE}
                     style={{
                         // Колокол качается от крепления, а не вокруг
                         // середины — иначе движение читается плохо.

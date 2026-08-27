@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { fetchChatAvailability, fetchChatUnreadCount } from '../api/chat';
 
+import { HEADER_ICON_SIZE, headerIconButton } from './headerControls';
+
 /** Адрес экрана общения. */
 const CHAT_HASH = '#chat';
 
@@ -100,26 +102,19 @@ function ChatOpenButton() {
       }}
       aria-label={t('nav.chat')}
       /**
-       * Ровно та же коробка, что у колокольчика рядом: 44 на 44,
-       * без рамки и заливки, значок на 22. Иначе два соседних значка
-       * читаются как разные по величине, хотя стоят в одном ряду.
+       * Коробка общая со всей шапкой: языки, тема, колокольчик и
+       * выход берут её оттуда же. Пока размеры стояли в каждом файле
+       * своими числами, ряд разъезжался.
+       *
+       * Цвет по тому же правилу, что у колокольчика: обычный, пока всё
+       * прочитано, и цветной, когда есть новое.
        */
       style={{
-        position: 'relative',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 44,
-        height: 44,
-        padding: 0,
-        border: 0,
-        borderRadius: 13,
-        background: 'transparent',
-        color: 'var(--app-accent)',
-        cursor: 'pointer',
+        ...headerIconButton,
+        color: unread > 0 ? 'var(--app-accent)' : 'var(--app-text)',
       }}
     >
-      <MessageCircle size={22} />
+      <MessageCircle size={HEADER_ICON_SIZE} />
 
       {unread > 0 && (
         <span

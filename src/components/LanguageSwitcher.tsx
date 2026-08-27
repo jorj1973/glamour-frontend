@@ -1,11 +1,21 @@
 import { useTranslation } from 'react-i18next';
 
+import { headerPill, headerSegment } from './headerControls';
+
 const LANGUAGES = [
   { code: 'ru', label: 'RU' },
   { code: 'ro', label: 'RO' },
   { code: 'en', label: 'EN' },
 ];
 
+/**
+ * Выбор языка.
+ *
+ * Размеры и оформление берём из общего описания шапки: раньше они
+ * стояли здесь своими числами и разъезжались с соседями. Заодно ушли
+ * жёстко прописанные белые полупрозрачные цвета — на светлой теме
+ * коробка из них была белым по белому и попросту не появлялась.
+ */
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const current = i18n.language?.slice(0, 2) ?? 'ru';
@@ -16,37 +26,13 @@ function LanguageSwitcher() {
   }
 
   return (
-    <div style={{
-      display: 'inline-flex',
-      alignSelf: 'flex-start',
-      gap: 3,
-      padding: 3,
-      borderRadius: 13,
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.08)',
-    }}>
+    <div style={{ ...headerPill, alignSelf: 'flex-start' }}>
       {LANGUAGES.map((lang) => (
         <button
           key={lang.code}
           type="button"
           onClick={() => changeLanguage(lang.code)}
-          style={{
-            minWidth: 32,
-            height: 28,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 0,
-            borderRadius: 9,
-            border: 'none',
-            background: current === lang.code ? 'var(--app-accent)' : 'transparent',
-            color: current === lang.code ? '#17151c' : 'var(--app-text-muted)',
-            fontSize: 11,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '0.05em',
-            transition: 'all 0.2s',
-          }}
+          style={headerSegment(current === lang.code)}
         >
           {lang.label}
         </button>

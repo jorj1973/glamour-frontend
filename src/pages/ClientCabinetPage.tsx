@@ -14,6 +14,7 @@ import {
 } from '../api/push';
 import NotificationBell from '../components/NotificationBell';
 import ChatOpenButton from '../components/ChatOpenButton';
+import { headerIconButton } from '../components/headerControls';
 import RescheduleDialog from '../components/RescheduleDialog';
 import ClientLoyaltyPage from './ClientLoyaltyPage';
 import ClientProfilePage from './ClientProfilePage';
@@ -299,14 +300,7 @@ function ClientCabinetPage() {
               onClick={handleLogout}
               aria-label="Logout"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 44,
-                height: 44,
-                border: '1px solid rgba(var(--app-overlay-rgb), 0.12)',
-                borderRadius: 13,
-                background: 'rgba(var(--app-overlay-rgb), 0.05)',
+                ...headerIconButton,
                 color: 'var(--app-text, var(--app-text))',
                 cursor: 'pointer',
               }}
