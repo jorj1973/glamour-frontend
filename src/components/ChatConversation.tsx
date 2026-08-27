@@ -4,11 +4,10 @@ import {
   ArrowLeft,
   Check,
   CheckCheck,
-  Flag,
   Flame,
   ImagePlus,
   Mic,
-  Pencil,
+  MoreHorizontal,
   Send,
   Smile,
   Square,
@@ -37,6 +36,7 @@ import {
 } from '../api/chatMedia';
 
 import ChatAudioMessage from './ChatAudioMessage';
+import ChatMessageActions from './ChatMessageActions';
 import EmojiPicker from './EmojiPicker';
 
 /**
@@ -79,7 +79,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  /** Сообщение, для которого открыто меню действий. */
+  const [actionsFor, setActionsFor] = useState<ChatMessage | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -113,6 +114,29 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const secondsRef = useRef(0);
   const keepOnStopRef = useRef(true);
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /**
+   * Удержание открывает меню действий.
+   *
+   * Своего события для этого в браузере нет, поэтому считаем сами:
+   * палец опустился — заводим отсчёт, поднялся или поехал — отменяем.
+   * Без отмены по движению меню выскакивало бы при каждой прокрутке.
+   */
+  function startPress(message: ChatMessage) {
+    cancelPress();
+
+    pressTimerRef.current = setTimeout(() => {
+      setActionsFor(message);
+    }, 480);
+  }
+
+  function cancelPress() {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  }
 
   /**
    * Чьё сообщение — считаем по собеседнику, а не по себе.
@@ -472,7 +496,6 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     try {
       await deleteChatMessage(messageId);
       setMessages((list) => list.filter((item) => item.id !== messageId));
-      setActiveId(null);
       onChanged();
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
@@ -488,7 +511,6 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
     try {
       await reportChatMessage(messageId, reason.trim() || undefined);
-      setActiveId(null);
       window.alert(t('chat.reportSent'));
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
@@ -498,7 +520,6 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   function startEdit(message: ChatMessage) {
     setEditingId(message.id);
     setDraft(message.text ?? '');
-    setActiveId(null);
   }
 
   function formatTime(value: string) {
@@ -631,10 +652,22 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                 >
                   <div style={{ maxWidth: '82%' }}>
                     <div
-                      onClick={() =>
-                        setActiveId(activeId === message.id ? null : message.id)
-                      }
+                      onTouchStart={() => startPress(message)}
+                      onTouchEnd={cancelPress}
+                      onTouchMove={cancelPress}
+                      onTouchCancel={cancelPress}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        setActionsFor(message);
+                      }}
                       style={{
+                        // Своё выделение и своё меню телефона здесь
+                        // выключены: иначе удержание начинает выделять
+                        // слова и открывать чужой список вместо нашего.
+                        // Взамен в меню есть «Копировать».
+                        WebkitTouchCallout: 'none',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none',
                         padding: '9px 12px',
                         borderRadius: mine
                           ? '15px 15px 4px 15px'
@@ -720,48 +753,40 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                         ) : (
                           <Check size={13} aria-label={t('chat.sent')} />
                         ))}
-                    </p>
 
-                    {activeId === message.id && (
-                      <div
+                      {/*
+                        Своя кнопка действий у каждого сообщения.
+                        Нажатие по самому пузырю тоже открывает их, но
+                        снимок по нажатию раскрывается, а проигрыватель
+                        играет — и в сообщении, где кроме вложения
+                        ничего нет, нажать становится некуда. Тогда
+                        своё же сообщение нельзя ни изменить, ни убрать.
+                      */}
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setActionsFor(message);
+                        }}
+                        aria-label={t('chat.actions')}
                         style={{
-                          display: 'flex',
-                          justifyContent: mine ? 'flex-end' : 'flex-start',
-                          gap: 6,
-                          marginTop: 5,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 26,
+                          height: 22,
+                          padding: 0,
+                          border: 0,
+                          borderRadius: 7,
+                          background: 'transparent',
+                          color: 'var(--app-text-muted)',
+                          cursor: 'pointer',
                         }}
                       >
-                        {mine ? (
-                          <>
-                            {message.text && (
-                              <button
-                                type="button"
-                                onClick={() => startEdit(message)}
-                                style={actionStyle}
-                              >
-                                <Pencil size={12} /> {t('chat.edit')}
-                              </button>
-                            )}
+                        <MoreHorizontal size={15} />
+                      </button>
+                    </p>
 
-                            <button
-                              type="button"
-                              onClick={() => void remove(message.id)}
-                              style={actionStyle}
-                            >
-                              <Trash2 size={12} /> {t('chat.delete')}
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => void report(message.id)}
-                            style={actionStyle}
-                          >
-                            <Flag size={12} /> {t('chat.report')}
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -999,6 +1024,28 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         }}
       />
 
+      {actionsFor && (
+        <ChatMessageActions
+          message={actionsFor}
+          mine={isMine(actionsFor)}
+          onClose={() => setActionsFor(null)}
+          onEdit={() => {
+            startEdit(actionsFor);
+            setActionsFor(null);
+          }}
+          onDelete={() => {
+            const target = actionsFor;
+            setActionsFor(null);
+            void remove(target.id);
+          }}
+          onReport={() => {
+            const target = actionsFor;
+            setActionsFor(null);
+            void report(target.id);
+          }}
+        />
+      )}
+
       {isRecording ? (
         /* Полоса записи: подписи словами, а не одни значки */
         <div
@@ -1206,20 +1253,5 @@ function roundButton(isActive: boolean, isBusy = false): CSSProperties {
     opacity: isBusy ? 0.5 : 1,
   };
 }
-
-const actionStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 4,
-  minHeight: 30,
-  padding: '0 10px',
-  border: '1px solid var(--app-border)',
-  borderRadius: 10,
-  background: 'transparent',
-  color: 'var(--app-text-muted)',
-  fontSize: 11,
-  fontWeight: 700,
-  cursor: 'pointer',
-};
 
 export default ChatConversation;

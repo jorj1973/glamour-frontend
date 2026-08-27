@@ -1287,6 +1287,10 @@
     "removeAttachment": "Remove",
     "recording": "Recording",
     "stop": "Done",
-    "captionHint": "Caption, if you need one…"
+    "captionHint": "Caption, if you need one…",
+    "actions": "Message actions",
+    "copy": "Copy",
+    "copied": "Copied",
+    "save": "Save"
   }
 }
