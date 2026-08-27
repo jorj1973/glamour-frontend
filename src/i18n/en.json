@@ -1271,6 +1271,8 @@
       "master": "master",
       "client": "client",
       "colleague": "colleague"
-    }
+    },
+    "sent": "Sent",
+    "seen": "Read"
   }
 }

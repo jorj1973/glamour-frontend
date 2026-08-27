@@ -659,13 +659,6 @@ function AppointmentsPage() {
                                 </button>
                               )}
 
-                              {/* Кнопка сама решает, показываться ли:
-                                  чат открыт не всем салонам. */}
-                              <ChatWithButton
-                                userId={a.clientUserId}
-                                small
-                              />
-
                               <button type="button" style={styles.actionBtn('cancel')}
                                 onClick={() => handleUpdateStatus(a.id, 'cancelled')}>
                                 <X size={13} /> {t('appointments.cancel')}
@@ -679,6 +672,19 @@ function AppointmentsPage() {
                               </button>
                             </div>
                           )}
+
+                          {/* Написать клиенту можно всегда — и после
+                              завершённого визита, и после отмены.
+                              Ряд выше к этому времени скрыт целиком,
+                              а повод написать как раз тогда и есть. */}
+                          {!isMasterWorkspace && (
+                            <ChatWithButton
+                              userId={a.clientUserId}
+                              small
+                              style={{ marginTop: 12 }}
+                            />
+                          )}
+
                           {isMasterWorkspace && (
                             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
                               {a.status === 'pending' && (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -23,14 +24,16 @@ const CHAT_HASH = '#chat';
 let availabilityPromise: Promise<ChatAvailability> | null = null;
 
 function loadAvailability(): Promise<ChatAvailability> {
-  if (!availabilityPromise) {
-    availabilityPromise = fetchChatAvailability().catch(() => ({
+  const pending: Promise<ChatAvailability> =
+    availabilityPromise ??
+    fetchChatAvailability().catch(() => ({
       enabled: false,
       salonId: null,
     }));
-  }
 
-  return availabilityPromise;
+  availabilityPromise = pending;
+
+  return pending;
 }
 
 type Props = {
@@ -44,6 +47,8 @@ type Props = {
   block?: boolean;
   /** Мелкая — для ряда действий под записью, рядом с «Перенести». */
   small?: boolean;
+  /** Дополнение к оформлению — отступ на месте вставки. */
+  style?: CSSProperties;
 };
 
 /**
@@ -58,6 +63,7 @@ function ChatWithButton({
   salonId,
   block = false,
   small = false,
+  style,
 }: Props) {
   const { t } = useTranslation();
 
@@ -138,6 +144,7 @@ function ChatWithButton({
           whiteSpace: 'nowrap',
           cursor: isOpening ? 'default' : 'pointer',
           opacity: isOpening ? 0.6 : 1,
+          ...style,
         }}
       >
         <MessageCircle size={small ? 13 : 16} color="var(--app-accent)" />

@@ -1278,6 +1278,8 @@
       "master": "maestru",
       "client": "client",
       "colleague": "coleg din salon"
-    }
+    },
+    "sent": "Trimis",
+    "seen": "Citit"
   }
 }

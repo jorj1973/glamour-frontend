@@ -5,6 +5,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle } from 'lucide-react';
+import ChatUnreadBadge from './ChatUnreadBadge';
 import {
   BarChart3,
   Building2,
@@ -896,6 +897,10 @@ function AppLayout({ children }: AppLayoutProps) {
           >
             <MessageCircle size={18} />
             {t('nav.chat')}
+
+            {/* Пункт меню без числа не отличается от
+                прочитанного — и его перестают открывать. */}
+            <ChatUnreadBadge />
           </a>
         </nav>
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto' }}>

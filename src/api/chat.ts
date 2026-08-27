@@ -90,16 +90,33 @@ export async function openDirectRoom(payload: {
   return res.data.roomId;
 }
 
+/**
+ * Сообщения и отметка прочтения собеседника.
+ *
+ * Отметка приходит вместе с лентой, а не отдельным запросом: лента
+ * и так перечитывается каждые три секунды, и второй запрос рядом
+ * с первым — это удвоенная нагрузка ради одного поля.
+ */
+export type ChatMessagesPage = {
+  messages: ChatMessage[];
+  /** До какого времени собеседник всё прочитал. */
+  companionLastReadAt: string | null;
+};
+
 export async function fetchChatMessages(
   roomId: string,
   before?: string,
-): Promise<ChatMessage[]> {
-  const res = await api.get<ChatMessage[]>(
+): Promise<ChatMessagesPage> {
+  const res = await api.get<ChatMessagesPage | ChatMessage[]>(
     '/chat/rooms/' + roomId + '/messages',
     before ? { params: { before } } : undefined,
   );
 
-  return res.data;
+  // Прежний сервер отдавал просто список. Пока он не обновлён,
+  // переписка должна работать — без отметки прочтения, но работать.
+  return Array.isArray(res.data)
+    ? { messages: res.data, companionLastReadAt: null }
+    : res.data;
 }
 
 export async function sendChatMessage(

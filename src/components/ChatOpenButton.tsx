@@ -56,8 +56,22 @@ function ChatOpenButton() {
             void refresh();
           }
         }, POLL_MS);
+
+        document.addEventListener('visibilitychange', onVisible);
       } catch {
         // Чат недоступен — кнопки не будет.
+      }
+    }
+
+    /**
+     * Возврат к вкладке пересчитывает сразу.
+     *
+     * Иначе человек, вернувшийся к отложенному телефону, до полуминуты
+     * видит вчерашнее число — и решает, что нового нет.
+     */
+    function onVisible() {
+      if (document.visibilityState === 'visible') {
+        void refresh();
       }
     }
 
@@ -69,6 +83,8 @@ function ChatOpenButton() {
       if (timer) {
         clearInterval(timer);
       }
+
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, []);
 

@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import {
   ArrowLeft,
   Check,
+  CheckCheck,
   Flag,
   Pencil,
   Send,
@@ -54,6 +55,9 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const [isSending, setIsSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  /** До какого времени собеседник всё прочитал. */
+  const [companionReadAt, setCompanionReadAt] = useState<string | null>(null);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const lastIdRef = useRef<string | null>(null);
 
@@ -67,18 +71,39 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     return message.authorUserId !== room.companionUserId;
   }
 
+  /**
+   * Прочитано ли собеседником моё сообщение.
+   *
+   * Сравниваем со временем его последнего прочтения: отдельной
+   * отметки на каждое сообщение нет и не нужно — в диалоге читают
+   * подряд, и одного времени хватает на всю ленту.
+   */
+  function isSeen(message: ChatMessage): boolean {
+    if (!companionReadAt) {
+      return false;
+    }
+
+    return (
+      new Date(message.createdAt).getTime() <=
+      new Date(companionReadAt).getTime()
+    );
+  }
+
   useEffect(() => {
     let alive = true;
 
     async function load() {
       try {
-        const list = await fetchChatMessages(room.id);
+        const page = await fetchChatMessages(room.id);
 
         if (!alive) {
           return;
         }
 
+        const list = page.messages;
+
         setMessages(list);
+        setCompanionReadAt(page.companionLastReadAt);
         setErrorMsg('');
 
         const newestId = list.length ? list[list.length - 1].id : null;
@@ -142,9 +167,11 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
       setDraft('');
       setShowEmoji(false);
 
-      const list = await fetchChatMessages(room.id);
+      const page = await fetchChatMessages(room.id);
+      const list = page.messages;
 
       setMessages(list);
+      setCompanionReadAt(page.companionLastReadAt);
       lastIdRef.current = list.length ? list[list.length - 1].id : null;
       bottomRef.current?.scrollIntoView({ block: 'end' });
       onChanged();
@@ -364,6 +391,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                     <p
                       style={{
                         display: 'flex',
+                        alignItems: 'center',
                         justifyContent: mine ? 'flex-end' : 'flex-start',
                         gap: 5,
                         color: 'var(--app-text-muted)',
@@ -373,6 +401,19 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
                     >
                       {formatTime(message.createdAt)}
                       {message.editedAt && <span>· {t('chat.edited')}</span>}
+
+                      {/* Одна галочка — ушло, две — собеседник открыл
+                          беседу и дочитал до этого сообщения. */}
+                      {mine &&
+                        (isSeen(message) ? (
+                          <CheckCheck
+                            size={14}
+                            color="var(--app-accent)"
+                            aria-label={t('chat.seen')}
+                          />
+                        ) : (
+                          <Check size={13} aria-label={t('chat.sent')} />
+                        ))}
                     </p>
 
                     {activeId === message.id && (
