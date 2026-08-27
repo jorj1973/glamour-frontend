@@ -1301,7 +1301,7 @@
     "searchHint": "Search the conversations",
     "searchResults": "FOUND",
     "searchEmpty": "Nothing found.",
-    "topicsTitle": "SALON TOPICS",
+    "topicsTitle": "TOPICS YOU CAN JOIN",
     "topicJoin": "Join",
     "topicLeave": "Leave",
     "topicMembers": "members: {{people}}",
@@ -1310,6 +1310,7 @@
       "materials": "Materials and suppliers",
       "education": "Training and courses",
       "jobs": "Work and cover shifts"
-    }
+    },
+    "topicLeaveConfirm": "Leave this topic? The messages stay, but they stop reaching you."
   }
 }

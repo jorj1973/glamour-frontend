@@ -6,6 +6,7 @@ import {
   CheckCheck,
   Flame,
   ImagePlus,
+  LogOut,
   Mic,
   MoreHorizontal,
   Send,
@@ -91,9 +92,11 @@ type Props = {
   onBack: () => void;
   /** Обновить список бесед: счётчики непрочитанного изменились. */
   onChanged: () => void;
+  /** Выйти из темы — только у комнат, у диалога выходить некуда. */
+  onLeave?: () => void;
 };
 
-function ChatConversation({ room, onBack, onChanged }: Props) {
+function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   const { t } = useTranslation();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -724,6 +727,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
 
         <strong
           style={{
+            flex: 1,
+            minWidth: 0,
             color: 'var(--app-text)',
             fontSize: 16,
             overflow: 'hidden',
@@ -731,8 +736,42 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
             whiteSpace: 'nowrap',
           }}
         >
-          {room.title || t('chat.untitled')}
+          {room.topicKey
+            ? '# ' + t('chat.topics.' + room.topicKey, room.title)
+            : room.title || t('chat.untitled')}
         </strong>
+
+        {/* Выход живёт внутри комнаты: снаружи его искать негде,
+            а уходят обычно уже изнутри. */}
+        {room.kind === 'topic' && onLeave && (
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm(t('chat.topicLeaveConfirm'))) {
+                onLeave();
+              }
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              minHeight: 34,
+              padding: '0 11px',
+              flexShrink: 0,
+              border: '1px solid var(--app-border)',
+              borderRadius: 11,
+              background: 'transparent',
+              color: 'var(--app-text-muted)',
+              fontSize: 12,
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
+              cursor: 'pointer',
+            }}
+          >
+            <LogOut size={13} />
+            {t('chat.topicLeave')}
+          </button>
+        )}
       </div>
 
       {/* Лента сообщений */}

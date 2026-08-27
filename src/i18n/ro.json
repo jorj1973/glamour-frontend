@@ -1308,7 +1308,7 @@
     "searchHint": "Caută în conversații",
     "searchResults": "GĂSITE",
     "searchEmpty": "Nu s-a găsit nimic.",
-    "topicsTitle": "TEMELE SALONULUI",
+    "topicsTitle": "TEME LA CARE TE POȚI ALĂTURA",
     "topicJoin": "Intră",
     "topicLeave": "Ieși",
     "topicMembers": "participanți: {{people}}",
@@ -1317,6 +1317,7 @@
       "materials": "Materiale și furnizori",
       "education": "Instruire și cursuri",
       "jobs": "Lucru și înlocuiri"
-    }
+    },
+    "topicLeaveConfirm": "Ieși din temă? Mesajele rămân, dar nu vor mai veni."
   }
 }

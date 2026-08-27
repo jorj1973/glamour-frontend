@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Hash,
-  LogOut,
   MessageCircle,
   Plus,
   Search,
@@ -243,24 +242,53 @@ function ChatPage() {
     }
   }
 
-  async function toggleTopic(topic: ChatTopic) {
+  /**
+   * Войти в тему и сразу открыть её.
+   *
+   * Раньше вход только менял надпись на кнопке, а комната молча
+   * появлялась где-то в списке выше — понять, что произошло, было
+   * невозможно. Теперь нажатие ведёт внутрь, как и должно.
+   */
+  async function enterTopic(topic: ChatTopic) {
     setErrorMsg('');
 
     try {
-      if (topic.joined && topic.roomId) {
-        await leaveChatRoom(topic.roomId);
-      } else {
-        const roomId = await joinChatTopic(topic.key);
+      const roomId = topic.joined
+        ? (topic.roomId ?? (await joinChatTopic(topic.key)))
+        : await joinChatTopic(topic.key);
 
-        getChatSocket()?.emit('chat:join', { roomId });
-      }
+      getChatSocket()?.emit('chat:join', { roomId });
 
+      setTopics(await fetchChatTopics());
+      await reloadRooms();
+
+      setOpenRoomId(roomId);
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    }
+  }
+
+  /** Выйти из темы — зовётся из самой комнаты. */
+  async function leaveTopic(roomId: string) {
+    try {
+      await leaveChatRoom(roomId);
+
+      setOpenRoomId(null);
       setTopics(await fetchChatTopics());
       await reloadRooms();
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
     }
   }
+
+  /**
+   * В разделе показываем только то, куда ещё не входили.
+   *
+   * Вошёл — комната переезжает в список бесед и живёт там как
+   * обычная. Держать её в обоих местах значит показывать одно и то же
+   * дважды, и непонятно, чем одна строка отличается от другой.
+   */
+  const openTopics = topics.filter((topic) => !topic.joined);
 
   async function reloadRooms(): Promise<ChatRoomSummary[] | null> {
     try {
@@ -387,6 +415,7 @@ function ChatPage() {
               void reloadRooms();
             }}
             onChanged={() => void reloadRooms()}
+            onLeave={() => void leaveTopic(openRoom.id)}
           />
         ) : openRoomId ? (
           <p style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>
@@ -726,7 +755,9 @@ function ChatPage() {
                           fontWeight: 700,
                         }}
                       >
-                        {(room.title || '?').trim().charAt(0).toUpperCase()}
+                        {room.kind === 'topic'
+                          ? '#'
+                          : (room.title || '?').trim().charAt(0).toUpperCase()}
 
                         {/* Зелёная точка: видно, ответит собеседник
                             сейчас или завтра. */}
@@ -759,7 +790,9 @@ function ChatPage() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          {room.title || t('chat.untitled')}
+                          {room.topicKey
+                            ? t('chat.topics.' + room.topicKey, room.title)
+                            : room.title || t('chat.untitled')}
                         </span>
 
                         <span
@@ -821,7 +854,7 @@ function ChatPage() {
               )}
 
               {/* Тематические комнаты салона */}
-              {hits === null && topics.length > 0 && (
+              {hits === null && openTopics.length > 0 && (
                 <div style={{ marginTop: 22 }}>
                   <p
                     style={{
@@ -841,17 +874,22 @@ function ChatPage() {
                       gap: 8,
                     }}
                   >
-                    {topics.map((topic) => (
-                      <div
+                    {openTopics.map((topic) => (
+                      <button
                         key={topic.key}
+                        type="button"
+                        onClick={() => void enterTopic(topic)}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: 11,
+                          width: '100%',
                           padding: '10px 13px',
                           border: '1px solid var(--app-border)',
                           borderRadius: 15,
                           background: 'var(--app-panel)',
+                          textAlign: 'left',
+                          cursor: 'pointer',
                         }}
                       >
                         <Hash size={17} color="var(--app-accent)" />
@@ -880,9 +918,7 @@ function ChatPage() {
                           </span>
                         </span>
 
-                        <button
-                          type="button"
-                          onClick={() => void toggleTopic(topic)}
+                        <span
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -890,35 +926,18 @@ function ChatPage() {
                             minHeight: 34,
                             padding: '0 12px',
                             flexShrink: 0,
-                            border: topic.joined
-                              ? '1px solid var(--app-border)'
-                              : 0,
                             borderRadius: 11,
-                            background: topic.joined
-                              ? 'transparent'
-                              : 'var(--app-accent)',
-                            color: topic.joined
-                              ? 'var(--app-text-muted)'
-                              : '#17151c',
+                            background: 'var(--app-accent)',
+                            color: '#17151c',
                             fontSize: 12,
                             fontWeight: 700,
                             whiteSpace: 'nowrap',
-                            cursor: 'pointer',
                           }}
                         >
-                          {topic.joined ? (
-                            <>
-                              <LogOut size={13} />
-                              {t('chat.topicLeave')}
-                            </>
-                          ) : (
-                            <>
-                              <Plus size={13} />
-                              {t('chat.topicJoin')}
-                            </>
-                          )}
-                        </button>
-                      </div>
+                          <Plus size={13} />
+                          {t('chat.topicJoin')}
+                        </span>
+                      </button>
                     ))}
                   </div>
                 </div>
