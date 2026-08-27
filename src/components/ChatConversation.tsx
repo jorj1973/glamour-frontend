@@ -11,6 +11,7 @@ import {
   Pencil,
   Send,
   Smile,
+  Square,
   Trash2,
   X,
 } from 'lucide-react';
@@ -51,6 +52,20 @@ const POLL_MS = 3000;
 /** Предел записи: длиннее голосовые всё равно не слушают. */
 const MAX_RECORD_SECONDS = 120;
 
+/** Снимок, выбранный, но ещё не отправленный. */
+type PendingPhoto = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
+
+/** Запись, сделанная, но ещё не отправленная. */
+type PendingVoice = {
+  file: File;
+  seconds: number;
+  previewUrl: string;
+};
+
 type Props = {
   room: ChatRoomSummary;
   onBack: () => void;
@@ -68,11 +83,21 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [isBusy, setIsBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   /** До какого времени собеседник всё прочитал. */
   const [companionReadAt, setCompanionReadAt] = useState<string | null>(null);
+
+  /**
+   * Прикреплённое, но не отправленное.
+   *
+   * Раньше снимок уходил прямо из окна выбора, а запись — по остановке.
+   * Так нельзя: человек ставит галочку в галерее, чтобы отметить кадр,
+   * а не чтобы его немедленно отослать. Сначала прикрепляем, потом
+   * смотрим, что прикрепили, и только потом отправляем.
+   */
+  const [photos, setPhotos] = useState<PendingPhoto[]>([]);
+  const [voice, setVoice] = useState<PendingVoice | null>(null);
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
@@ -87,8 +112,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const secondsRef = useRef(0);
-  const sendOnStopRef = useRef(true);
-  const playOnceRef = useRef(false);
+  const keepOnStopRef = useRef(true);
 
   /**
    * Чьё сообщение — считаем по собеседнику, а не по себе.
@@ -197,12 +221,85 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ─────────── Текст ─────────── */
+  /* ─────────── Прикреплённое ─────────── */
+
+  async function attachPhotos(files: File[]) {
+    setErrorMsg('');
+
+    const prepared: PendingPhoto[] = [];
+
+    for (const file of files) {
+      const compressed = await compressImage(file);
+
+      prepared.push({
+        id: compressed.name + ':' + prepared.length + ':' + compressed.size,
+        file: compressed,
+        previewUrl: URL.createObjectURL(compressed),
+      });
+    }
+
+    setPhotos((list) => [...list, ...prepared]);
+  }
+
+  function removePhoto(id: string) {
+    setPhotos((list) => {
+      const gone = list.find((item) => item.id === id);
+
+      if (gone) {
+        URL.revokeObjectURL(gone.previewUrl);
+      }
+
+      return list.filter((item) => item.id !== id);
+    });
+  }
+
+  function removeVoice() {
+    setVoice((current) => {
+      if (current) {
+        URL.revokeObjectURL(current.previewUrl);
+      }
+
+      return null;
+    });
+
+    setPlayOnce(false);
+  }
+
+  /* ─────────── Отправка ─────────── */
+
+  const hasAttachments = photos.length > 0 || voice !== null;
+  const canSend = Boolean(draft.trim()) || hasAttachments;
 
   async function submit() {
+    if (isSending) {
+      return;
+    }
+
     const text = draft.trim();
 
-    if (!text || isSending) {
+    if (editingId) {
+      if (!text) {
+        return;
+      }
+
+      setIsSending(true);
+      setErrorMsg('');
+
+      try {
+        await editChatMessage(editingId, text);
+        setEditingId(null);
+        setDraft('');
+        await reload();
+      } catch (error) {
+        setErrorMsg(t(getErrorKey(error)));
+      } finally {
+        setIsSending(false);
+      }
+
+      return;
+    }
+
+    if (!canSend) {
       return;
     }
 
@@ -210,13 +307,44 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     setErrorMsg('');
 
     try {
-      if (editingId) {
-        await editChatMessage(editingId, text);
-        setEditingId(null);
-      } else {
-        await sendChatMessage(room.id, { text });
+      // Снимки идут отдельными сообщениями, подпись — к первому:
+      // так их можно открывать по одному, а подпись не потеряется.
+      let caption = text;
+
+      for (const photo of photos) {
+        const uploaded = await uploadChatAttachment(room.id, photo.file);
+
+        await sendChatMessage(room.id, {
+          imageUrl: uploaded.url,
+          text: caption || undefined,
+        });
+
+        caption = '';
       }
 
+      if (voice) {
+        const uploaded = await uploadChatAttachment(room.id, voice.file);
+
+        await sendChatMessage(room.id, {
+          audioUrl: uploaded.url,
+          audioSeconds: voice.seconds,
+          playOnce,
+        });
+      }
+
+      if (caption) {
+        await sendChatMessage(room.id, { text: caption });
+      }
+
+      photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+
+      if (voice) {
+        URL.revokeObjectURL(voice.previewUrl);
+      }
+
+      setPhotos([]);
+      setVoice(null);
+      setPlayOnce(false);
       setDraft('');
       setShowEmoji(false);
 
@@ -228,26 +356,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     }
   }
 
-  /* ─────────── Фотография ─────────── */
-
-  async function sendPhoto(file: File) {
-    setIsBusy(true);
-    setErrorMsg('');
-
-    try {
-      const prepared = await compressImage(file);
-      const uploaded = await uploadChatAttachment(room.id, prepared);
-
-      await sendChatMessage(room.id, { imageUrl: uploaded.url });
-      await reload();
-    } catch (error) {
-      setErrorMsg(t(getErrorKey(error)));
-    } finally {
-      setIsBusy(false);
-    }
-  }
-
-  /* ─────────── Голосовое ─────────── */
+  /* ─────────── Запись ─────────── */
 
   function releaseRecorder() {
     if (timerRef.current) {
@@ -262,7 +371,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
   }
 
   async function startRecording() {
-    if (isRecording || isBusy) {
+    if (isRecording || isSending) {
       return;
     }
 
@@ -272,6 +381,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     }
 
     setErrorMsg('');
+    removeVoice();
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -286,8 +396,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
       recorderRef.current = recorder;
       chunksRef.current = [];
       secondsRef.current = 0;
-      sendOnStopRef.current = true;
-      playOnceRef.current = playOnce;
+      keepOnStopRef.current = true;
 
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -298,7 +407,7 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
       recorder.onstop = () => {
         const chunks = chunksRef.current;
         const seconds = secondsRef.current;
-        const shouldSend = sendOnStopRef.current;
+        const keep = keepOnStopRef.current;
         const type = recorder.mimeType || mimeType || 'audio/webm';
 
         releaseRecorder();
@@ -306,14 +415,18 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         setRecordSeconds(0);
 
         // Меньше секунды — это случайное касание, а не сообщение.
-        if (!shouldSend || chunks.length === 0 || seconds < 1) {
+        if (!keep || chunks.length === 0 || seconds < 1) {
           return;
         }
 
         const blob = new Blob(chunks, { type });
         const file = new File([blob], audioFileName(type), { type });
 
-        void sendVoice(file, seconds, playOnceRef.current);
+        setVoice({
+          file,
+          seconds: Math.min(MAX_RECORD_SECONDS, Math.max(1, seconds)),
+          previewUrl: URL.createObjectURL(blob),
+        });
       };
 
       recorder.start();
@@ -336,8 +449,8 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     }
   }
 
-  function stopRecording(send: boolean) {
-    sendOnStopRef.current = send;
+  function stopRecording(keep: boolean) {
+    keepOnStopRef.current = keep;
 
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.stop();
@@ -347,29 +460,6 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
     releaseRecorder();
     setIsRecording(false);
     setRecordSeconds(0);
-  }
-
-  async function sendVoice(file: File, seconds: number, once: boolean) {
-    setIsBusy(true);
-    setErrorMsg('');
-
-    try {
-      const uploaded = await uploadChatAttachment(room.id, file);
-
-      await sendChatMessage(room.id, {
-        audioUrl: uploaded.url,
-        audioSeconds: Math.min(MAX_RECORD_SECONDS, Math.max(1, seconds)),
-        playOnce: once,
-      });
-
-      setPlayOnce(false);
-
-      await reload();
-    } catch (error) {
-      setErrorMsg(t(getErrorKey(error)));
-    } finally {
-      setIsBusy(false);
-    }
   }
 
   /* ─────────── Действия над сообщением ─────────── */
@@ -739,127 +829,265 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
         </div>
       )}
 
+      {/* Прикреплённое: видно до отправки, каждое можно убрать */}
+      {hasAttachments && !isRecording && (
+        <div
+          style={{
+            padding: '10px 12px',
+            marginBottom: 8,
+            border: '1px solid var(--app-border)',
+            borderRadius: 14,
+            background: 'var(--app-panel)',
+          }}
+        >
+          <p
+            style={{
+              margin: '0 0 8px',
+              color: 'var(--app-text-muted)',
+              fontSize: 11,
+              fontWeight: 700,
+            }}
+          >
+            {t('chat.attached')}
+          </p>
+
+          {photos.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 8,
+                marginBottom: voice ? 10 : 0,
+              }}
+            >
+              {photos.map((photo) => (
+                <span
+                  key={photo.id}
+                  style={{ position: 'relative', display: 'inline-flex' }}
+                >
+                  <img
+                    src={photo.previewUrl}
+                    alt=""
+                    style={{
+                      width: 68,
+                      height: 68,
+                      objectFit: 'cover',
+                      borderRadius: 11,
+                      border: '1px solid var(--app-border)',
+                    }}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(photo.id)}
+                    aria-label={t('chat.removeAttachment')}
+                    style={{
+                      position: 'absolute',
+                      top: -6,
+                      right: -6,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 22,
+                      height: 22,
+                      border: 0,
+                      borderRadius: '50%',
+                      background: 'var(--app-accent)',
+                      color: '#17151c',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <X size={13} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {voice && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 9,
+              }}
+            >
+              {/* Обычный проигрыватель браузера: до отправки важнее
+                  всего, чтобы человек сразу понял, как переслушать. */}
+              <audio
+                src={voice.previewUrl}
+                controls
+                preload="metadata"
+                style={{ height: 38, maxWidth: '100%' }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setPlayOnce((value) => !value)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  minHeight: 34,
+                  padding: '0 11px',
+                  border: playOnce
+                    ? '1px solid var(--app-accent)'
+                    : '1px solid var(--app-border)',
+                  borderRadius: 11,
+                  background: playOnce
+                    ? 'rgba(var(--app-accent-rgb), 0.14)'
+                    : 'transparent',
+                  color: playOnce
+                    ? 'var(--app-accent)'
+                    : 'var(--app-text-muted)',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                }}
+              >
+                <Flame size={13} />
+                {t('chat.once')}
+              </button>
+
+              <button
+                type="button"
+                onClick={removeVoice}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  minHeight: 34,
+                  padding: '0 11px',
+                  border: '1px solid var(--app-border)',
+                  borderRadius: 11,
+                  background: 'transparent',
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                }}
+              >
+                <Trash2 size={13} />
+                {t('chat.delete')}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         style={{ display: 'none' }}
         onChange={(event) => {
-          const file = event.target.files?.[0];
+          const chosen: File[] = event.target.files
+            ? Array.from(event.target.files)
+            : [];
 
           // Сбрасываем сразу: иначе повторный выбор того же файла
           // не вызовет события, и ничего не произойдёт.
           event.target.value = '';
 
-          if (file) {
-            void sendPhoto(file);
+          if (chosen.length > 0) {
+            void attachPhotos(chosen);
           }
         }}
       />
 
       {isRecording ? (
-        /* Полоса записи вместо поля ввода */
+        /* Полоса записи: подписи словами, а не одни значки */
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
+            flexWrap: 'wrap',
             gap: 9,
             minHeight: 44,
           }}
         >
           <span
             style={{
-              width: 11,
-              height: 11,
-              flexShrink: 0,
-              borderRadius: '50%',
-              background: 'var(--app-accent-warm)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--app-text)',
+              fontSize: 14,
+              fontWeight: 700,
             }}
-          />
+          >
+            <span
+              style={{
+                width: 11,
+                height: 11,
+                borderRadius: '50%',
+                background: 'var(--app-accent-warm)',
+              }}
+            />
+            {t('chat.recording')}
+          </span>
 
           <span
             style={{
-              color: 'var(--app-text)',
-              fontSize: 15,
-              fontWeight: 700,
+              color: 'var(--app-text-muted)',
+              fontSize: 14,
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {formatDuration(recordSeconds)}
-
-            <span style={{ color: 'var(--app-text-muted)', fontWeight: 400 }}>
-              {' / ' + formatDuration(MAX_RECORD_SECONDS)}
-            </span>
+            {formatDuration(recordSeconds) +
+              ' / ' +
+              formatDuration(MAX_RECORD_SECONDS)}
           </span>
 
           <button
             type="button"
-            onClick={() => setPlayOnce((value) => !value)}
+            onClick={() => stopRecording(false)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 5,
-              minHeight: 34,
-              padding: '0 11px',
+              gap: 6,
+              minHeight: 44,
+              padding: '0 14px',
               marginLeft: 'auto',
-              border: playOnce
-                ? '1px solid var(--app-accent)'
-                : '1px solid var(--app-border)',
-              borderRadius: 11,
-              background: playOnce
-                ? 'rgba(var(--app-accent-rgb), 0.14)'
-                : 'transparent',
-              color: playOnce ? 'var(--app-accent)' : 'var(--app-text-muted)',
-              fontSize: 12,
+              border: '1px solid var(--app-border)',
+              borderRadius: 13,
+              background: 'transparent',
+              color: 'var(--app-text-muted)',
+              fontSize: 14,
               fontWeight: 700,
               whiteSpace: 'nowrap',
               cursor: 'pointer',
             }}
           >
-            <Flame size={13} />
-            {t('chat.once')}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => stopRecording(false)}
-            aria-label={t('common.cancel')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 44,
-              height: 44,
-              flexShrink: 0,
-              border: '1px solid var(--app-border)',
-              borderRadius: 13,
-              background: 'transparent',
-              color: 'var(--app-text-muted)',
-              cursor: 'pointer',
-            }}
-          >
-            <Trash2 size={18} />
+            <X size={16} />
+            {t('common.cancel')}
           </button>
 
           <button
             type="button"
             onClick={() => stopRecording(true)}
-            aria-label={t('chat.send')}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              width: 44,
-              height: 44,
-              flexShrink: 0,
+              gap: 7,
+              minHeight: 44,
+              padding: '0 16px',
               border: 0,
               borderRadius: 13,
               background: 'var(--app-accent)',
               color: '#17151c',
+              fontSize: 14,
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
               cursor: 'pointer',
             }}
           >
-            <Send size={18} />
+            <Square size={15} />
+            {t('chat.stop')}
           </button>
         </div>
       ) : (
@@ -884,11 +1112,21 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isBusy}
+            disabled={isSending}
             aria-label={t('chat.photo')}
-            style={roundButton(false, isBusy)}
+            style={roundButton(false, isSending)}
           >
             <ImagePlus size={19} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void startRecording()}
+            disabled={isSending}
+            aria-label={t('chat.record')}
+            style={roundButton(false, isSending)}
+          >
+            <Mic size={19} />
           </button>
 
           <textarea
@@ -904,7 +1142,9 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
             }}
             rows={1}
             maxLength={4000}
-            placeholder={t('chat.placeholder')}
+            placeholder={
+              hasAttachments ? t('chat.captionHint') : t('chat.placeholder')
+            }
             style={{
               flex: 1,
               minWidth: 0,
@@ -922,55 +1162,28 @@ function ChatConversation({ room, onBack, onChanged }: Props) {
             }}
           />
 
-          {draft.trim() || editingId ? (
-            <button
-              type="button"
-              onClick={() => void submit()}
-              disabled={isSending}
-              aria-label={t('chat.send')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 44,
-                height: 44,
-                flexShrink: 0,
-                border: 0,
-                borderRadius: 13,
-                background: 'var(--app-accent)',
-                color: '#17151c',
-                cursor: isSending ? 'default' : 'pointer',
-                opacity: isSending ? 0.5 : 1,
-              }}
-            >
-              {editingId ? <Check size={19} /> : <Send size={18} />}
-            </button>
-          ) : (
-            /* Пустое поле — на месте отправки микрофон: так устроено
-               везде, и рука тянется туда же. */
-            <button
-              type="button"
-              onClick={() => void startRecording()}
-              disabled={isBusy}
-              aria-label={t('chat.record')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 44,
-                height: 44,
-                flexShrink: 0,
-                border: 0,
-                borderRadius: 13,
-                background: 'var(--app-accent)',
-                color: '#17151c',
-                cursor: isBusy ? 'default' : 'pointer',
-                opacity: isBusy ? 0.5 : 1,
-              }}
-            >
-              <Mic size={19} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => void submit()}
+            disabled={!canSend || isSending}
+            aria-label={t('chat.send')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 44,
+              height: 44,
+              flexShrink: 0,
+              border: 0,
+              borderRadius: 13,
+              background: 'var(--app-accent)',
+              color: '#17151c',
+              cursor: canSend && !isSending ? 'pointer' : 'default',
+              opacity: canSend && !isSending ? 1 : 0.45,
+            }}
+          >
+            {editingId ? <Check size={19} /> : <Send size={18} />}
+          </button>
         </div>
       )}
     </div>

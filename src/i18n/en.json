@@ -1282,6 +1282,11 @@
     "pause": "Pause",
     "audioBurned": "Voice message played and deleted",
     "micDenied": "No access to the microphone. Allow it in the browser settings and try again.",
-    "noRecorder": "This browser cannot record audio."
+    "noRecorder": "This browser cannot record audio.",
+    "attached": "TO SEND",
+    "removeAttachment": "Remove",
+    "recording": "Recording",
+    "stop": "Done",
+    "captionHint": "Caption, if you need one…"
   }
 }

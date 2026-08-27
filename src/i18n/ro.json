@@ -1289,6 +1289,11 @@
     "pause": "Pauză",
     "audioBurned": "Mesajul vocal a fost ascultat și șters",
     "micDenied": "Nu există acces la microfon. Permiteți-l în setările browserului și încercați din nou.",
-    "noRecorder": "Acest browser nu poate înregistra sunet."
+    "noRecorder": "Acest browser nu poate înregistra sunet.",
+    "attached": "DE TRIMIS",
+    "removeAttachment": "Elimină",
+    "recording": "Se înregistrează",
+    "stop": "Gata",
+    "captionHint": "Descriere, dacă e nevoie…"
   }
 }
