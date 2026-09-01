@@ -1328,5 +1328,21 @@
     "statusOpen": "OPEN",
     "statusResolved": "REVIEWED",
     "statusDismissed": "DISMISSED"
+  },
+  "planTexts": {
+    "title": "Plan texts",
+    "hint": "Name, description and the list of benefits — in three languages. The top line is read first: keep the reason a salon pays at the top and leave the limits for the end.",
+    "name": "Name",
+    "description": "Description",
+    "features": "What's included",
+    "add": "Add a line",
+    "up": "Up",
+    "down": "Down",
+    "save": "Save",
+    "saved": "Texts saved",
+    "savesAll": "All three languages are saved at once",
+    "monthly": "month",
+    "yearly": "year",
+    "reason": "Plan texts edited"
   }
 }

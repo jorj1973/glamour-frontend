@@ -1335,5 +1335,21 @@
     "statusOpen": "DESCHISĂ",
     "statusResolved": "ANALIZATĂ",
     "statusDismissed": "RESPINSĂ"
+  },
+  "planTexts": {
+    "title": "Textele planurilor",
+    "hint": "Denumirea, descrierea și lista de beneficii — în trei limbi. Primul se citește punctul de sus: păstrați sus motivul pentru care salonul plătește, iar limitele lăsați-le la final.",
+    "name": "Denumire",
+    "description": "Descriere",
+    "features": "Ce include",
+    "add": "Adaugă un rând",
+    "up": "Mai sus",
+    "down": "Mai jos",
+    "save": "Salvează",
+    "saved": "Textele au fost salvate",
+    "savesAll": "Se salvează toate cele trei limbi deodată",
+    "monthly": "lună",
+    "yearly": "an",
+    "reason": "Modificarea textelor planului"
   }
 }

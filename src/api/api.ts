@@ -20,7 +20,10 @@ api.interceptors.request.use((config) => {
   // поэтому бэкенд подставляет нужное поле по этому параметру.
   const lang = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-  if (lang && (config.method ?? 'get').toLowerCase() === 'get') {
+  // Раньше язык уходил только с GET. Регистрация салона ходит
+  // через POST, и тарифы приезжали не на том языке, на котором
+  // человек читает страницу.
+  if (lang) {
     config.params = { ...(config.params ?? {}), lang };
   }
 
