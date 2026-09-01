@@ -1312,5 +1312,20 @@
       "jobs": "Work and cover shifts"
     },
     "topicLeaveConfirm": "Leave this topic? The messages stay, but they stop reaching you."
+  },
+  "chatReports": {
+    "title": "Message reports",
+    "hint": "Review works from a copy taken when the report was made: nobody reads other people’s conversations, you included. The copy survives the author deleting the message.",
+    "empty": "No open reports.",
+    "showAll": "Show reviewed",
+    "showOpen": "Open only",
+    "reporter": "reported by",
+    "author": "author",
+    "noReason": "No explanation",
+    "resolve": "Reviewed",
+    "dismiss": "Dismiss",
+    "statusOpen": "OPEN",
+    "statusResolved": "REVIEWED",
+    "statusDismissed": "DISMISSED"
   }
 }

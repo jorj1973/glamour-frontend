@@ -32,6 +32,7 @@ import PromotionsBoard from "../components/platform/PromotionsBoard";
 import SubscriptionPlanEditor from "../components/platform/SubscriptionPlanEditor";
 import AppReviewsModeration from "../components/platform/AppReviewsModeration";
 import ChatAccessPanel from "../components/platform/ChatAccessPanel";
+import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
 type SalonStatus =
@@ -1281,6 +1282,8 @@ function PlatformOwnerPage() {
             ) : null}
 
             <ChatAccessPanel />
+
+            <ChatReportsPanel />
 
             <AppReviewsModeration />
 

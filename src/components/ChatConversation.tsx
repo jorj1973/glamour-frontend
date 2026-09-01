@@ -30,6 +30,7 @@ import {
 } from '../api/chat';
 import type {
   ChatMessage,
+  ChatMessagesPage,
   ChatReaction,
   ChatReplyPreview,
   ChatRoomSummary,
@@ -128,6 +129,19 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   /** Собеседник печатает прямо сейчас. */
   const [typing, setTyping] = useState(false);
 
+  /** Есть ли что подгрузить выше и не идёт ли подгрузка сейчас. */
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  /**
+   * Листал ли человек вверх за старым.
+   *
+   * Пока не листал, «есть ли ещё выше» решает обычная выдача. Как
+   * только подгрузил — ответ обычной выдачи уже не про его край
+   * ленты, и затирать им нельзя.
+   */
+  const pagedBackRef = useRef(false);
+
   /**
    * Прикреплённое, но не отправленное.
    *
@@ -156,6 +170,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingSentAtRef = useRef(0);
   const lastPollRef = useRef(0);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const typingHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
@@ -214,15 +229,99 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     );
   }
 
+  /**
+   * Сохранить подгруженное старое поверх свежей выдачи.
+   *
+   * Выдача отдаёт последние сорок сообщений, и класть её на место
+   * всей ленты нельзя: человек листает вверх, поднимает историю —
+   * а через три секунды обновление стирает её и возвращает его
+   * туда, откуда он ушёл.
+   */
+  function keepOlder(
+    current: ChatMessage[],
+    fresh: ChatMessage[],
+  ): ChatMessage[] {
+    if (fresh.length === 0 || current.length === 0) {
+      return fresh;
+    }
+
+    const edge = new Date(fresh[0].createdAt).getTime();
+
+    const older = current.filter(
+      (message) => new Date(message.createdAt).getTime() < edge,
+    );
+
+    return older.length === 0 ? fresh : [...older, ...fresh];
+  }
+
+  /**
+   * То же для реакций — но осторожнее.
+   *
+   * Сообщение без реакций в выдаче просто отсутствует. Слить карты
+   * вслепую значит навсегда оставить снятую реакцию на экране:
+   * стирать её будет нечем. Поэтому по сообщениям свежей страницы
+   * выдача — последнее слово, а по остальным остаётся своё.
+   */
+  function keepOlderReactions(
+    current: Record<string, ChatReaction[]>,
+    fresh: Record<string, ChatReaction[]>,
+    freshPage: ChatMessage[],
+  ): Record<string, ChatReaction[]> {
+    const onPage = new Set(freshPage.map((message) => message.id));
+    const kept: Record<string, ChatReaction[]> = {};
+
+    for (const [id, list] of Object.entries(current)) {
+      if (!onPage.has(id)) {
+        kept[id] = list;
+      }
+    }
+
+    return { ...kept, ...fresh };
+  }
+
+  /**
+   * Принять свежую страницу, не потеряв поднятую историю.
+   *
+   * Сливаем только когда человек действительно листал вверх в этой
+   * же беседе. При переходе в другую беседу признак сброшен, и
+   * страница просто ложится на место старой — иначе в новую беседу
+   * переехала бы переписка из предыдущей.
+   */
+  function absorb(page: ChatMessagesPage) {
+    const merge = pagedBackRef.current;
+
+    setMessages((current) =>
+      merge ? keepOlder(current, page.messages) : page.messages,
+    );
+
+    setCompanionReadAt(page.companionLastReadAt);
+
+    setReplies((current) =>
+      merge ? { ...current, ...page.replies } : page.replies,
+    );
+
+    setReactions((current) =>
+      merge
+        ? keepOlderReactions(current, page.reactions, page.messages)
+        : page.reactions,
+    );
+
+    setViewerUserId(page.viewerUserId);
+
+    setAuthors((current) =>
+      merge ? { ...current, ...page.authors } : page.authors,
+    );
+
+    // Про край ленты выдача знает, только пока человек не листал.
+    if (!merge) {
+      setHasMore(page.hasMore);
+    }
+  }
+
   async function reload() {
     const page = await fetchChatMessages(room.id);
 
-    setMessages(page.messages);
-    setCompanionReadAt(page.companionLastReadAt);
-    setReplies(page.replies);
-    setReactions(page.reactions);
-    setViewerUserId(page.viewerUserId);
-    setAuthors(page.authors);
+    absorb(page);
 
     lastIdRef.current = page.messages.length
       ? page.messages[page.messages.length - 1].id
@@ -235,6 +334,9 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   useEffect(() => {
     let alive = true;
 
+    // Другая беседа — своя история и свой край: помнить прошлый нельзя.
+    pagedBackRef.current = false;
+
     async function load() {
       try {
         const page = await fetchChatMessages(room.id);
@@ -245,12 +347,20 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
         const list = page.messages;
 
-        setMessages(list);
-        setCompanionReadAt(page.companionLastReadAt);
-        setReplies(page.replies);
-        setReactions(page.reactions);
-        setViewerUserId(page.viewerUserId);
-        setAuthors(page.authors);
+        /**
+         * Держится ли человек низа ленты.
+         *
+         * Смотрим до вставки: после неё высота уже другая. Если он
+         * ушёл вверх читать старое, тащить его вниз на каждое чужое
+         * сообщение нельзя — он не дочитает никогда.
+         */
+        const box = listRef.current;
+
+        const atBottom =
+          !box ||
+          box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+
+        absorb(page);
         setErrorMsg('');
 
         const newestId = list.length ? list[list.length - 1].id : null;
@@ -258,7 +368,9 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
         if (newestId !== lastIdRef.current) {
           lastIdRef.current = newestId;
 
-          bottomRef.current?.scrollIntoView({ block: 'end' });
+          if (atBottom) {
+            bottomRef.current?.scrollIntoView({ block: 'end' });
+          }
 
           // Отметку прочтения ставим только когда что-то изменилось:
           // иначе это лишний запрос каждые три секунды.
@@ -357,6 +469,57 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Догрузить то, что было раньше.
+   *
+   * Лента отдаёт сорок сообщений: без подгрузки переписка обрывалась
+   * на сороковом, и до начала было не добраться.
+   *
+   * Высоту запоминаем до вставки и восстанавливаем после: иначе
+   * добавленные сверху сообщения утаскивают ленту вверх, и человек
+   * теряет то место, куда только что смотрел.
+   */
+  async function loadOlder() {
+    // Пока первая страница не пришла, ленты ещё нет — догружать нечего.
+    if (isLoading || isLoadingMore || !hasMore || messages.length === 0) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    pagedBackRef.current = true;
+
+    const list = listRef.current;
+    const heightBefore = list?.scrollHeight ?? 0;
+
+    try {
+      const page = await fetchChatMessages(room.id, messages[0].createdAt);
+
+      if (page.messages.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setMessages((current) => [...page.messages, ...current]);
+      setReplies((current) => ({ ...page.replies, ...current }));
+      setReactions((current) => ({ ...page.reactions, ...current }));
+      setAuthors((current) => ({ ...page.authors, ...current }));
+      setHasMore(page.hasMore);
+
+      // Возвращаем место просмотра после отрисовки.
+      requestAnimationFrame(() => {
+        const after = listRef.current;
+
+        if (after) {
+          after.scrollTop = after.scrollHeight - heightBefore;
+        }
+      });
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }
 
   /* ─────────── Прикреплённое ─────────── */
 
@@ -776,6 +939,13 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
       {/* Лента сообщений */}
       <div
+        ref={listRef}
+        onScroll={(event) => {
+          // У самого верха — значит человек долистал до края.
+          if (event.currentTarget.scrollTop < 60) {
+            void loadOlder();
+          }
+        }}
         style={{
           flex: 1,
           minHeight: 0,
@@ -786,6 +956,19 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
           paddingBottom: 8,
         }}
       >
+        {isLoadingMore && (
+          <p
+            style={{
+              textAlign: 'center',
+              color: 'var(--app-text-muted)',
+              fontSize: 12,
+              padding: '4px 0',
+            }}
+          >
+            {t('common.loading')}
+          </p>
+        )}
+
         {isLoading ? (
           <p style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>
             {t('common.loading')}

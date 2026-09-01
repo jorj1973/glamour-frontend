@@ -1319,5 +1319,20 @@
       "jobs": "Lucru și înlocuiri"
     },
     "topicLeaveConfirm": "Ieși din temă? Mesajele rămân, dar nu vor mai veni."
+  },
+  "chatReports": {
+    "title": "Reclamații la mesaje",
+    "hint": "Analiza se face după copia mesajului, făcută în momentul reclamației: conversația altora nu o citește nimeni, nici dumneavoastră. Copia supraviețuiește ștergerii mesajului de către autor.",
+    "empty": "Nu există reclamații deschise.",
+    "showAll": "Arată cele analizate",
+    "showOpen": "Doar deschise",
+    "reporter": "a reclamat",
+    "author": "autor",
+    "noReason": "Fără explicație",
+    "resolve": "Analizat",
+    "dismiss": "Respinge",
+    "statusOpen": "DESCHISĂ",
+    "statusResolved": "ANALIZATĂ",
+    "statusDismissed": "RESPINSĂ"
   }
 }

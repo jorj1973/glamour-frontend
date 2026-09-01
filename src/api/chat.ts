@@ -133,6 +133,8 @@ export type ChatMessagesPage = {
   viewerUserId: string;
   /** Имена авторов: в комнате подписываем каждое сообщение. */
   authors: Record<string, string>;
+  /** Есть ли что-то ещё старее — по нему решаем, догружать ли. */
+  hasMore: boolean;
 };
 
 /** Тема салона и участие в ней. */
@@ -163,10 +165,9 @@ export async function fetchChatMessages(
     before ? { params: { before } } : undefined,
   );
 
-  // Прежний сервер отдавал просто список. Пока он не обновлён,
-  // переписка должна работать — без отметки прочтения, но работать.
   // Прежний сервер отдавал просто список, а следующий — без цитат
-  // и реакций. Пока он не обновлён, переписка должна работать.
+  // и реакций. Пока сервер не обновлён, переписка должна работать:
+  // без отметки прочтения и без подгрузки старого, но работать.
   if (Array.isArray(res.data)) {
     return {
       messages: res.data,
@@ -175,6 +176,7 @@ export async function fetchChatMessages(
       reactions: {},
       viewerUserId: '',
       authors: {},
+      hasMore: false,
     };
   }
 
@@ -184,6 +186,7 @@ export async function fetchChatMessages(
     reactions: res.data.reactions ?? {},
     viewerUserId: res.data.viewerUserId ?? '',
     authors: res.data.authors ?? {},
+    hasMore: res.data.hasMore ?? false,
   };
 }
 
