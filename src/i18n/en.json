@@ -1311,7 +1311,8 @@
       "education": "Training and courses",
       "jobs": "Work and cover shifts"
     },
-    "topicLeaveConfirm": "Leave this topic? The messages stay, but they stop reaching you."
+    "topicLeaveConfirm": "Leave this topic? The messages stay, but they stop reaching you.",
+    "unreadFrom": "NEW MESSAGES"
   },
   "chatReports": {
     "title": "Message reports",

@@ -125,6 +125,8 @@ export type ChatMessagesPage = {
   messages: ChatMessage[];
   /** До какого времени собеседник всё прочитал. */
   companionLastReadAt: string | null;
+  /** До какого времени прочитал сам смотрящий — для черты «новые». */
+  viewerLastReadAt: string | null;
   /** Цитируемые сообщения по их же опознанию. */
   replies: Record<string, ChatReplyPreview>;
   /** Реакции по опознанию сообщения. */
@@ -172,6 +174,7 @@ export async function fetchChatMessages(
     return {
       messages: res.data,
       companionLastReadAt: null,
+      viewerLastReadAt: null,
       replies: {},
       reactions: {},
       viewerUserId: '',
@@ -182,6 +185,7 @@ export async function fetchChatMessages(
 
   return {
     ...res.data,
+    viewerLastReadAt: res.data.viewerLastReadAt ?? null,
     replies: res.data.replies ?? {},
     reactions: res.data.reactions ?? {},
     viewerUserId: res.data.viewerUserId ?? '',

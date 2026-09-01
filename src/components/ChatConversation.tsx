@@ -47,6 +47,7 @@ import { getChatSocket, isSocketLive } from '../api/chatSocket';
 
 import ChatAudioMessage from './ChatAudioMessage';
 import ChatMessageActions from './ChatMessageActions';
+import ChatText from './ChatText';
 import EmojiPicker from './EmojiPicker';
 
 /**
@@ -129,8 +130,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   /** Собеседник печатает прямо сейчас. */
   const [typing, setTyping] = useState(false);
 
-  /** Есть ли что подгрузить выше и не идёт ли подгрузка сейчас. */
-  const [hasMore, setHasMore] = useState(false);
+  /** Идёт ли подгрузка прямо сейчас — по ней рисуется полоска ожидания. */
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   /**
@@ -141,6 +141,31 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
    * ленты, и затирать им нельзя.
    */
   const pagedBackRef = useRef(false);
+
+  /**
+   * Те же значения, но доступные сразу.
+   *
+   * Переход по цитате догружает страницы в цикле и после каждой
+   * должен видеть новое состояние. Обычные значения обновятся
+   * только к следующей отрисовке, то есть в цикле он читал бы
+   * одно и то же и крутился впустую.
+   */
+  const hasMoreRef = useRef(false);
+  const isLoadingMoreRef = useRef(false);
+  const messagesRef = useRef<ChatMessage[]>([]);
+
+  /** Сообщение, к которому только что перешли по цитате. */
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  /**
+   * До какого времени человек прочитал беседу на момент открытия.
+   *
+   * Снимаем один раз: как только он посмотрит, отметка уедет вперёд,
+   * и черта «новые» переехала бы вместе с ней — то есть исчезла бы
+   * ровно тогда, когда она нужнее всего.
+   */
+  const [unreadEdge, setUnreadEdge] = useState<string | null>(null);
+  const unreadEdgeTakenRef = useRef(false);
 
   /**
    * Прикреплённое, но не отправленное.
@@ -290,11 +315,26 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
   function absorb(page: ChatMessagesPage) {
     const merge = pagedBackRef.current;
 
-    setMessages((current) =>
-      merge ? keepOlder(current, page.messages) : page.messages,
-    );
+    const next = merge
+      ? keepOlder(messagesRef.current, page.messages)
+      : page.messages;
+
+    messagesRef.current = next;
+    setMessages(next);
 
     setCompanionReadAt(page.companionLastReadAt);
+
+    /**
+     * Отметку прочтения снимаем один раз за беседу.
+     *
+     * Она приходит с каждой страницей, но после первого же взгляда
+     * уезжает вперёд — а черта «новые» должна стоять там, где
+     * человек остановился, пока он не ушёл из беседы.
+     */
+    if (!unreadEdgeTakenRef.current) {
+      unreadEdgeTakenRef.current = true;
+      setUnreadEdge(page.viewerLastReadAt);
+    }
 
     setReplies((current) =>
       merge ? { ...current, ...page.replies } : page.replies,
@@ -314,7 +354,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
     // Про край ленты выдача знает, только пока человек не листал.
     if (!merge) {
-      setHasMore(page.hasMore);
+      hasMoreRef.current = page.hasMore;
     }
   }
 
@@ -336,6 +376,12 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
     // Другая беседа — своя история и свой край: помнить прошлый нельзя.
     pagedBackRef.current = false;
+    hasMoreRef.current = false;
+    messagesRef.current = [];
+
+    // И своя черта «новые»: её нужно снять заново.
+    unreadEdgeTakenRef.current = false;
+    setUnreadEdge(null);
 
     async function load() {
       try {
@@ -470,6 +516,50 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ─────────── Черновики ─────────── */
+
+  /**
+   * Недописанное переживает уход из беседы.
+   *
+   * Человек набирает длинный ответ, отвлекается на другую беседу или
+   * закрывает вкладку — и текст пропадал. Набирать его заново никто
+   * не станет, ответ просто не придёт.
+   *
+   * Держим на устройстве, а не на сервере: недописанное — это ещё не
+   * сообщение, и отправлять его куда бы то ни было мы не вправе.
+   */
+  function draftKey(roomId: string): string {
+    return 'glamour_chat_draft_' + roomId;
+  }
+
+  useEffect(() => {
+    try {
+      setDraft(localStorage.getItem(draftKey(room.id)) ?? '');
+    } catch {
+      // Память браузера может быть недоступна — это не повод падать.
+      setDraft('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room.id]);
+
+  useEffect(() => {
+    // Правку существующего сообщения не запоминаем: это не черновик,
+    // а временная замена текста, и вернуть её потом было бы странно.
+    if (editingId) {
+      return;
+    }
+
+    try {
+      if (draft.trim()) {
+        localStorage.setItem(draftKey(room.id), draft);
+      } else {
+        localStorage.removeItem(draftKey(room.id));
+      }
+    } catch {
+      // Приватный просмотр и запрет хранилища — обычное дело.
+    }
+  }, [draft, room.id, editingId]);
+
   /**
    * Догрузить то, что было раньше.
    *
@@ -481,11 +571,19 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
    * теряет то место, куда только что смотрел.
    */
   async function loadOlder() {
+    const loaded = messagesRef.current;
+
     // Пока первая страница не пришла, ленты ещё нет — догружать нечего.
-    if (isLoading || isLoadingMore || !hasMore || messages.length === 0) {
+    if (
+      isLoading ||
+      isLoadingMoreRef.current ||
+      !hasMoreRef.current ||
+      loaded.length === 0
+    ) {
       return;
     }
 
+    isLoadingMoreRef.current = true;
     setIsLoadingMore(true);
     pagedBackRef.current = true;
 
@@ -493,18 +591,23 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     const heightBefore = list?.scrollHeight ?? 0;
 
     try {
-      const page = await fetchChatMessages(room.id, messages[0].createdAt);
+      const page = await fetchChatMessages(room.id, loaded[0].createdAt);
 
       if (page.messages.length === 0) {
-        setHasMore(false);
+        hasMoreRef.current = false;
         return;
       }
 
-      setMessages((current) => [...page.messages, ...current]);
+      const next = [...page.messages, ...messagesRef.current];
+
+      messagesRef.current = next;
+      setMessages(next);
+
       setReplies((current) => ({ ...page.replies, ...current }));
       setReactions((current) => ({ ...page.reactions, ...current }));
       setAuthors((current) => ({ ...page.authors, ...current }));
-      setHasMore(page.hasMore);
+
+      hasMoreRef.current = page.hasMore;
 
       // Возвращаем место просмотра после отрисовки.
       requestAnimationFrame(() => {
@@ -517,7 +620,50 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
     } finally {
+      isLoadingMoreRef.current = false;
       setIsLoadingMore(false);
+    }
+  }
+
+  /**
+   * Перейти к сообщению, на которое отвечали.
+   *
+   * Оригинал может быть далеко за краем загруженного — тогда
+   * догружаем страницами, пока не найдём. Предел нужен, чтобы
+   * нажатие по цитате на удалённое сообщение не утащило человека
+   * в начало переписки: оттуда он будет возвращаться руками.
+   */
+  async function jumpTo(messageId: string) {
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const target = listRef.current?.querySelector(
+        '[data-mid="' + messageId + '"]',
+      );
+
+      if (target) {
+        target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+        setHighlightId(messageId);
+        window.setTimeout(() => setHighlightId(null), 1600);
+
+        return;
+      }
+
+      if (!hasMoreRef.current) {
+        return;
+      }
+
+      await loadOlder();
+
+      /**
+       * Ждём отрисовку, а не только ответ сервера.
+       *
+       * Подгрузка кладёт сообщения в состояние, но в ленте их ещё
+       * нет — искать оригинал в этот момент значит не найти и уйти
+       * догружать следующую страницу поверх неотрисованной.
+       */
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
     }
   }
 
@@ -587,8 +733,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
       try {
         await editChatMessage(editingId, text);
-        setEditingId(null);
-        setDraft('');
+        stopEdit();
         await reload();
       } catch (error) {
         setErrorMsg(t(getErrorKey(error)));
@@ -828,9 +973,25 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
     }
   }
 
+  /**
+   * Правка занимает то же поле ввода, что и новое сообщение.
+   *
+   * Поэтому недописанное перед правкой откладываем и возвращаем
+   * после: иначе «изменить» у чужой опечатки стирало бы ответ,
+   * который человек как раз набирал.
+   */
+  const stashedDraftRef = useRef('');
+
   function startEdit(message: ChatMessage) {
+    stashedDraftRef.current = draft;
     setEditingId(message.id);
     setDraft(message.text ?? '');
+  }
+
+  function stopEdit() {
+    setEditingId(null);
+    setDraft(stashedDraftRef.current);
+    stashedDraftRef.current = '';
   }
 
   function formatTime(value: string) {
@@ -846,6 +1007,23 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
       month: 'long',
     });
   }
+
+  /**
+   * Где кончается прочитанное.
+   *
+   * Считаем один раз на отрисовку, а не для каждого сообщения:
+   * черта в ленте одна, и «первое непрочитанное» — это позиция,
+   * а не признак, который можно проверить у каждого по отдельности.
+   */
+  const unreadEdgeIndex =
+    unreadEdge === null
+      ? -1
+      : messages.findIndex(
+          (item) =>
+            !isMine(item) &&
+            new Date(item.createdAt).getTime() >
+              new Date(unreadEdge).getTime(),
+        );
 
   return (
     <div
@@ -995,8 +1173,51 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
               new Date(previous.createdAt).toDateString() !==
                 new Date(message.createdAt).toDateString();
 
+            const isUnreadEdge = index === unreadEdgeIndex;
+
             return (
-              <div key={message.id}>
+              <div key={message.id} data-mid={message.id}>
+                {isUnreadEdge && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 9,
+                      margin: '12px 0 10px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        height: 1,
+                        background: 'var(--app-accent)',
+                        opacity: 0.45,
+                      }}
+                    />
+
+                    <span
+                      style={{
+                        color: 'var(--app-accent)',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        letterSpacing: 0.4,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {t('chat.unreadFrom')}
+                    </span>
+
+                    <span
+                      style={{
+                        flex: 1,
+                        height: 1,
+                        background: 'var(--app-accent)',
+                        opacity: 0.45,
+                      }}
+                    />
+                  </div>
+                )}
+
                 {isNewDay && (
                   <p
                     style={{
@@ -1058,20 +1279,32 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
                         border: mine
                           ? '1px solid transparent'
                           : '1px solid var(--app-border)',
-                        background: mine
-                          ? 'rgba(var(--app-accent-rgb), 0.16)'
-                          : 'var(--app-panel)',
+                        background:
+                          highlightId === message.id
+                            ? 'rgba(var(--app-accent-rgb), 0.34)'
+                            : mine
+                              ? 'rgba(var(--app-accent-rgb), 0.16)'
+                              : 'var(--app-panel)',
                         color: 'var(--app-text)',
                         fontSize: 14,
                         lineHeight: 1.5,
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                         cursor: 'pointer',
+                        transition: 'background 320ms ease',
                       }}
                     >
-                      {/* Цитата: к чему относится сообщение */}
+                      {/* Цитата: к чему относится сообщение.
+                          По нажатию уводит к оригиналу — иначе в
+                          длинном разговоре искать его пришлось бы
+                          руками, а он может быть за сотню реплик. */}
                       {message.replyToId && replies[message.replyToId] && (
                         <span
+                          role="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void jumpTo(message.replyToId as string);
+                          }}
                           style={{
                             display: 'block',
                             padding: '6px 9px',
@@ -1084,6 +1317,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
                             lineHeight: 1.45,
                             maxHeight: 54,
                             overflow: 'hidden',
+                            cursor: 'pointer',
                           }}
                         >
                           {quoteOf(replies[message.replyToId], t)}
@@ -1128,7 +1362,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
                         </span>
                       )}
 
-                      {message.text}
+                      {message.text && <ChatText text={message.text} />}
                     </div>
 
                     {(reactions[message.id]?.length ?? 0) > 0 && (
@@ -1297,10 +1531,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
           <button
             type="button"
-            onClick={() => {
-              setEditingId(null);
-              setDraft('');
-            }}
+            onClick={stopEdit}
             aria-label={t('common.cancel')}
             style={{
               display: 'inline-flex',
