@@ -21,6 +21,7 @@ import {
   Sun,
   Users,
   XCircle,
+  Smartphone,
 } from "lucide-react";
 
 import api from "../api/api";
@@ -625,6 +626,11 @@ function PlatformOwnerPage() {
           <a href="#platform-marketing">
             <Megaphone size={18} aria-hidden="true" />
             Маркетинг и акции
+          </a>
+
+          <a href="#platform-sms">
+            <Smartphone size={18} aria-hidden="true" />
+            SMS и оплаты
           </a>
         </nav>
 
@@ -1285,8 +1291,6 @@ function PlatformOwnerPage() {
 
             <PlanTextsPanel />
 
-      <SmsPlatformPanel />
-
             <ChatAccessPanel />
 
             <ChatReportsPanel />
@@ -1294,6 +1298,10 @@ function PlatformOwnerPage() {
             <AppReviewsModeration />
 
             <SalonStaffReviewsModeration />
+
+            <section id="platform-sms">
+              <SmsPlatformPanel />
+            </section>
 
             <section id="platform-salons" className="platform-salons-panel">
               <div className="platform-panel-heading">
