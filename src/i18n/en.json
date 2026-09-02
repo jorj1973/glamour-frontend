@@ -1434,6 +1434,33 @@
       "amount": "How many",
       "send": "Give",
       "note": "Given messages never expire: they become theirs. Yours are taken from the plan allowance first — it disappears on the first anyway. A gift cannot be undone, but the master can give some back."
+    },
+    "pay": {
+      "title": "Payment: {{messages}} messages for {{price}} MDL",
+      "hint": "Pick a method. For a transfer we give you an order number — put it in the payment reference, otherwise we cannot tell whose transfer arrived.",
+      "transfer": "Pay by transfer",
+      "fromBalance": "Take from account ({{price}} MDL)",
+      "cancel": "Cancel",
+      "note": "Messages land in your account once we see the transfer. Until then nothing is charged and you owe nothing.",
+      "waiting": "Awaiting transfer",
+      "reference": "Put the order number in the payment reference. As soon as we match it against the bank statement, the messages appear and you get an email."
     }
+  },
+  "smsAdmin": {
+    "title": "SMS orders",
+    "hint": "A salon picked a pack and is transferring the money with the order number. Match the number against your bank statement and press “credited” — the messages appear for them at once and an email goes out.",
+    "empty": "No orders awaiting confirmation.",
+    "confirm": "Credited",
+    "cancel": "Cancel",
+    "confirmed": "Order {{reference}} credited",
+    "cancelled": "Order {{reference}} cancelled",
+    "master": "master",
+    "mdl": "MDL",
+    "notePlaceholder": "Note on the decision: “arrived 04.09”, “no transfer found”",
+    "payment": "Bank details for transfers",
+    "paymentHint": "The salon sees this text on the payment screen and gets it by email. Fill in all three languages: the salon reads in its own.",
+    "paymentPlaceholder": "Beneficiary, IBAN, bank, payment reference…",
+    "save": "Save",
+    "saved": "Details saved"
   }
 }

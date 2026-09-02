@@ -48,6 +48,19 @@ type Overview = {
   packets: Packet[];
   /** Кому салон может подарить сообщения. У мастера пусто. */
   giftTargets: GiftTarget[];
+  /** Последние заявки на оплату. */
+  orders: SmsOrder[];
+  /** Реквизиты для перевода, как их задал владелец площадки. */
+  paymentDetails: { ru?: string; ro?: string; en?: string } | null;
+};
+
+type SmsOrder = {
+  id: string;
+  reference: string;
+  messages: number;
+  price: string;
+  status: 'pending' | 'paid' | 'cancelled';
+  createdAt: string;
 };
 
 type GiftTarget = {
@@ -97,7 +110,7 @@ function currentScope(): 'salon' | 'master' {
  * ровно на тех людей, чьи имена уже стоят в календаре.
  */
 function SmsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [salon, setSalon] = useState<Salon | null>(null);
   const [data, setData] = useState<Overview | null>(null);
@@ -110,6 +123,9 @@ function SmsPage() {
   /** Кому и сколько дарим. */
   const [giftTo, setGiftTo] = useState('');
   const [giftAmount, setGiftAmount] = useState('20');
+
+  /** Пакет, который выбрали к оплате. Пусто — экран оплаты закрыт. */
+  const [paying, setPaying] = useState<Packet | null>(null);
 
   useEffect(() => {
     void load();
@@ -203,13 +219,15 @@ function SmsPage() {
     });
   }
 
-  function buy(packetId: string) {
+  function buy(packetId: string, method: 'balance' | 'transfer') {
     void act('buy:' + packetId, async () => {
       await api.post(
         '/sms/buy',
-        { packetId },
+        { packetId, method },
         { params: { salonId: salon?.id, scope: currentScope() } },
       );
+
+      setPaying(null);
     });
   }
 
@@ -232,6 +250,20 @@ function SmsPage() {
   } as const;
 
   const money = Number(data?.moneyBalance ?? 0);
+
+  /**
+   * Реквизиты на языке интерфейса.
+   *
+   * Если владелец площадки заполнил не все языки, показываем
+   * румынский, потом русский: пустой блок хуже, чем блок на
+   * соседнем языке.
+   */
+  const lang = (i18n.language || 'ro').slice(0, 2) as 'ru' | 'ro' | 'en';
+  const details =
+    data?.paymentDetails?.[lang] ??
+    data?.paymentDetails?.ro ??
+    data?.paymentDetails?.ru ??
+    null;
 
   /** Хватает ли остатка на тех, кто уже записан на неделю вперёд. */
   const shortBy = data ? Math.max(data.needWeek - data.left, 0) : 0;
@@ -638,7 +670,6 @@ function SmsPage() {
                 >
                   {data.packets.map((packet) => {
                     const per = Number(packet.price) / packet.messages;
-                    const enough = money >= Number(packet.price);
 
                     return (
                       <div
@@ -691,22 +722,202 @@ function SmsPage() {
 
                         <button
                           type="button"
-                          onClick={() => buy(packet.id)}
-                          disabled={busy !== '' || !enough}
+                          onClick={() => setPaying(packet)}
+                          disabled={busy !== ''}
                           style={{
-                            ...primaryButton(busy === 'buy:' + packet.id),
+                            ...primaryButton(false),
                             marginTop: 8,
                             minHeight: 40,
                             fontSize: 13,
-                            opacity: enough ? 1 : 0.45,
                           }}
                         >
-                          {enough ? t('sms.money.buy') : t('sms.money.notEnough')}
+                          {t('sms.money.buy')}
                         </button>
                       </div>
                     );
                   })}
                 </div>
+
+                {/* ── Выбран пакет: чем платим ── */}
+                {paying && (
+                  <div
+                    style={{
+                      padding: '20px 22px',
+                      border: '1px solid var(--app-accent)',
+                      borderRadius: 16,
+                      background: 'rgba(209,127,176,0.07)',
+                      marginBottom: 16,
+                    }}
+                  >
+                    <strong
+                      style={{
+                        display: 'block',
+                        marginBottom: 6,
+                        color: 'var(--app-text)',
+                        fontSize: 16,
+                      }}
+                    >
+                      {t('sms.pay.title', {
+                        messages: paying.messages,
+                        price: Number(paying.price).toFixed(2),
+                      })}
+                    </strong>
+
+                    <p
+                      style={{
+                        margin: '0 0 16px',
+                        maxWidth: 620,
+                        color: 'var(--app-text-muted)',
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {t('sms.pay.hint')}
+                    </p>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 12,
+                        flexWrap: 'wrap',
+                        marginBottom: 14,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => buy(paying.id, 'transfer')}
+                        disabled={busy !== ''}
+                        style={primaryButton(busy === 'buy:' + paying.id)}
+                      >
+                        <Wallet size={16} />
+                        {t('sms.pay.transfer')}
+                      </button>
+
+                      {money >= Number(paying.price) && (
+                        <button
+                          type="button"
+                          onClick={() => buy(paying.id, 'balance')}
+                          disabled={busy !== ''}
+                          style={ghostButton()}
+                        >
+                          {t('sms.pay.fromBalance', {
+                            price: Number(paying.price).toFixed(2),
+                          })}
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setPaying(null)}
+                        disabled={busy !== ''}
+                        style={ghostButton()}
+                      >
+                        {t('sms.pay.cancel')}
+                      </button>
+                    </div>
+
+                    <p
+                      style={{
+                        margin: 0,
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {t('sms.pay.note')}
+                    </p>
+                  </div>
+                )}
+
+                {/* ── Заявки: что ждёт перевода ── */}
+                {data.orders.filter((o) => o.status === 'pending').length >
+                  0 && (
+                  <div
+                    style={{
+                      padding: '20px 22px',
+                      border: '1px solid rgba(255,208,139,0.32)',
+                      borderRadius: 16,
+                      background: 'rgba(255,208,139,0.07)',
+                      marginBottom: 16,
+                    }}
+                  >
+                    <strong
+                      style={{
+                        display: 'block',
+                        marginBottom: 12,
+                        color: 'var(--app-text)',
+                        fontSize: 15,
+                      }}
+                    >
+                      {t('sms.pay.waiting')}
+                    </strong>
+
+                    {data.orders
+                      .filter((order) => order.status === 'pending')
+                      .map((order) => (
+                        <div
+                          key={order.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: 12,
+                            flexWrap: 'wrap',
+                            marginBottom: 8,
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: '#ffd08b',
+                              fontSize: 17,
+                              letterSpacing: '0.03em',
+                            }}
+                          >
+                            {order.reference}
+                          </strong>
+
+                          <span
+                            style={{
+                              color: 'var(--app-text-muted)',
+                              fontSize: 13,
+                            }}
+                          >
+                            {order.messages} {t('sms.money.messages')} ·{' '}
+                            {Number(order.price).toFixed(2)}{' '}
+                            {t('sms.money.mdl')}
+                          </span>
+                        </div>
+                      ))}
+
+                    <p
+                      style={{
+                        margin: '10px 0 0',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {t('sms.pay.reference')}
+                    </p>
+
+                    {details && (
+                      <pre
+                        style={{
+                          margin: '12px 0 0',
+                          padding: '14px 16px',
+                          borderRadius: 12,
+                          background: 'var(--app-input)',
+                          color: 'var(--app-text)',
+                          fontFamily: 'inherit',
+                          fontSize: 13,
+                          lineHeight: 1.6,
+                          whiteSpace: 'pre-wrap',
+                        }}
+                      >
+                        {details}
+                      </pre>
+                    )}
+                  </div>
+                )}
 
                 <AutoTopUp
                   data={data}

@@ -1441,6 +1441,33 @@
       "amount": "Câte",
       "send": "Dăruiește",
       "note": "Mesajele dăruite nu expiră: devin ale lui. La dumneavoastră se scad mai întâi cele din abonament — ele oricum dispar pe întâi. Darul nu se anulează, dar maestrul poate dărui înapoi."
+    },
+    "pay": {
+      "title": "Plată: {{messages}} mesaje pentru {{price}} lei",
+      "hint": "Alegeți modalitatea. La transfer vă dăm un număr de cerere — scrieți-l la destinația plății, altfel nu vom înțelege al cui este transferul.",
+      "transfer": "Plătesc prin transfer",
+      "fromBalance": "Scade din cont ({{price}} lei)",
+      "cancel": "Anulează",
+      "note": "Mesajele apar în cont după ce vedem transferul. Până atunci nu se scade nimic și nu aveți nicio obligație.",
+      "waiting": "Așteaptă transferul",
+      "reference": "Scrieți numărul cererii la destinația plății. Imediat ce îl confruntăm cu extrasul, mesajele apar în cont și primiți un e-mail."
     }
+  },
+  "smsAdmin": {
+    "title": "Cereri SMS",
+    "hint": "Salonul a ales un pachet și transferă banii indicând numărul cererii. Confruntați numărul cu extrasul bancar și apăsați «adăugat» — mesajele apar imediat la el și pleacă un e-mail.",
+    "empty": "Nu sunt cereri în așteptare.",
+    "confirm": "Adăugat",
+    "cancel": "Anulează",
+    "confirmed": "Cererea {{reference}} a fost adăugată",
+    "cancelled": "Cererea {{reference}} a fost anulată",
+    "master": "maestru",
+    "mdl": "lei",
+    "notePlaceholder": "Notă la decizie: «a venit pe 04.09», «nu am găsit transferul»",
+    "payment": "Date bancare pentru transfer",
+    "paymentHint": "Acest text îl vede salonul pe ecranul de plată și îl primește prin e-mail. Completați toate trei limbile: salonul citește în limba lui.",
+    "paymentPlaceholder": "Beneficiar, IBAN, bancă, destinația plății…",
+    "save": "Salvează",
+    "saved": "Datele au fost salvate"
   }
 }

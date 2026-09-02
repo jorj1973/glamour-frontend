@@ -33,6 +33,7 @@ import SubscriptionPlanEditor from "../components/platform/SubscriptionPlanEdito
 import AppReviewsModeration from "../components/platform/AppReviewsModeration";
 import ChatAccessPanel from "../components/platform/ChatAccessPanel";
 import PlanTextsPanel from '../components/platform/PlanTextsPanel';
+import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
@@ -1283,6 +1284,8 @@ function PlatformOwnerPage() {
             ) : null}
 
             <PlanTextsPanel />
+
+      <SmsPlatformPanel />
 
             <ChatAccessPanel />
 
