@@ -1540,6 +1540,9 @@
     "allowanceWho": "saloane pe acest tarif: {{n}}",
     "allowanceSave": "Salvează",
     "allowanceSaved": "{{name}} — acum {{n}} mesaje pe lună",
-    "allowanceNote": "Creșterea are efect imediat: diferența se adaugă la sold în aceeași zi. Scăderea nu ia nimic — numărul nou intră în vigoare pe întâi. Maeștrii nu au încă abonamente proprii, de aceea primesc numărul de probă."
+    "allowanceNote": "Creșterea are efect imediat: diferența se adaugă la sold în aceeași zi. Scăderea nu ia nimic — numărul nou intră în vigoare pe întâi. Maeștrii nu au încă abonamente proprii, de aceea primesc numărul de probă.",
+    "allowanceSaving": "Se salvează…",
+    "allowanceJustSaved": "Salvat",
+    "allowanceStored": "salvat"
   }
 }

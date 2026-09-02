@@ -128,6 +128,15 @@ function SmsPlatformPanel() {
   const [allowances, setAllowances] = useState<Allowances | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
+  /**
+   * Какая строка только что сохранена.
+   *
+   * Держится до следующей правки, а не гаснет по таймеру: человек
+   * мог отвести взгляд, и подтверждение, исчезнувшее за три секунды,
+   * ничем не лучше отсутствующего.
+   */
+  const [savedKey, setSavedKey] = useState('');
+
   const [targets, setTargets] = useState<Target[]>([]);
   const [giftTo, setGiftTo] = useState('');
   const [giftAmount, setGiftAmount] = useState('50');
@@ -291,15 +300,14 @@ function SmsPlatformPanel() {
 
       applyAllowances(res.data);
 
-      setDoneMsg(
-        t('smsAdmin.allowanceSaved', {
-          name: group
-            ? (allowances?.rows.find((row) => row.group === group)?.name ??
-              group)
-            : t('smsAdmin.allowanceTrial'),
-          n: Math.trunc(value),
-        }),
-      );
+      /**
+       * Подтверждение остаётся в самой строке.
+       *
+       * Сообщение наверху панели человек не видит: тарифы стоят
+       * ниже склада, и до верха надо прокручивать. Действие и его
+       * след должны быть в одном месте.
+       */
+      setSavedKey(key);
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
     } finally {
@@ -705,69 +713,122 @@ function SmsPlatformPanel() {
                     key: row.group,
                     who: t('smsAdmin.allowanceWho', { n: row.salons }),
                   })),
-                ].map((row) => (
-                  <div
-                    key={row.key}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <div style={{ minWidth: 180, flex: '1 1 180px' }}>
-                      <strong
-                        style={{ color: 'var(--app-text)', fontSize: 14 }}
-                      >
-                        {row.name}
-                      </strong>
+                ].map((row) => {
+                  /** Что записано на сервере прямо сейчас. */
+                  const stored = String(
+                    row.group === null
+                      ? allowances.trial
+                      : (allowances.rows.find(
+                          (item) => item.group === row.group,
+                        )?.allowance ?? 0),
+                  );
 
-                      <p
-                        style={{
-                          margin: '2px 0 0',
-                          color: 'var(--app-text-muted)',
-                          fontSize: 12,
-                        }}
-                      >
-                        {row.who}
-                      </p>
-                    </div>
+                  const changed = (drafts[row.key] ?? '') !== stored;
+                  const saving = busy === 'allowance:' + row.key;
+                  const justSaved = savedKey === row.key && !changed;
 
-                    <input
-                      type="number"
-                      min={0}
-                      max={1000}
-                      value={drafts[row.key] ?? ''}
-                      onChange={(event) =>
-                        setDrafts({
-                          ...drafts,
-                          [row.key]: event.target.value,
-                        })
-                      }
-                      style={{ ...inputStyle, width: 110, flex: '0 0 110px' }}
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => void saveAllowance(row.group)}
-                      disabled={
-                        busy !== '' ||
-                        drafts[row.key] ===
-                          String(
-                            row.group === null
-                              ? allowances.trial
-                              : (allowances.rows.find(
-                                  (item) => item.group === row.group,
-                                )?.allowance ?? 0),
-                          )
-                      }
-                      style={plainButton()}
+                  return (
+                    <div
+                      key={row.key}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        flexWrap: 'wrap',
+                      }}
                     >
-                      <Save size={14} />
-                      {t('smsAdmin.allowanceSave')}
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ minWidth: 180, flex: '1 1 180px' }}>
+                        <strong
+                          style={{ color: 'var(--app-text)', fontSize: 14 }}
+                        >
+                          {row.name}
+                        </strong>
+
+                        <p
+                          style={{
+                            margin: '2px 0 0',
+                            color: 'var(--app-text-muted)',
+                            fontSize: 12,
+                          }}
+                        >
+                          {row.who}
+                        </p>
+                      </div>
+
+                      {/* Изменённое поле обводится акцентом: правка
+                          должна быть видна ещё до того, как человек
+                          потянется к кнопке. */}
+                      <input
+                        type="number"
+                        min={0}
+                        max={1000}
+                        value={drafts[row.key] ?? ''}
+                        onChange={(event) => {
+                          setSavedKey('');
+                          setDrafts({
+                            ...drafts,
+                            [row.key]: event.target.value,
+                          });
+                        }}
+                        style={{
+                          ...inputStyle,
+                          width: 110,
+                          flex: '0 0 110px',
+                          border: changed
+                            ? '1px solid var(--app-accent)'
+                            : inputStyle.border,
+                        }}
+                      />
+
+                      {/* Три разных положения — три разных вида.
+                          Бледная кнопка, одинаковая и когда её можно
+                          нажать, и когда нельзя, — это ловушка:
+                          человек жмёт и не понимает, сработало ли. */}
+                      <div style={{ flex: '0 0 auto', minWidth: 150 }}>
+                        {changed ? (
+                          <button
+                            type="button"
+                            onClick={() => void saveAllowance(row.group)}
+                            disabled={busy !== ''}
+                            style={accentButton(saving)}
+                          >
+                            <Save size={15} />
+                            {saving
+                              ? t('smsAdmin.allowanceSaving')
+                              : t('smsAdmin.allowanceSave')}
+                          </button>
+                        ) : justSaved ? (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 7,
+                              minHeight: 44,
+                              color: '#8ee5b5',
+                              fontSize: 13,
+                              fontWeight: 700,
+                            }}
+                          >
+                            <Check size={16} />
+                            {t('smsAdmin.allowanceJustSaved')}
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              minHeight: 44,
+                              color: 'var(--app-text-muted)',
+                              fontSize: 12,
+                            }}
+                          >
+                            {t('smsAdmin.allowanceStored')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <p

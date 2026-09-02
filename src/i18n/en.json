@@ -1533,6 +1533,9 @@
     "allowanceWho": "salons on this plan: {{n}}",
     "allowanceSave": "Save",
     "allowanceSaved": "{{name}} — now {{n}} messages a month",
-    "allowanceNote": "An increase applies at once: the difference lands on the balance the same day. A decrease takes nothing away — the new number starts on the first. Masters have no subscriptions of their own yet, so they get the trial number."
+    "allowanceNote": "An increase applies at once: the difference lands on the balance the same day. A decrease takes nothing away — the new number starts on the first. Masters have no subscriptions of their own yet, so they get the trial number.",
+    "allowanceSaving": "Saving…",
+    "allowanceJustSaved": "Saved",
+    "allowanceStored": "saved"
   }
 }
