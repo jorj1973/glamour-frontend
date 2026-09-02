@@ -59,7 +59,8 @@
       "platform": "Platform"
     },
     "scheduleTemplate": "My schedule",
-    "chat": "Chat"
+    "chat": "Chat",
+    "sms": "SMS"
   },
   "auth": {
     "login": "Sign In",
@@ -1344,5 +1345,95 @@
     "monthly": "month",
     "yearly": "year",
     "reason": "Plan texts edited"
+  },
+  "sms": {
+    "kicker": "NOTIFICATIONS",
+    "title": "SMS reminders",
+    "noSalon": "Salon not found.",
+    "consent": "By enabling SMS you confirm that you are sending reminders to numbers your clients gave you themselves, and that they expect messages about their appointments.",
+    "off": {
+      "badge": "Off",
+      "intro": "A reminder the day before is the simplest way to cut no-shows. Clients with the app get it for free, by notification and email. SMS is for everyone else: the ones you moved over from a paper book, where all you have is a name and a number.",
+      "shadowLead": "Last month you would have sent",
+      "shadowUnit": "reminders",
+      "shadowNote": "We count every message we would have sent for you but do not send: SMS is off. The counter runs on its own, nothing to switch on.",
+      "enable": "Turn on SMS",
+      "enableHint": "{{n}} messages a month included in your plan — nothing to pay now"
+    },
+    "on": {
+      "badge": "On",
+      "left": "Messages left",
+      "leftNote": "{{allowance}} from the plan and {{purchased}} bought",
+      "needWeek": "Needed for the week ahead",
+      "needWeekOk": "Enough for the clients already booked",
+      "needWeekShort": "Not enough for the clients already booked",
+      "short": "{{n}} messages short for this week’s bookings",
+      "shortNote": "Clients booked for the next seven days need {{need}} messages. You have {{left}}. The rest of the reminders will not go out.",
+      "duplicate": "Also send SMS to clients who have the app",
+      "duplicateNote": "They already get a free notification and email. Turn this on if you want to pay for the extra certainty.",
+      "disable": "Turn off SMS"
+    },
+    "terms": {
+      "title": "TERMS",
+      "price": "Every message is taken from your balance",
+      "priceNote": "Latin text fits in 160 characters, Cyrillic in 70. Anything longer goes as two messages and counts as two.",
+      "allowance": "Your plan includes {{n}} messages a month",
+      "allowanceNote": "They renew on the first and do not carry over. Bought messages never expire.",
+      "stop": "When messages run out, sending stops",
+      "stopNote": "App notifications and emails keep working for free. You will never get an invoice: top up first, send after.",
+      "owner": "Only the salon owner sees this section",
+      "ownerNote": "Staff cannot open it: they can neither turn SMS on nor spend the balance. If you work alone, you are the owner."
+    },
+    "money": {
+      "title": "Money and packs",
+      "hint": "Put money in the account and buy messages from it. Bought messages never expire.",
+      "balance": "Money in account",
+      "balanceNote": "Messages are bought from this",
+      "mdl": "MDL",
+      "messages": "messages",
+      "per": "{{price}} per message",
+      "buy": "Buy",
+      "notEnough": "Not enough money",
+      "note": "Transfer details go to the salon email. We credit the account the same working day. Card payment is coming later."
+    },
+    "auto": {
+      "title": "Top up automatically",
+      "hint": "Turn this on and reminders will not stop mid-week. Set it once and forget it.",
+      "when": "When fewer than",
+      "buy": "— buy",
+      "note": "We confirm every automatic top-up by email. You can turn it off at any time."
+    },
+    "history": {
+      "title": "Message log",
+      "kept": "Kept for 6 months",
+      "empty": "Nothing sent yet.",
+      "when": "When",
+      "to": "To",
+      "why": "Reason",
+      "segments": "Parts",
+      "status": "Status",
+      "notCharged": "Undelivered messages are not charged."
+    },
+    "kinds": {
+      "appointment_reminder": "Appointment reminder",
+      "low_balance": "Warning"
+    },
+    "status": {
+      "sent": "Delivered",
+      "failed": "Not delivered",
+      "skipped": "Not sent"
+    },
+    "staff": {
+      "title": "You do not have a separate account",
+      "note": "You work at this salon as staff, and the salon pays for reminders to your clients. A personal account belongs to independent masters — those who work at the salon for themselves."
+    },
+    "gift": {
+      "title": "Give messages to a master",
+      "hint": "You can hand your messages to an independent master at your salon. They have their own account and plan, but a gift can help them start — or simply pass on what you will not spend before the month ends.",
+      "who": "To whom",
+      "amount": "How many",
+      "send": "Give",
+      "note": "Given messages never expire: they become theirs. Yours are taken from the plan allowance first — it disappears on the first anyway. A gift cannot be undone, but the master can give some back."
+    }
   }
 }

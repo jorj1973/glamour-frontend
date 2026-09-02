@@ -26,6 +26,7 @@ import SalonInfoPage from './pages/SalonInfoPage';
 import SalonReviewsPage from './pages/SalonReviewsPage';
 import MasterReviewsPage from './pages/MasterReviewsPage';
 import ChatPage from './pages/ChatPage';
+import SmsPage from './pages/SmsPage';
 
 import './App.css';
 import './mobile.css';
@@ -287,6 +288,11 @@ function App() {
 
   if (workspaceMode === 'master') {
     switch (currentPage) {
+      // Независимый мастер платит за свои напоминания сам,
+      // значит и счёт смотрит свой.
+      case '#sms':
+        return <SmsPage />;
+
       case '#appointments':
         return <AppointmentsPage />;
 
@@ -358,6 +364,9 @@ function App() {
 
     case '#reviews':
       return <SalonReviewsPage />;
+
+    case '#sms':
+      return <SmsPage />;
 
     case '#branding':
       return <BrandingPage />;

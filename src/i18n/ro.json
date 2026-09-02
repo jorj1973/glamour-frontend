@@ -59,7 +59,8 @@
       "platform": "Platformă"
     },
     "scheduleTemplate": "Programul meu",
-    "chat": "Comunicare"
+    "chat": "Comunicare",
+    "sms": "SMS"
   },
   "auth": {
     "login": "Autentificare",
@@ -1351,5 +1352,95 @@
     "monthly": "lună",
     "yearly": "an",
     "reason": "Modificarea textelor planului"
+  },
+  "sms": {
+    "kicker": "NOTIFICĂRI",
+    "title": "Memento prin SMS",
+    "noSalon": "Salonul nu a fost găsit.",
+    "consent": "Activând SMS-urile, confirmați că trimiteți mementouri la numerele pe care clientele vi le-au lăsat ele însele și că ele așteaptă mesaje despre programările lor.",
+    "off": {
+      "badge": "Dezactivate",
+      "intro": "Un memento în ajunul vizitei este cel mai simplu mod de a reduce neprezentările. Clientele care au aplicația îl primesc gratuit, prin notificare și e-mail. SMS-urile sunt pentru celelalte: pentru cele mutate din agenda de hârtie, de la care aveți doar numele și numărul.",
+      "shadowLead": "Luna trecută ați fi trimis",
+      "shadowUnit": "mementouri",
+      "shadowNote": "Numărăm fiecare mesaj pe care l-am fi trimis în locul dumneavoastră, dar nu îl trimitem: SMS-urile sunt oprite. Contorul funcționează singur, nu trebuie activat.",
+      "enable": "Activează SMS",
+      "enableHint": "{{n}} mesaje pe lună incluse în abonament — nu trebuie să plătiți acum"
+    },
+    "on": {
+      "badge": "Activate",
+      "left": "Mesaje rămase",
+      "leftNote": "{{allowance}} din abonament și {{purchased}} cumpărate",
+      "needWeek": "Necesar pentru săptămâna următoare",
+      "needWeekOk": "Ajung pentru clientele deja programate",
+      "needWeekShort": "Nu ajung pentru clientele deja programate",
+      "short": "Lipsesc {{n}} mesaje pentru programările din această săptămână",
+      "shortNote": "Pentru următoarele șapte zile sunt programate cliente care necesită {{need}} mesaje. În cont aveți {{left}}. Restul mementourilor nu vor pleca.",
+      "duplicate": "Trimite SMS și celor care au aplicația",
+      "duplicateNote": "Ele primesc oricum notificare și e-mail gratuit. Activați dacă sunteți dispus să plătiți pentru siguranță.",
+      "disable": "Dezactivează SMS"
+    },
+    "terms": {
+      "title": "CONDIȚII",
+      "price": "Fiecare mesaj se scade din cont",
+      "priceNote": "Un text cu litere latine încape în 160 de caractere, unul chirilic în 70. Ce depășește pleacă în două mesaje și se numără ca două.",
+      "allowance": "Abonamentul dumneavoastră include {{n}} mesaje pe lună",
+      "allowanceNote": "Se reînnoiesc pe întâi și nu se reportează. Mesajele cumpărate nu expiră niciodată.",
+      "stop": "Când mesajele se termină, trimiterea se oprește",
+      "stopNote": "Notificările în aplicație și e-mailurile continuă gratuit. Nu primiți nicio factură: mai întâi alimentarea, apoi trimiterea.",
+      "owner": "Secțiunea este vizibilă doar proprietarului salonului",
+      "ownerNote": "Maeștrii nu o deschid: nu pot nici activa SMS-urile, nici cheltui soldul. Dacă lucrați singur, dumneavoastră sunteți proprietarul."
+    },
+    "money": {
+      "title": "Bani și pachete",
+      "hint": "Alimentați contul și cumpărați mesaje din el. Mesajele cumpărate nu expiră.",
+      "balance": "Bani în cont",
+      "balanceNote": "Din ei se cumpără mesajele",
+      "mdl": "lei",
+      "messages": "mesaje",
+      "per": "{{price}} pe mesaj",
+      "buy": "Cumpără",
+      "notEnough": "Bani insuficienți",
+      "note": "Datele pentru transfer ajung pe e-mailul salonului. Alimentăm contul în aceeași zi lucrătoare. Plata cu cardul va apărea mai târziu."
+    },
+    "auto": {
+      "title": "Alimentare automată",
+      "hint": "Activați și mementourile nu se vor opri la mijlocul săptămânii. Configurați o dată și uitați.",
+      "when": "Când rămân mai puțin de",
+      "buy": "— cumpără",
+      "note": "Confirmăm fiecare alimentare automată prin e-mail. Puteți dezactiva oricând."
+    },
+    "history": {
+      "title": "Jurnalul mesajelor",
+      "kept": "Se păstrează 6 luni",
+      "empty": "Încă nu s-a trimis nimic.",
+      "when": "Când",
+      "to": "Către",
+      "why": "Motiv",
+      "segments": "Părți",
+      "status": "Stare",
+      "notCharged": "Mesajele nelivrate nu se scad din cont."
+    },
+    "kinds": {
+      "appointment_reminder": "Memento programare",
+      "low_balance": "Avertizare"
+    },
+    "status": {
+      "sent": "Livrat",
+      "failed": "Nelivrat",
+      "skipped": "Netrimis"
+    },
+    "staff": {
+      "title": "Nu aveți un cont separat",
+      "note": "Lucrați în acest salon ca maestru angajat, iar mementourile pentru clientele dumneavoastră le plătește salonul. Cont personal au maeștrii independenți — cei care lucrează în salon pe cont propriu."
+    },
+    "gift": {
+      "title": "Dăruiește mesaje unui maestru",
+      "hint": "Mesajele dumneavoastră pot fi date unui maestru independent din salon. El are contul și abonamentul lui, dar cu un dar îl puteți ajuta să înceapă — sau pur și simplu îi dați ce nu veți cheltui până la sfârșitul lunii.",
+      "who": "Cui",
+      "amount": "Câte",
+      "send": "Dăruiește",
+      "note": "Mesajele dăruite nu expiră: devin ale lui. La dumneavoastră se scad mai întâi cele din abonament — ele oricum dispar pe întâi. Darul nu se anulează, dar maestrul poate dărui înapoi."
+    }
   }
 }

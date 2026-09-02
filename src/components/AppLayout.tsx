@@ -4,7 +4,9 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle,
+  Smartphone,
+} from 'lucide-react';
 import ChatUnreadBadge from './ChatUnreadBadge';
 import {
   BarChart3,
@@ -752,6 +754,20 @@ function AppLayout({ children }: AppLayoutProps) {
                 <Star size={18} />
                 {t('nav.reviews')}
               </a>
+              {/* У независимого мастера свой счёт: он платит
+                  за свои напоминания сам. Наёмному экран
+                  честно скажет, что за него платит салон. */}
+              <a
+                className={
+                  currentHash === '#sms'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#sms"
+              >
+                <Smartphone size={18} />
+                {t('nav.sms')}
+              </a>
             </>
           ) : (
             <>
@@ -881,6 +897,19 @@ function AppLayout({ children }: AppLayoutProps) {
               >
                 <Palette size={18} />
                 {t('nav.branding')}
+              </a>
+              {/* Раздел про деньги: мастера его не видят,
+                  поэтому он внутри ветки владельца. */}
+              <a
+                className={
+                  currentHash === '#sms'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#sms"
+              >
+                <Smartphone size={18} />
+                {t('nav.sms')}
               </a>
             </>
           )}
