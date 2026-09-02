@@ -47,6 +47,19 @@ type Stock = {
   }[];
 };
 
+/**
+ * Сколько сообщений в месяц даёт каждый тариф.
+ *
+ * Пробный период тарифа не имеет — это состояние подписки, — поэтому
+ * его число стоит отдельной строкой, а не в общем списке.
+ */
+type Allowances = {
+  trial: number;
+  trialSalons: number;
+  trialMasters: number;
+  rows: { group: string; name: string; allowance: number; salons: number }[];
+};
+
 /** Кому площадка может подарить сообщения. */
 type Target = {
   salonId: string | null;
@@ -105,6 +118,16 @@ function SmsPlatformPanel() {
   const [buyCurrency, setBuyCurrency] = useState('MDL');
   const [buyProvider, setBuyProvider] = useState('sms.md');
 
+  /**
+   * Тарифные числа.
+   *
+   * Черновики держим отдельно от сохранённых: пока человек правит
+   * поле, число на сервере остаётся прежним, и подставлять правку
+   * в остальной экран было бы враньём.
+   */
+  const [allowances, setAllowances] = useState<Allowances | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
   const [targets, setTargets] = useState<Target[]>([]);
   const [giftTo, setGiftTo] = useState('');
   const [giftAmount, setGiftAmount] = useState('50');
@@ -126,17 +149,20 @@ function SmsPlatformPanel() {
     setErrorMsg('');
 
     try {
-      const [ordersRes, paymentRes, targetsRes, stockRes] = await Promise.all([
-        api.get<Order[]>('/platform-admin/sms/orders'),
-        api.get<Payment | null>('/platform-admin/sms/payment'),
-        api.get<Target[]>('/platform-admin/sms/gift-targets'),
-        api.get<Stock>('/platform-admin/sms/stock'),
-      ]);
+      const [ordersRes, paymentRes, targetsRes, stockRes, plansRes] =
+        await Promise.all([
+          api.get<Order[]>('/platform-admin/sms/orders'),
+          api.get<Payment | null>('/platform-admin/sms/payment'),
+          api.get<Target[]>('/platform-admin/sms/gift-targets'),
+          api.get<Stock>('/platform-admin/sms/stock'),
+          api.get<Allowances>('/platform-admin/sms/plan-allowance'),
+        ]);
 
       setOrders(ordersRes.data);
       setPayment(paymentRes.data ?? {});
       setTargets(targetsRes.data);
       setStock(stockRes.data);
+      applyAllowances(plansRes.data);
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
     } finally {
@@ -218,6 +244,62 @@ function SmsPlatformPanel() {
       setDoneMsg(t('smsAdmin.stockAdded', { messages }));
 
       await load();
+    } catch (error) {
+      setErrorMsg(t(getErrorKey(error)));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /** Разложить пришедшее с сервера по полям ввода. */
+  function applyAllowances(data: Allowances) {
+    setAllowances(data);
+
+    const next: Record<string, string> = { trial: String(data.trial) };
+
+    for (const row of data.rows) {
+      next[row.group] = String(row.allowance);
+    }
+
+    setDrafts(next);
+  }
+
+  /**
+   * Сохранить число тарифа.
+   *
+   * Пустая группа — пробный период. Сервер сразу разносит новое
+   * число по счетам и возвращает пересчитанный список: ждать ночи,
+   * чтобы увидеть результат правки, человек не должен.
+   */
+  async function saveAllowance(group: string | null) {
+    const key = group ?? 'trial';
+    const value = Number(drafts[key]);
+
+    if (!Number.isFinite(value) || value < 0) {
+      return;
+    }
+
+    setBusy('allowance:' + key);
+    setErrorMsg('');
+    setDoneMsg('');
+
+    try {
+      const res = await api.patch<Allowances>(
+        '/platform-admin/sms/plan-allowance',
+        { group: group ?? undefined, value: Math.trunc(value) },
+      );
+
+      applyAllowances(res.data);
+
+      setDoneMsg(
+        t('smsAdmin.allowanceSaved', {
+          name: group
+            ? (allowances?.rows.find((row) => row.group === group)?.name ??
+              group)
+            : t('smsAdmin.allowanceTrial'),
+          n: Math.trunc(value),
+        }),
+      );
     } catch (error) {
       setErrorMsg(t(getErrorKey(error)));
     } finally {
@@ -563,6 +645,142 @@ function SmsPlatformPanel() {
                   })}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* ── Тарифные числа ── */}
+          {allowances && (
+            <div
+              style={{
+                padding: '18px 18px 16px',
+                border: '1px solid var(--app-border)',
+                borderRadius: 16,
+                background: 'var(--app-input)',
+                marginBottom: 20,
+              }}
+            >
+              <strong
+                style={{
+                  display: 'block',
+                  marginBottom: 6,
+                  color: 'var(--app-text)',
+                  fontSize: 15,
+                }}
+              >
+                {t('smsAdmin.allowanceTitle')}
+              </strong>
+
+              <p
+                style={{
+                  margin: '0 0 16px',
+                  maxWidth: 640,
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('smsAdmin.allowanceHint')}
+              </p>
+
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
+                {[
+                  {
+                    group: null as string | null,
+                    name: t('smsAdmin.allowanceTrial'),
+                    key: 'trial',
+                    who: t('smsAdmin.allowanceTrialWho', {
+                      salons: allowances.trialSalons,
+                      masters: allowances.trialMasters,
+                    }),
+                  },
+                  ...allowances.rows.map((row) => ({
+                    group: row.group as string | null,
+                    name: row.name,
+                    key: row.group,
+                    who: t('smsAdmin.allowanceWho', { n: row.salons }),
+                  })),
+                ].map((row) => (
+                  <div
+                    key={row.key}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <div style={{ minWidth: 180, flex: '1 1 180px' }}>
+                      <strong
+                        style={{ color: 'var(--app-text)', fontSize: 14 }}
+                      >
+                        {row.name}
+                      </strong>
+
+                      <p
+                        style={{
+                          margin: '2px 0 0',
+                          color: 'var(--app-text-muted)',
+                          fontSize: 12,
+                        }}
+                      >
+                        {row.who}
+                      </p>
+                    </div>
+
+                    <input
+                      type="number"
+                      min={0}
+                      max={1000}
+                      value={drafts[row.key] ?? ''}
+                      onChange={(event) =>
+                        setDrafts({
+                          ...drafts,
+                          [row.key]: event.target.value,
+                        })
+                      }
+                      style={{ ...inputStyle, width: 110, flex: '0 0 110px' }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => void saveAllowance(row.group)}
+                      disabled={
+                        busy !== '' ||
+                        drafts[row.key] ===
+                          String(
+                            row.group === null
+                              ? allowances.trial
+                              : (allowances.rows.find(
+                                  (item) => item.group === row.group,
+                                )?.allowance ?? 0),
+                          )
+                      }
+                      style={plainButton()}
+                    >
+                      <Save size={14} />
+                      {t('smsAdmin.allowanceSave')}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <p
+                style={{
+                  margin: '14px 0 0',
+                  maxWidth: 640,
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('smsAdmin.allowanceNote')}
+              </p>
             </div>
           )}
 

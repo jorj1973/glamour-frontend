@@ -1423,7 +1423,8 @@
     },
     "kinds": {
       "appointment_reminder": "Memento programare",
-      "low_balance": "Avertizare"
+      "low_balance": "Avertizare",
+      "balance_warning": "Avertisment despre sold"
     },
     "status": {
       "sent": "Livrat",
@@ -1455,6 +1456,33 @@
       "note": "Mesajele apar în cont după ce vedem transferul. Până atunci nu se scade nimic și nu aveți nicio obligație.",
       "waiting": "Așteaptă transferul",
       "reference": "Scrieți numărul cererii la destinația plății. Imediat ce îl confruntăm cu extrasul, mesajele apar în cont și primiți un e-mail."
+    },
+    "warn": {
+      "weekTitle": "Până la sfârșitul săptămânii lipsesc {{n}} mesaje",
+      "weekNote": "Pentru clientele deja programate e nevoie de {{need}}, iar în cont sunt {{left}}. Mai este timp să alimentați.",
+      "dayTitle": "Mementourile de mâine nu vor pleca",
+      "dayNote": "Pentru mâine e nevoie de {{need}} mesaje, iar în cont sunt {{left}}. Primele mementouri pleacă la noapte.",
+      "zeroTitle": "Mesajele s-au terminat",
+      "zeroNote": "Contul este pe zero. Programărilor apropiate le trebuie {{need}} mesaje, iar până la sfârșitul săptămânii — {{week}}. Niciunul nu va pleca până la alimentare."
+    },
+    "moves": {
+      "title": "Mișcările contului",
+      "note": "De unde au apărut mesajele și banii. Rândurile nu se șterg și nu se modifică: greșeala se corectează cu o înregistrare inversă.",
+      "empty": "Deocamdată nu au fost mișcări.",
+      "when": "Când",
+      "what": "Ce",
+      "messages": "Mesaje",
+      "money": "Bani, lei",
+      "why": "Explicație",
+      "kinds": {
+        "deposit": "Alimentarea contului",
+        "purchase": "Achiziție de pachet",
+        "allowance": "Mesajele lunare din tarif",
+        "adjust": "Corecție manuală",
+        "gift_out": "Dăruite",
+        "gift_in": "Cadou primit",
+        "platform_gift": "Cadou de la platformă"
+      }
     }
   },
   "smsAdmin": {
@@ -1504,6 +1532,14 @@
     "giftAsk": "Dăruiți lui {{name}} — {{amount}} mesaje? Este cheltuiala dumneavoastră și nu se poate anula.",
     "giftYes": "Da, dăruiește {{amount}}",
     "giftNotePlaceholder": "De ce: «scuze pentru o eroare», «campanie de lansare»",
-    "giftDone": "Dăruite {{amount}} mesaje — {{name}}"
+    "giftDone": "Dăruite {{amount}} mesaje — {{name}}",
+    "allowanceTitle": "Câte mesaje oferă tariful",
+    "allowanceHint": "Numărul aparține tarifului, nu contului salonului. Îl schimbați aici — se schimbă la toți cei de pe acest tarif.",
+    "allowanceTrial": "Perioada de probă",
+    "allowanceTrialWho": "în probă: {{salons}} saloane, {{masters}} maeștri",
+    "allowanceWho": "saloane pe acest tarif: {{n}}",
+    "allowanceSave": "Salvează",
+    "allowanceSaved": "{{name}} — acum {{n}} mesaje pe lună",
+    "allowanceNote": "Creșterea are efect imediat: diferența se adaugă la sold în aceeași zi. Scăderea nu ia nimic — numărul nou intră în vigoare pe întâi. Maeștrii nu au încă abonamente proprii, de aceea primesc numărul de probă."
   }
 }

@@ -1416,7 +1416,8 @@
     },
     "kinds": {
       "appointment_reminder": "Appointment reminder",
-      "low_balance": "Warning"
+      "low_balance": "Warning",
+      "balance_warning": "Balance warning"
     },
     "status": {
       "sent": "Delivered",
@@ -1448,6 +1449,33 @@
       "note": "Messages land in your account once we see the transfer. Until then nothing is charged and you owe nothing.",
       "waiting": "Awaiting transfer",
       "reference": "Put the order number in the payment reference. As soon as we match it against the bank statement, the messages appear and you get an email."
+    },
+    "warn": {
+      "weekTitle": "{{n}} messages short for the rest of the week",
+      "weekNote": "The clients already booked need {{need}}, and the balance is {{left}}. There is still time to top up.",
+      "dayTitle": "Tomorrow's reminders will not go out",
+      "dayNote": "Tomorrow needs {{need}} messages and the balance is {{left}}. The first reminders go out tonight.",
+      "zeroTitle": "Messages have run out",
+      "zeroNote": "The balance is zero. The nearest bookings need {{need}} messages, and the week needs {{week}}. None will go out until you top up."
+    },
+    "moves": {
+      "title": "Account movements",
+      "note": "Where the messages and the money came from. Rows here are never deleted or edited: a mistake is corrected by an opposite entry.",
+      "empty": "No movements yet.",
+      "when": "When",
+      "what": "What",
+      "messages": "Messages",
+      "money": "Money, MDL",
+      "why": "Note",
+      "kinds": {
+        "deposit": "Balance top-up",
+        "purchase": "Pack purchase",
+        "allowance": "Monthly plan messages",
+        "adjust": "Manual correction",
+        "gift_out": "Given away",
+        "gift_in": "Gift received",
+        "platform_gift": "Gift from the platform"
+      }
     }
   },
   "smsAdmin": {
@@ -1497,6 +1525,14 @@
     "giftAsk": "Give {{name}} {{amount}} messages? This is your cost and cannot be undone.",
     "giftYes": "Yes, give {{amount}}",
     "giftNotePlaceholder": "Why: “apology for an outage”, “launch promo”",
-    "giftDone": "{{amount}} messages given to {{name}}"
+    "giftDone": "{{amount}} messages given to {{name}}",
+    "allowanceTitle": "How many messages each plan gives",
+    "allowanceHint": "The number belongs to the plan, not to a salon account. Change it here and it changes for everyone on that plan.",
+    "allowanceTrial": "Trial period",
+    "allowanceTrialWho": "on trial: {{salons}} salons, {{masters}} masters",
+    "allowanceWho": "salons on this plan: {{n}}",
+    "allowanceSave": "Save",
+    "allowanceSaved": "{{name}} — now {{n}} messages a month",
+    "allowanceNote": "An increase applies at once: the difference lands on the balance the same day. A decrease takes nothing away — the new number starts on the first. Masters have no subscriptions of their own yet, so they get the trial number."
   }
 }

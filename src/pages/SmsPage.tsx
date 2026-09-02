@@ -79,10 +79,60 @@ type SentMessage = {
   error: string | null;
 };
 
+/**
+ * Строка журнала операций.
+ *
+ * Не то же самое, что отправленное сообщение. Там записано, куда
+ * ушло каждое SMS; здесь — откуда взялись сообщения и деньги.
+ * Сводить их в одну таблицу значит потерять и то, и другое.
+ */
+type Movement = {
+  id: string;
+  createdAt: string;
+  kind: string;
+  money: string;
+  messages: number;
+  note: string | null;
+};
+
 type Salon = { id: string; name: string };
 
 /** Сколько строк журнала показываем сразу. */
 const HISTORY_LIMIT = 25;
+
+/** Ступени предупреждения — те же, что считает сервер. */
+type WarnLevel = 'week' | 'day' | 'zero';
+
+/**
+ * На какой ступени этот счёт.
+ *
+ * Повторяет правило сервера слово в слово. Разойдутся — человек
+ * увидит спокойный экран и получит тревожное письмо, и поверит
+ * письму, потому что оно пришло позже.
+ */
+function warnLevelOf(
+  left: number,
+  needWeek: number,
+  needTomorrow: number,
+): WarnLevel | null {
+  if (needWeek <= 0) {
+    return null;
+  }
+
+  if (left <= 0) {
+    return 'zero';
+  }
+
+  if (left < needTomorrow) {
+    return 'day';
+  }
+
+  if (left < needWeek) {
+    return 'week';
+  }
+
+  return null;
+}
 
 /**
  * В чьём кабинете мы находимся.
@@ -115,6 +165,7 @@ function SmsPage() {
   const [salon, setSalon] = useState<Salon | null>(null);
   const [data, setData] = useState<Overview | null>(null);
   const [messages, setMessages] = useState<SentMessage[]>([]);
+  const [movements, setMovements] = useState<Movement[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [busy, setBusy] = useState('');
@@ -166,15 +217,19 @@ function SmsPage() {
   async function refresh(salonId: string) {
     const scope = currentScope();
 
-    const [overviewRes, messagesRes] = await Promise.all([
+    const [overviewRes, messagesRes, historyRes] = await Promise.all([
       api.get<Overview>('/sms/overview', { params: { salonId, scope } }),
       api.get<SentMessage[]>('/sms/messages', {
+        params: { salonId, scope, limit: HISTORY_LIMIT },
+      }),
+      api.get<Movement[]>('/sms/history', {
         params: { salonId, scope, limit: HISTORY_LIMIT },
       }),
     ]);
 
     setData(overviewRes.data);
     setMessages(messagesRes.data);
+    setMovements(historyRes.data);
   }
 
   async function act(name: string, run: () => Promise<void>) {
@@ -293,6 +348,22 @@ function SmsPage() {
 
   /** Хватает ли остатка на тех, кто уже записан на неделю вперёд. */
   const shortBy = data ? Math.max(data.needWeek - data.left, 0) : 0;
+
+  /**
+   * На какой ступени счёт — тем же правилом, что и на сервере.
+   *
+   * От неё зависит и цвет полосы, и слова: «не хватит до конца
+   * недели» и «завтрашним не уйдёт» — разные новости, и выглядеть
+   * одинаково они не должны.
+   */
+  const warnLevel = data
+    ? warnLevelOf(data.left, data.needWeek, data.needTomorrow)
+    : null;
+
+  const warnTone =
+    warnLevel === 'week'
+      ? { line: 'rgba(255,208,139,0.34)', fill: 'rgba(255,208,139,0.08)', icon: '#ffd08b' }
+      : { line: 'rgba(255,182,198,0.34)', fill: 'rgba(255,182,198,0.08)', icon: '#ffb6c6' };
 
   return (
     <AppLayout>
@@ -529,22 +600,22 @@ function SmsPage() {
             {/* ── Включено: остатки и проверка по календарю ── */}
             {data.enabled && (
               <section style={panelStyle}>
-                {shortBy > 0 && (
+                {warnLevel && (
                   <div
                     style={{
                       display: 'flex',
                       gap: 13,
                       alignItems: 'flex-start',
                       padding: '16px 18px',
-                      border: '1px solid rgba(255,182,198,0.34)',
+                      border: '1px solid ' + warnTone.line,
                       borderRadius: 14,
-                      background: 'rgba(255,182,198,0.08)',
+                      background: warnTone.fill,
                       marginBottom: 18,
                     }}
                   >
                     <AlertTriangle
                       size={19}
-                      color="#ffb6c6"
+                      color={warnTone.icon}
                       style={{ flexShrink: 0, marginTop: 2 }}
                     />
 
@@ -552,7 +623,9 @@ function SmsPage() {
                       <strong
                         style={{ color: 'var(--app-text)', fontSize: 15 }}
                       >
-                        {t('sms.on.short', { n: shortBy })}
+                        {t('sms.warn.' + warnLevel + 'Title', {
+                          n: shortBy,
+                        })}
                       </strong>
 
                       <p
@@ -563,8 +636,16 @@ function SmsPage() {
                           lineHeight: 1.6,
                         }}
                       >
-                        {t('sms.on.shortNote', {
-                          need: data.needWeek,
+                        {t('sms.warn.' + warnLevel + 'Note', {
+                          /* На нуле завтрашних записей может не быть
+                             вовсе, а неделя при этом плотная. «Нужно
+                             0 сообщений» в самой тревожной полосе —
+                             худшее, что можно написать. */
+                          need:
+                            warnLevel === 'week' || data.needTomorrow === 0
+                              ? data.needWeek
+                              : data.needTomorrow,
+                          week: data.needWeek,
                           left: data.left,
                         })}
                       </p>
@@ -1209,6 +1290,113 @@ function SmsPage() {
               </section>
             )}
 
+            {/* ── Движение по счёту ── */}
+            <section style={panelStyle}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'space-between',
+                  gap: 16,
+                  marginBottom: 6,
+                }}
+              >
+                <strong style={{ color: 'var(--app-text)', fontSize: 16 }}>
+                  {t('sms.moves.title')}
+                </strong>
+              </div>
+
+              <p
+                style={{
+                  margin: '0 0 14px',
+                  maxWidth: 640,
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('sms.moves.note')}
+              </p>
+
+              {movements.length === 0 ? (
+                <p
+                  style={{
+                    margin: 0,
+                    color: 'var(--app-text-muted)',
+                    fontSize: 13,
+                  }}
+                >
+                  {t('sms.moves.empty')}
+                </p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table
+                    style={{
+                      width: '100%',
+                      minWidth: 560,
+                      borderCollapse: 'collapse',
+                      fontSize: 13,
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        <Th>{t('sms.moves.when')}</Th>
+                        <Th>{t('sms.moves.what')}</Th>
+                        <Th align="right">{t('sms.moves.messages')}</Th>
+                        <Th align="right">{t('sms.moves.money')}</Th>
+                        <Th>{t('sms.moves.why')}</Th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {movements.map((row) => (
+                        <tr key={row.id}>
+                          <Td muted>
+                            {new Date(row.createdAt).toLocaleString()}
+                          </Td>
+
+                          <Td>{t('sms.moves.kinds.' + row.kind, row.kind)}</Td>
+
+                          {/* Ноль не рисуем: пустая клетка читается
+                              быстрее, чем строка нулей поперёк
+                              таблицы. */}
+                          <Td
+                            align="right"
+                            color={
+                              row.messages > 0
+                                ? '#8ee5b5'
+                                : row.messages < 0
+                                  ? '#ffb6c6'
+                                  : undefined
+                            }
+                          >
+                            {row.messages === 0 ? '' : signed(row.messages)}
+                          </Td>
+
+                          <Td
+                            align="right"
+                            color={
+                              Number(row.money) > 0
+                                ? '#8ee5b5'
+                                : Number(row.money) < 0
+                                  ? '#ffb6c6'
+                                  : undefined
+                            }
+                          >
+                            {Number(row.money) === 0
+                              ? ''
+                              : signed(Number(row.money), 2)}
+                          </Td>
+
+                          <Td muted>{row.note ?? ''}</Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
             {/* ── Журнал ── */}
             <section style={panelStyle}>
               <div
@@ -1306,6 +1494,19 @@ function SmsPage() {
 }
 
 /* ─────────── Мелкие части ─────────── */
+
+/**
+ * Число со знаком.
+ *
+ * Плюс рисуем явно. В столбце, где рядом стоят приходы и расходы,
+ * «20» и «-20» отличаются одним символом на краю, и глаз его
+ * пропускает; «+20» и «-20» различаются сразу.
+ */
+function signed(value: number, decimals = 0): string {
+  const body = Math.abs(value).toFixed(decimals);
+
+  return (value > 0 ? '+' : '−') + body;
+}
 
 /**
  * Условия.
