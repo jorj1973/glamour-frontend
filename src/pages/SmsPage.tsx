@@ -127,6 +127,16 @@ function SmsPage() {
   /** Пакет, который выбрали к оплате. Пусто — экран оплаты закрыт. */
   const [paying, setPaying] = useState<Packet | null>(null);
 
+  /**
+   * Подарок спрашивает перед отправкой и показывает результат после.
+   *
+   * Без вопроса кнопка срабатывает молча и тут же выглядит готовой
+   * к новому нажатию — как будто ничего не произошло. На необратимом
+   * действии это худшая из возможных обратных связей.
+   */
+  const [giftAsking, setGiftAsking] = useState(false);
+  const [giftDone, setGiftDone] = useState('');
+
   useEffect(() => {
     void load();
   }, []);
@@ -210,12 +220,28 @@ function SmsPage() {
       return;
     }
 
+    const target = data?.giftTargets.find(
+      (item) => item.masterProfileId === giftTo,
+    );
+
     void act('gift', async () => {
       await api.post(
         '/sms/gift',
         { masterProfileId: giftTo, amount },
         { params: { salonId: salon?.id, scope: currentScope() } },
       );
+
+      setGiftDone(
+        t('sms.gift.done', { amount, name: target?.name ?? '' }),
+      );
+
+      /**
+       * Сбрасываем выбранного мастера, а не только вопрос: пока
+       * получатель не назван заново, кнопка гаснет. Повторить
+       * подарок случайно невозможно.
+       */
+      setGiftTo('');
+      setGiftAsking(false);
     });
   }
 
@@ -1069,19 +1095,98 @@ function SmsPage() {
                     />
                   </label>
 
-                  <button
-                    type="button"
-                    onClick={gift}
-                    disabled={busy !== '' || !giftTo}
+                  {!giftAsking && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGiftDone('');
+                        setGiftAsking(true);
+                      }}
+                      disabled={busy !== '' || !giftTo}
+                      style={{
+                        ...primaryButton(false),
+                        opacity: giftTo ? 1 : 0.45,
+                      }}
+                    >
+                      <Gift size={16} />
+                      {t('sms.gift.send')}
+                    </button>
+                  )}
+                </div>
+
+                {/* Вопрос перед необратимым: подарок назад не забрать. */}
+                {giftAsking && giftTo && (
+                  <div
                     style={{
-                      ...primaryButton(busy === 'gift'),
-                      opacity: giftTo ? (busy === 'gift' ? 0.6 : 1) : 0.45,
+                      marginTop: 16,
+                      padding: '16px 18px',
+                      border: '1px solid var(--app-accent)',
+                      borderRadius: 14,
+                      background: 'rgba(209,127,176,0.08)',
                     }}
                   >
-                    <Gift size={16} />
-                    {t('sms.gift.send')}
-                  </button>
-                </div>
+                    <p
+                      style={{
+                        margin: '0 0 12px',
+                        color: 'var(--app-text)',
+                        fontSize: 14,
+                        lineHeight: 1.6,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {t('sms.gift.ask', {
+                        name:
+                          data.giftTargets.find(
+                            (item) => item.masterProfileId === giftTo,
+                          )?.name ?? '',
+                        amount: Number(giftAmount) || 0,
+                        left: Math.max(
+                          data.left - (Number(giftAmount) || 0),
+                          0,
+                        ),
+                      })}
+                    </p>
+
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={gift}
+                        disabled={busy !== ''}
+                        style={primaryButton(busy === 'gift')}
+                      >
+                        <Gift size={16} />
+                        {t('sms.gift.yes', { amount: Number(giftAmount) || 0 })}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setGiftAsking(false)}
+                        disabled={busy !== ''}
+                        style={ghostButton()}
+                      >
+                        {t('sms.gift.back')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Что получилось — иначе кнопка выглядит несработавшей. */}
+                {giftDone && (
+                  <p
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      margin: '14px 0 0',
+                      color: '#8ee5b5',
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
+                    <Check size={16} />
+                    {giftDone}
+                  </p>
+                )}
 
                 <p
                   style={{
