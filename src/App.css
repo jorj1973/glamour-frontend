@@ -849,7 +849,7 @@ input {
   --app-sidebar: rgba(20, 17, 24, 0.96);
   --app-text: #fff7fc;
   --app-text-muted: #b9b0bb;
-  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border: rgba(225, 172, 82, 0.18);
   --app-input: rgba(255, 255, 255, 0.06);
   --app-shadow: rgba(0, 0, 0, 0.18);
 }
@@ -861,7 +861,7 @@ input {
   --app-sidebar: #fffafd;
   --app-text: #211b23;
   --app-text-muted: #756b77;
-  --app-border: rgba(54, 40, 57, 0.12);
+  --app-border: rgba(157, 109, 27, 0.28);
   --app-input: rgba(54, 40, 57, 0.05);
   --app-shadow: rgba(54, 40, 57, 0.08);
 }
@@ -901,6 +901,19 @@ input {
 :root[data-theme="light"] .color-control span,
 :root[data-theme="light"] .theme-option.active {
   color: var(--app-text);
+}
+
+/*
+ * Крупные числа — золотом в обеих темах.
+ *
+ * Отдельным правилом ниже по файлу, а не правкой списка выше:
+ * тот список задаёт цвет доброму десятку разных мест, и выдёргивать
+ * из него одну строку значит однажды сломать соседнюю. Здесь
+ * перечислены обе темы, и правило побеждает порядком следования.
+ */
+.metric-card strong,
+:root[data-theme="light"] .metric-card strong {
+  color: var(--app-gold);
 }
 
 :root[data-theme="light"] .dashboard-subtitle,
@@ -1215,7 +1228,7 @@ input {
 }
 
 .platform-brand span {
-  color: var(--pf-text-muted);
+  color: var(--app-gold);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.18em;
