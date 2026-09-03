@@ -159,7 +159,7 @@ function AppReviewForm() {
         )}
 
         {errorMsg && (
-          <p style={{ color: 'var(--app-accent-warm)', fontSize: 12, fontWeight: 700, marginTop: 8 }}>
+          <p style={{ color: 'var(--app-danger-soft)', fontSize: 12, fontWeight: 700, marginTop: 8 }}>
             {errorMsg}
           </p>
         )}

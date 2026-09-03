@@ -986,7 +986,7 @@ function PublicBookingPage() {
                                         'rgba(255,96,128,0.1)',
                                     border:
                                         '1px solid rgba(255,96,128,0.22)',
-                                    color: 'var(--app-accent-warm)',
+                                    color: 'var(--app-danger-soft)',
                                     fontSize: 13,
                                 }}
                             >
@@ -1446,7 +1446,7 @@ function PublicBookingPage() {
                                             color:
                                                 password.length > 0 &&
                                                 password.length < 10
-                                                    ? 'var(--app-accent-warm)'
+                                                    ? 'var(--app-danger-soft)'
                                                     : 'var(--app-text-muted, var(--app-text-muted))',
                                             fontSize: 12,
                                         }}
@@ -1779,7 +1779,7 @@ function PublicBookingPage() {
 
                             <p
                                 style={{
-                                    color: 'var(--app-accent-warm)',
+                                    color: 'var(--app-danger-soft)',
                                     lineHeight: 1.6,
                                 }}
                             >

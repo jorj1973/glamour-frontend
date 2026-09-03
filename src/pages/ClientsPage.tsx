@@ -175,7 +175,7 @@ function ClientsPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 13, background: 'rgba(255,255,255,0.05)', marginBottom: 16 }}>
-          <Search size={16} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
+          <Search size={16} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("clients.searchPlaceholder")} style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }} />
           {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
         </div>
@@ -211,8 +211,8 @@ function ClientsPage() {
                         setExpandedId(next);
                         if (next) void loadBalance(next);
                       }}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-accent-strong)', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{initials || <User size={16} />}</div>
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-danger)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-danger)', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{initials || <User size={16} />}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <strong style={{ color: 'var(--app-text)', fontSize: 14, display: 'block' }}>{fullName || t('clients.noName')}</strong>
                           <div style={{ display: 'flex', gap: 12, marginTop: 4, flexWrap: 'wrap' }}>
@@ -231,7 +231,7 @@ function ClientsPage() {
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8, marginBottom: 12 }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.clientSince")}</span><strong>{formatDate(client.createdAt)}</strong></div>
                             {client.lastVisit && <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.lastVisit")}</span><strong>{formatDate(client.lastVisit)}</strong></div>}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.status")}</span><strong style={{ color: client.isActive !== false ? '#8ee5b5' : 'var(--app-accent-strong)' }}>{client.isActive !== false ? t('clients.active') : t('clients.inactive')}</strong></div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.status")}</span><strong style={{ color: client.isActive !== false ? '#8ee5b5' : 'var(--app-danger)' }}>{client.isActive !== false ? t('clients.active') : t('clients.inactive')}</strong></div>
                           </div>
                           {/* Баллы: копятся сами, списывает мастер при расчёте.
                               Тратить необязательно — решает клиент. */}

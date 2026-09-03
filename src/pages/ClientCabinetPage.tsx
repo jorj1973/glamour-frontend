@@ -240,7 +240,7 @@ function ClientCabinetPage() {
                 border: '1px solid rgba(255,96,128,0.28)',
                 borderRadius: 12,
                 background: 'rgba(255,96,128,0.08)',
-                color: 'var(--app-accent-warm)',
+                color: 'var(--app-danger-soft)',
                 fontSize: 13,
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -471,7 +471,7 @@ function ClientCabinetPage() {
         <>
 
         {errorMsg && (
-          <div style={{ padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-accent-warm)' }}>
+          <div style={{ padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-danger-soft)' }}>
             {errorMsg}
           </div>
         )}

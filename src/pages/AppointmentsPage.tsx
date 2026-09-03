@@ -87,7 +87,7 @@ function getStatusConfig(t: (key: string) => string): Record<string, { label: st
     pending: { label: t('appointments.status.pending'), color: '#ffd08b', bg: 'rgba(255,190,92,0.12)', icon: <Clock size={13} /> },
     confirmed: { label: t('appointments.status.confirmed'), color: '#a8c9ff', bg: 'rgba(114,167,255,0.12)', icon: <Check size={13} /> },
     completed: { label: t('appointments.status.completed'), color: '#8ee5b5', bg: 'rgba(77,208,139,0.12)', icon: <CheckCircle size={13} /> },
-    cancelled: { label: t('appointments.status.cancelled'), color: 'var(--app-accent-strong)', bg: 'rgba(255,96,128,0.12)', icon: <XCircle size={13} /> },
+    cancelled: { label: t('appointments.status.cancelled'), color: 'var(--app-danger)', bg: 'rgba(255,96,128,0.12)', icon: <XCircle size={13} /> },
     no_show: { label: t('appointments.status.no_show'), color: '#c9beca', bg: 'rgba(255,255,255,0.08)', icon: <X size={13} /> },
   };
 }
@@ -478,7 +478,7 @@ function AppointmentsPage() {
         {/* Фильтры */}
         <div style={styles.filtersRow}>
           <div style={styles.searchBar}>
-            <Search size={15} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
+            <Search size={15} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -493,7 +493,7 @@ function AppointmentsPage() {
           </div>
 
           <div style={styles.statusFilters}>
-            <Filter size={15} style={{ color: 'var(--app-accent-strong)' }} />
+            <Filter size={15} style={{ color: 'var(--app-danger)' }} />
             {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((s) => (
               <button
                 key={s}
@@ -632,7 +632,7 @@ function AppointmentsPage() {
 
                           {a.clientComment && (
                             <div style={styles.commentBlock}>
-                              <MessageSquare size={13} style={{ color: 'var(--app-accent-strong)' }} />
+                              <MessageSquare size={13} style={{ color: 'var(--app-danger)' }} />
                               <span>{a.clientComment}</span>
                             </div>
                           )}
@@ -762,7 +762,7 @@ const styles = {
     fontSize: 13, fontWeight: 700,
     border: `1px solid ${type === 'success' ? 'rgba(77,208,139,0.25)' : 'rgba(255,96,128,0.25)'}`,
     background: type === 'success' ? 'rgba(77,208,139,0.1)' : 'rgba(255,96,128,0.1)',
-    color: type === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
+    color: type === 'success' ? '#9ae9bd' : 'var(--app-danger)',
   } as React.CSSProperties),
 
   primaryBtn: {
@@ -830,7 +830,7 @@ const styles = {
     border: `1px solid ${active ? 'rgba(var(--app-accent-rgb), 0.4)' : 'rgba(255,255,255,0.1)'}`,
     borderRadius: 10,
     background: active ? 'rgba(var(--app-accent-rgb), 0.14)' : 'rgba(255,255,255,0.04)',
-    color: active ? 'var(--app-accent-strong)' : 'var(--app-text-muted)',
+    color: active ? 'var(--app-danger)' : 'var(--app-text-muted)',
     fontSize: 12, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties),
 
@@ -905,7 +905,7 @@ const styles = {
       : type === 'confirm'
         ? 'rgba(114,167,255,0.1)'
         : 'rgba(77,208,139,0.1)',
-    color: type === 'cancel' ? 'var(--app-accent-strong)' : type === 'confirm' ? '#a8c9ff' : '#8ee5b5',
+    color: type === 'cancel' ? 'var(--app-danger)' : type === 'confirm' ? '#a8c9ff' : '#8ee5b5',
   } as React.CSSProperties),
 };
 

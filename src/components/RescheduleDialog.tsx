@@ -210,7 +210,7 @@ function RescheduleDialog({
         {isTooLate ? (
           <p
             style={{
-              color: 'var(--app-accent-warm)',
+              color: 'var(--app-danger-soft)',
               fontSize: 14,
               lineHeight: 1.55,
               marginTop: 10,
@@ -333,7 +333,7 @@ function RescheduleDialog({
           <p
             style={{
               marginTop: 14,
-              color: 'var(--app-accent-warm)',
+              color: 'var(--app-danger-soft)',
               fontSize: 13,
               fontWeight: 700,
             }}

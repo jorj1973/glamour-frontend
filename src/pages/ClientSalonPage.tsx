@@ -97,7 +97,7 @@ function ClientSalonPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {errorMsg && (
-        <div style={{ padding: '11px 15px', borderRadius: 13, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-accent-warm)' }}>
+        <div style={{ padding: '11px 15px', borderRadius: 13, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-danger-soft)' }}>
           {errorMsg}
         </div>
       )}

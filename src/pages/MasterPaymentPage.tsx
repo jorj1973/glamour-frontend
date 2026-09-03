@@ -130,7 +130,7 @@ function MasterPaymentPage() {
         </header>
 
         {errorMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-accent-strong)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-danger)' }}>
             <X size={15} />{errorMsg}
           </div>
         )}
@@ -154,7 +154,7 @@ function MasterPaymentPage() {
                   <input type="tel" value={miaPhone} onChange={(e) => setMiaPhone(e.target.value)} placeholder="+37369000000" style={inputStyle} />
                 </label>
                 <div style={{ marginTop: 14, padding: '12px 14px', borderRadius: 12, background: 'rgba(var(--app-accent-rgb), 0.06)', border: '1px solid rgba(var(--app-accent-rgb), 0.15)' }}>
-                  <p style={{ color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>{t('payment.howItWorks')}</p>
+                  <p style={{ color: 'var(--app-danger)', fontSize: 12, fontWeight: 700, marginBottom: 4 }}>{t('payment.howItWorks')}</p>
                   <p style={{ color: 'var(--app-text-muted)', fontSize: 12, lineHeight: 1.5 }}>{t('payment.miaDesc')}</p>
                 </div>
               </article>

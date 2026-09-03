@@ -55,10 +55,10 @@ type MyService = {
 const CURRENT_SALON_ID_KEY = 'glamour_current_salon_id';
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; color: string }> = {
-  working:     { bg: 'rgba(var(--app-accent-rgb), 0.16)', border: 'rgba(var(--app-accent-rgb), 0.45)', color: 'var(--app-accent-strong)' },
+  working:     { bg: 'rgba(var(--app-accent-rgb), 0.16)', border: 'rgba(var(--app-accent-rgb), 0.45)', color: 'var(--app-danger)' },
   exception:   { bg: 'rgba(255,208,139,0.14)', border: 'rgba(255,208,139,0.4)',  color: '#ffd08b' },
   vacation:    { bg: 'rgba(114,167,255,0.14)', border: 'rgba(114,167,255,0.4)',  color: '#a8c9ff' },
-  sick_leave:  { bg: 'rgba(255,96,128,0.12)',  border: 'rgba(255,96,128,0.35)',  color: 'var(--app-accent-strong)' },
+  sick_leave:  { bg: 'rgba(255,96,128,0.12)',  border: 'rgba(255,96,128,0.35)',  color: 'var(--app-danger)' },
   day_off:     { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)', color: 'var(--app-text-muted)' },
   blocked:     { bg: 'rgba(255,255,255,0.06)', border: 'var(--app-toggle-track)', color: 'var(--app-text-muted)' },
   not_working: { bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.06)', color: '#6f6870' },
@@ -73,7 +73,7 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; color: string 
  */
 const LOAD_COLORS: Record<string, { bg: string; border: string; color: string }> = {
   busy: { bg: 'rgba(255,208,139,0.10)', border: 'rgba(255,208,139,0.32)', color: '#ffd08b' },
-  full: { bg: 'rgba(255,96,128,0.10)',  border: 'rgba(255,96,128,0.34)',  color: 'var(--app-accent-strong)' },
+  full: { bg: 'rgba(255,96,128,0.10)',  border: 'rgba(255,96,128,0.34)',  color: 'var(--app-danger)' },
 };
 
 function getDateLocale(lang?: string) {
@@ -658,7 +658,7 @@ function MasterCalendarPage() {
 
               {selected.isWorkingDay && (
                 <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p style={{ color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', marginBottom: 12 }}>
+                  <p style={{ color: 'var(--app-danger)', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', marginBottom: 12 }}>
                     {t('daySlots.title').toUpperCase()}
                   </p>
 
@@ -675,8 +675,8 @@ function MasterCalendarPage() {
                               onClick={() => { setOpenAppt(isOpen ? null : a.id); setMoveTime(row.label); setMoveDate(selected.date); setErrorMsg(''); }}
                               style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 14px', borderRadius: 12, border: `1px solid ${isOpen ? 'var(--app-accent)' : 'rgba(var(--app-accent-rgb), 0.3)'}`, background: 'rgba(var(--app-accent-rgb), 0.1)', cursor: 'pointer', textAlign: 'left' }}
                             >
-                              <strong style={{ color: 'var(--app-accent-strong)', fontSize: 13, minWidth: 96 }}>{row.label}–{row.labelTo}</strong>
-                              <User size={14} style={{ color: 'var(--app-accent-strong)' }} />
+                              <strong style={{ color: 'var(--app-danger)', fontSize: 13, minWidth: 96 }}>{row.label}–{row.labelTo}</strong>
+                              <User size={14} style={{ color: 'var(--app-danger)' }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <strong style={{ color: 'var(--app-text)', fontSize: 13 }}>{who}</strong>
                                 {a.guestPhone && <span style={{ color: 'var(--app-text-muted)', fontSize: 12, marginLeft: 8 }}>{a.guestPhone}</span>}
@@ -687,7 +687,7 @@ function MasterCalendarPage() {
                             {isOpen && (
                               <div style={{ margin: '8px 0 4px', padding: '16px', borderRadius: 14, border: '1px solid rgba(var(--app-accent-rgb), 0.25)', background: 'rgba(var(--app-accent-rgb), 0.06)' }}>
                                 <p style={{ color: 'var(--app-text-muted)', fontSize: 12, margin: '0 0 12px' }}>
-                                  {t('daySlots.currentTime')}: <strong style={{ color: 'var(--app-accent-strong)' }}>{row.label}–{row.labelTo}</strong>
+                                  {t('daySlots.currentTime')}: <strong style={{ color: 'var(--app-danger)' }}>{row.label}–{row.labelTo}</strong>
                                 </p>
 
                                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-end' }}>
@@ -746,7 +746,7 @@ function MasterCalendarPage() {
                             style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '10px 14px', borderRadius: 12, border: '1px solid rgba(77,208,139,0.25)', background: slotForm === row.label ? 'rgba(var(--app-accent-rgb), 0.12)' : 'rgba(77,208,139,0.08)', color: '#8ee5b5', cursor: 'pointer', textAlign: 'left' }}
                           >
                             <strong style={{ fontSize: 13, minWidth: 96, color: 'var(--app-text)' }}>{row.label}</strong>
-                            <Plus size={13} style={{ color: 'var(--app-accent-strong)' }} />
+                            <Plus size={13} style={{ color: 'var(--app-danger)' }} />
                             <span style={{ fontSize: 12 }}>{t('daySlots.free')}</span>
                           </button>
 
@@ -826,7 +826,7 @@ function alertStyle(type: 'success' | 'error'): React.CSSProperties {
     fontSize: 13, fontWeight: 700,
     border: `1px solid ${type === 'success' ? 'rgba(77,208,139,0.25)' : 'rgba(255,96,128,0.25)'}`,
     background: type === 'success' ? 'rgba(77,208,139,0.1)' : 'rgba(255,96,128,0.1)',
-    color: type === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
+    color: type === 'success' ? '#9ae9bd' : 'var(--app-danger)',
   };
 }
 

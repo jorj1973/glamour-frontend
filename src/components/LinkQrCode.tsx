@@ -359,7 +359,7 @@ export function LinkQrButton({
         border: '1px solid rgba(var(--app-accent-rgb), 0.25)',
         borderRadius: 10,
         background: 'rgba(var(--app-accent-rgb), 0.08)',
-        color: 'var(--app-accent-strong)',
+        color: 'var(--app-danger)',
         fontSize: 12,
         fontWeight: 700,
         cursor: 'pointer',

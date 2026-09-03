@@ -137,7 +137,7 @@ function MasterReviewsPage() {
                 fontWeight: 700,
                 border: '1px solid rgba(255,96,128,0.25)',
                 background: 'rgba(255,96,128,0.1)',
-                color: 'var(--app-accent-warm)',
+                color: 'var(--app-danger-soft)',
               }}
             >
               {errorMsg}

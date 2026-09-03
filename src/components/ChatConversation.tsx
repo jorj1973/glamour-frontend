@@ -1495,7 +1495,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
       {errorMsg && (
         <p
           style={{
-            color: 'var(--app-accent-warm)',
+            color: 'var(--app-danger-soft)',
             fontSize: 12,
             fontWeight: 700,
             margin: '0 0 8px',
@@ -1841,7 +1841,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
                 width: 11,
                 height: 11,
                 borderRadius: '50%',
-                background: 'var(--app-accent-warm)',
+                background: 'var(--app-danger-soft)',
               }}
             />
             {t('chat.recording')}

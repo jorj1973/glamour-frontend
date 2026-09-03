@@ -461,7 +461,7 @@ function PromotionLinksPage() {
               fontWeight: 700,
               border: '1px solid rgba(255,96,128,0.25)',
               background: 'rgba(255,96,128,0.1)',
-              color: 'var(--app-accent-strong)',
+              color: 'var(--app-danger)',
             }}
           >
             <X size={15} />
@@ -728,7 +728,7 @@ function PromotionLinksPage() {
                                   fontWeight: 700,
                                   background:
                                     'rgba(var(--app-accent-rgb), 0.15)',
-                                  color: 'var(--app-accent-strong)',
+                                  color: 'var(--app-danger)',
                                 }}
                               >
                                 {t('links.primary')}
@@ -758,7 +758,7 @@ function PromotionLinksPage() {
                                   fontSize: 11,
                                   background:
                                     'rgba(255,96,128,0.12)',
-                                  color: 'var(--app-accent-strong)',
+                                  color: 'var(--app-danger)',
                                 }}
                               >
                                 {t('links.disabled')}
@@ -929,7 +929,7 @@ function PromotionLinksPage() {
                             borderRadius: 10,
                             background:
                               'rgba(var(--app-accent-rgb), 0.06)',
-                            color: 'var(--app-accent-strong)',
+                            color: 'var(--app-danger)',
                             fontSize: 12,
                           }}
                         >

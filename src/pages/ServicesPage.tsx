@@ -963,7 +963,7 @@ function ServicesPage() {
           )}
 
           <div style={styles.searchBar}>
-            <Search size={17} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
+            <Search size={17} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -1448,7 +1448,7 @@ const styles = {
     fontWeight: 700,
     border: `1px solid ${type === 'success' ? 'rgba(77,208,139,0.25)' : 'rgba(255,96,128,0.25)'}`,
     background: type === 'success' ? 'rgba(77,208,139,0.1)' : 'rgba(255,96,128,0.1)',
-    color: type === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
+    color: type === 'success' ? '#9ae9bd' : 'var(--app-danger)',
   } as React.CSSProperties),
 
   addButtons: {
@@ -1585,7 +1585,7 @@ const styles = {
       ? '#a8c9ff'
       : type === 'online'
         ? '#8ee5b5'
-        : 'var(--app-accent-strong)',
+        : 'var(--app-danger)',
   } as React.CSSProperties),
 
   iconBtn: {
@@ -1629,7 +1629,7 @@ const styles = {
     padding: '3px 8px',
     borderRadius: 999,
     background: 'rgba(var(--app-accent-rgb), 0.12)',
-    color: 'var(--app-accent-strong)',
+    color: 'var(--app-danger)',
     fontSize: 11,
   } as React.CSSProperties,
 
@@ -1641,7 +1641,7 @@ const styles = {
     border: '1px solid rgba(var(--app-accent-rgb), 0.25)',
     borderRadius: 10,
     background: 'rgba(var(--app-accent-rgb), 0.1)',
-    color: 'var(--app-accent-strong)',
+    color: 'var(--app-danger)',
     fontSize: 13,
     fontWeight: 700,
     cursor: 'pointer',

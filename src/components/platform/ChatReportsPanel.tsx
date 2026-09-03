@@ -378,7 +378,7 @@ function ChatReportsPanel() {
       {errorMsg && (
         <p
           style={{
-            color: 'var(--app-accent-warm)',
+            color: 'var(--app-danger-soft)',
             fontSize: 13,
             fontWeight: 700,
             margin: '0 0 12px',

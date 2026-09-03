@@ -154,7 +154,7 @@ function ChatWithButton({
       {errorMsg && (
         <p
           style={{
-            color: 'var(--app-accent-warm)',
+            color: 'var(--app-danger-soft)',
             fontSize: 12,
             lineHeight: 1.5,
             marginTop: 6,

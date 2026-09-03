@@ -198,7 +198,7 @@ function ChatMessageActions({
             <button
               type="button"
               onClick={onDelete}
-              style={{ ...row, color: 'var(--app-accent-warm)', border: 0 }}
+              style={{ ...row, color: 'var(--app-danger-soft)', border: 0 }}
             >
               <Trash2 size={16} />
               {t('chat.delete')}
@@ -209,7 +209,7 @@ function ChatMessageActions({
               onClick={onReport}
               style={{ ...row, border: 0 }}
             >
-              <Flag size={16} color="var(--app-accent-warm)" />
+              <Flag size={16} color="var(--app-danger-soft)" />
               {t('chat.report')}
             </button>
           )}

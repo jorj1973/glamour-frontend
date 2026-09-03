@@ -325,7 +325,7 @@ function MastersPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 13, background: 'rgba(255,255,255,0.05)', marginBottom: 16 }}>
-          <Search size={16} style={{ color: 'var(--app-accent-strong)', flexShrink: 0 }} />
+          <Search size={16} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("masters.searchPlaceholder")} style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }} />
           {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
         </div>
@@ -361,12 +361,12 @@ function MastersPage() {
                   return (
                     <div key={master.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setExpandedId(isExpanded ? null : master.id)}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-danger)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
 
                         {master.photoUrl ? (
                           <img src={master.photoUrl} alt={initials} style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(var(--app-accent-rgb), 0.3)' }} />
                         ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-accent-strong)', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.16)', color: 'var(--app-danger)', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                             {initials || <User size={18} />}
                           </div>
                         )}
@@ -436,7 +436,7 @@ function MastersPage() {
                               <span>{t('masters.rating')}</span><strong style={{ color: 'var(--app-accent-text)' }}>{rating ? `${rating} ★` : '—'}</strong>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
-                              <span>{t('masters.profile')}</span><strong style={{ color: master.isPublic ? '#8ee5b5' : 'var(--app-accent-strong)' }}>{master.isPublic ? t('masters.profilePublic') : t('masters.profileHidden')}</strong>
+                              <span>{t('masters.profile')}</span><strong style={{ color: master.isPublic ? '#8ee5b5' : 'var(--app-danger)' }}>{master.isPublic ? t('masters.profilePublic') : t('masters.profileHidden')}</strong>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.type')}</span>

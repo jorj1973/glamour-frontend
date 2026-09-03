@@ -505,7 +505,7 @@ function ChatPage() {
             {errorMsg && (
               <p
                 style={{
-                  color: 'var(--app-accent-warm)',
+                  color: 'var(--app-danger-soft)',
                   fontSize: 13,
                   fontWeight: 700,
                   marginBottom: 12,

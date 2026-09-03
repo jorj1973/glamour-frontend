@@ -100,7 +100,7 @@ function ActionButton({
             fontWeight: 600,
             lineHeight: 1.4,
             maxWidth: 320,
-            color: state === 'success' ? '#9ae9bd' : 'var(--app-accent-strong)',
+            color: state === 'success' ? '#9ae9bd' : 'var(--app-danger)',
           }}
         >
           {hint}

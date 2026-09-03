@@ -200,7 +200,7 @@ function MasterSchedulePage() {
           </div>
         )}
         {errorMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-accent-strong)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 15px', borderRadius: 13, marginBottom: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-danger)' }}>
             <X size={15} />{errorMsg}
           </div>
         )}
@@ -237,7 +237,7 @@ function MasterSchedulePage() {
                   {row.isWorkingDay && (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Clock size={14} style={{ color: 'var(--app-accent-strong)' }} />
+                        <Clock size={14} style={{ color: 'var(--app-danger)' }} />
                         <input type="time" value={row.startTime} onChange={(e) => updateRow(row.dayOfWeek, { startTime: e.target.value })} style={inputStyle} />
                         <span style={{ color: 'var(--app-text-muted)' }}>—</span>
                         <input type="time" value={row.endTime} onChange={(e) => updateRow(row.dayOfWeek, { endTime: e.target.value })} style={inputStyle} />
@@ -256,7 +256,7 @@ function MasterSchedulePage() {
                     type="button"
                     onClick={() => void saveDay(row)}
                     disabled={savingDay !== null}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(var(--app-accent-rgb), 0.25)', background: 'rgba(var(--app-accent-rgb), 0.1)', color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(var(--app-accent-rgb), 0.25)', background: 'rgba(var(--app-accent-rgb), 0.1)', color: 'var(--app-danger)', fontSize: 12, fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}
                   >
                     <Save size={13} />
                     {savingDay === row.dayOfWeek ? t('common.saving') : t('common.save')}

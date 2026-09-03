@@ -69,7 +69,7 @@ function getStatusConfig(t: (key: string) => string): Record<string, { label: st
     paid: { label: t('finance.paid'), color: '#8ee5b5', icon: <Check size={13} /> },
     pending: { label: t('finance.pending'), color: '#ffd08b', icon: <Clock size={13} /> },
     refunded: { label: t('finance.refunded'), color: '#a8c9ff', icon: <ArrowDownLeft size={13} /> },
-    failed: { label: t('finance.failed'), color: 'var(--app-accent-strong)', icon: <X size={13} /> },
+    failed: { label: t('finance.failed'), color: 'var(--app-danger)', icon: <X size={13} /> },
   };
 }
 
@@ -237,7 +237,7 @@ function FinancePage() {
                 {data.topPaymentMethod && (
                   <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 12, background: 'rgba(var(--app-accent-rgb), 0.08)', border: '1px solid rgba(var(--app-accent-rgb), 0.15)' }}>
                     <p style={{ color: 'var(--app-text-muted)', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', marginBottom: 4 }}>{t('finance.topMethod')}</p>
-                    <strong style={{ color: 'var(--app-accent-strong)', fontSize: 14 }}>
+                    <strong style={{ color: 'var(--app-danger)', fontSize: 14 }}>
                       {METHOD_LABELS[data.topPaymentMethod] ?? data.topPaymentMethod}
                     </strong>
                   </div>

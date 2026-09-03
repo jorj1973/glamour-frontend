@@ -41,7 +41,7 @@ function healthColor(percent: number): string {
   return 'hsl(' + hue + ', 70%, 55%)';
 }
 
-const STATUS_COLOR: Record<string, string> = { pending: '#ffd08b', confirmed: '#a8c9ff', completed: '#8ee5b5', cancelled: 'var(--app-accent-strong)' };
+const STATUS_COLOR: Record<string, string> = { pending: '#ffd08b', confirmed: '#a8c9ff', completed: '#8ee5b5', cancelled: 'var(--app-danger)' };
 
 function OwnerDashboardPage() {
   const { t } = useTranslation();

@@ -261,7 +261,7 @@ function MasterDashboardPage() {
   }
 
   const statusColor: Record<string, string> = {
-    pending: '#ffd08b', confirmed: '#a8c9ff', completed: '#8ee5b5', cancelled: 'var(--app-accent-strong)',
+    pending: '#ffd08b', confirmed: '#a8c9ff', completed: '#8ee5b5', cancelled: 'var(--app-danger)',
   };
   const statusLabel: Record<string, string> = {
     pending: t('appointments.status.pending'), confirmed: t('appointments.status.confirmed'), completed: t('appointments.status.completed'), cancelled: t('appointments.status.cancelled'),
@@ -493,9 +493,9 @@ function MasterDashboardPage() {
 
           {/* Форма выбора slug */}
           <div style={{ marginBottom: 24, padding: '18px 20px', borderRadius: 16, border: '1px solid rgba(var(--app-accent-rgb), 0.2)', background: 'rgba(var(--app-accent-rgb), 0.05)' }}>
-            <p style={{ color: 'var(--app-accent-strong)', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', marginBottom: 10 }}>{t('promotion.myAddress')}</p>
+            <p style={{ color: 'var(--app-danger)', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', marginBottom: 10 }}>{t('promotion.myAddress')}</p>
             <p style={{ color: 'var(--app-text-muted)', fontSize: 13, marginBottom: 14 }}>
-              {t('promotion.slugHintFull')} <strong style={{ color: 'var(--app-accent-strong)' }}>maria-scissors</strong> {t('common.or')} <strong style={{ color: 'var(--app-accent-strong)' }}>ivan-onuta</strong>
+              {t('promotion.slugHintFull')} <strong style={{ color: 'var(--app-danger)' }}>maria-scissors</strong> {t('common.or')} <strong style={{ color: 'var(--app-danger)' }}>ivan-onuta</strong>
             </p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-start' }}>
               <div style={{ flex: 1, minWidth: 200 }}>
@@ -512,7 +512,7 @@ function MasterDashboardPage() {
                     style={{ flex: 1, minWidth: 0, padding: '11px 13px', border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }}
                   />
                 </div>
-                {slugError && <p style={{ color: 'var(--app-accent-strong)', fontSize: 12, marginTop: 6 }}>{slugError}</p>}
+                {slugError && <p style={{ color: 'var(--app-danger)', fontSize: 12, marginTop: 6 }}>{slugError}</p>}
                 {slugSuccess && <p style={{ color: '#8ee5b5', fontSize: 12, marginTop: 6 }}>{slugSuccess}</p>}
               </div>
               <button
@@ -526,7 +526,7 @@ function MasterDashboardPage() {
             </div>
             {currentSlug && (
               <p style={{ marginTop: 10, color: 'var(--app-text-muted)', fontSize: 12 }}>
-                {t('promotion.currentSlug')}: <strong style={{ color: 'var(--app-accent-strong)' }}>{currentSlug}</strong>
+                {t('promotion.currentSlug')}: <strong style={{ color: 'var(--app-danger)' }}>{currentSlug}</strong>
               </p>
             )}
           </div>
@@ -572,7 +572,7 @@ function MasterDashboardPage() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(var(--app-accent-rgb), 0.15)', background: 'rgba(var(--app-accent-rgb), 0.06)' }}>
-                <QrCode size={22} style={{ color: 'var(--app-accent-strong)', flexShrink: 0, marginTop: 2 }} />
+                <QrCode size={22} style={{ color: 'var(--app-danger)', flexShrink: 0, marginTop: 2 }} />
                 <div>
                   <strong style={{ color: 'var(--app-text)', fontSize: 13 }}>{t("promotion.qrTitle")}</strong>
                   <p style={{ color: 'var(--app-text-muted)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>

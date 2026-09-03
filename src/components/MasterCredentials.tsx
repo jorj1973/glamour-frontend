@@ -166,7 +166,7 @@ function MasterCredentials() {
   return (
     <>
       {errorMsg && (
-        <div style={{ padding: '11px 15px', borderRadius: 13, marginTop: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-accent-strong)' }}>
+        <div style={{ padding: '11px 15px', borderRadius: 13, marginTop: 16, fontSize: 13, fontWeight: 700, border: '1px solid rgba(255,96,128,0.25)', background: 'rgba(255,96,128,0.1)', color: 'var(--app-danger)' }}>
           {errorMsg}
         </div>
       )}
@@ -235,7 +235,7 @@ function MasterCredentials() {
                   {uploadingId === item.id ? t('credentials.uploading') : item.fileUrl ? t('credentials.replaceFile') : t('credentials.addFile')}
                 </button>
 
-                <button type="button" onClick={() => void handleDeleteCredential(item.id)} style={{ ...smallButton, color: 'var(--app-accent-strong)', borderColor: 'rgba(255,96,128,0.2)' }}>
+                <button type="button" onClick={() => void handleDeleteCredential(item.id)} style={{ ...smallButton, color: 'var(--app-danger)', borderColor: 'rgba(255,96,128,0.2)' }}>
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -287,7 +287,7 @@ function MasterCredentials() {
             {portfolio.map((item) => (
               <div key={item.id} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <img src={item.imageUrl} alt={item.caption ?? ''} style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }} />
-                <button type="button" onClick={() => void handleDeletePhoto(item.id)} style={{ position: 'absolute', top: 6, right: 6, display: 'inline-flex', padding: 6, border: 0, borderRadius: 8, background: 'rgba(23,21,28,0.75)', color: 'var(--app-accent-strong)', cursor: 'pointer' }}>
+                <button type="button" onClick={() => void handleDeletePhoto(item.id)} style={{ position: 'absolute', top: 6, right: 6, display: 'inline-flex', padding: 6, border: 0, borderRadius: 8, background: 'rgba(23,21,28,0.75)', color: 'var(--app-danger)', cursor: 'pointer' }}>
                   <Trash2 size={14} />
                 </button>
               </div>
