@@ -1164,7 +1164,7 @@ input {
   --pf-sidebar-bg: #fffafd;
   --pf-accent-text: #a83e82;
   --pf-danger-text: #c23b56;
-  --pf-success-text: #1f8a56;
+  --pf-success-text: #198653;
   --pf-info-text: #2f6fd6;
   --pf-warning-text: #b8720f;
 }
@@ -5756,6 +5756,7 @@ body {
   --app-accent-muted: #d8a7c9;
   --app-accent-pale: #fff8fc;
   --app-accent-pale2: #f4eaf2;
+  --app-accent-text: #efb6d8;
 
   /*
    * Золото из иконки. Церемония, а не действие.
@@ -5772,6 +5773,8 @@ body {
 }
 
 :root[data-theme="light"] {
+  --app-accent-strong: #d7395f;
+  --app-accent-text: #a3477f;
   --app-accent-soft: #a3477f;
   --app-accent-warm: #b04a63;
   --app-accent-muted: #8d5c7c;
@@ -5802,4 +5805,38 @@ body {
 .registration-form-header .registration-eyebrow,
 .registration-visual-content .registration-eyebrow {
   color: var(--app-gold);
+}
+
+/*
+ * Роли, которых в палитре не было.
+ *
+ * Фокус, затемнение под окном и недоступное состояние подбирались
+ * на месте каждый раз заново. Теперь у них есть имена и значения.
+ */
+:root {
+  --app-focus: #e1ac52;
+  --app-overlay: rgba(12, 10, 15, 0.66);
+  --app-disabled: #777481;
+}
+
+:root[data-theme="light"] {
+  --app-focus: #9b6c00;
+  --app-overlay: rgba(33, 27, 35, 0.42);
+  --app-disabled: #908c9b;
+}
+
+/*
+ * Видимый фокус с клавиатуры.
+ *
+ * Его не было ни у кнопок, ни у ссылок — только у нескольких полей.
+ * Это нарушение WCAG 2.4.7 и вдобавок то, по чему отличают
+ * собранный интерфейс от собранного наспех.
+ *
+ * :where() держит вес правила нулевым, поэтому оно не спорит
+ * ни с одним стилем компонента, а :focus-visible показывает кольцо
+ * только при переходе с клавиатуры, не по щелчку мышью.
+ */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--app-focus);
+  outline-offset: 2px;
 }
