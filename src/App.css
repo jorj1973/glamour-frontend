@@ -1218,8 +1218,8 @@ input {
   flex: 0 0 46px;
   place-items: center;
   border-radius: 15px;
-  background: rgba(214, 130, 184, 0.16);
-  color: var(--pf-accent-text);
+  background: rgba(225, 172, 82, 0.16);
+  color: var(--app-gold);
 }
 
 .platform-brand div:last-child {
@@ -2366,7 +2366,7 @@ input {
 }
 
 .registration-brand span {
-  color: var(--pf-text-muted);
+  color: var(--app-gold);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -2476,10 +2476,10 @@ input {
 }
 
 .registration-plan-featured {
-  border-color: rgba(214, 130, 184, 0.46);
+  border-color: rgba(225, 172, 82, 0.55);
   box-shadow:
     0 22px 60px rgba(0, 0, 0, 0.19),
-    0 0 0 1px rgba(214, 130, 184, 0.16);
+    0 0 0 1px rgba(225, 172, 82, 0.2);
 }
 
 .registration-plan-badge {
@@ -2516,7 +2516,7 @@ input {
 }
 
 .registration-plan-price strong {
-  color: var(--pf-text);
+  color: var(--app-gold);
   font-size: 34px;
   letter-spacing: -0.045em;
 }
@@ -3061,8 +3061,8 @@ input {
 }
 
 .platform-plan-card-featured {
-  border-color: rgba(214, 130, 184, 0.42);
-  box-shadow: 0 0 0 1px rgba(214, 130, 184, 0.08);
+  border-color: rgba(225, 172, 82, 0.5);
+  box-shadow: 0 0 0 1px rgba(225, 172, 82, 0.12);
 }
 
 .platform-plan-card-header {
@@ -3078,7 +3078,7 @@ input {
 }
 
 .platform-plan-card-header > div > span {
-  color: var(--pf-text-muted);
+  color: var(--app-gold);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -3095,8 +3095,8 @@ input {
   margin-top: 14px;
   padding: 8px 10px;
   border-radius: 10px;
-  background: rgba(214, 130, 184, 0.12);
-  color: var(--pf-accent-text);
+  background: rgba(225, 172, 82, 0.12);
+  color: var(--app-gold);
   font-size: 12px;
   font-weight: 800;
   text-align: center;
