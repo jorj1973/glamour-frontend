@@ -1137,7 +1137,7 @@ input {
   --pf-shell-base: #17151c;
   --pf-text: #f7f3f7;
   --pf-text-muted: #9d949f;
-  --pf-border: rgba(255, 255, 255, 0.1);
+  --pf-border: rgba(225, 172, 82, 0.18);
   --pf-input: rgba(255, 255, 255, 0.055);
   --pf-panel-1: rgba(48, 39, 53, 0.97);
   --pf-panel-2: rgba(29, 25, 34, 0.97);
@@ -1156,7 +1156,7 @@ input {
   --pf-shell-base: #f7f4f6;
   --pf-text: #211b23;
   --pf-text-muted: #756b77;
-  --pf-border: rgba(54, 40, 57, 0.14);
+  --pf-border: rgba(157, 109, 27, 0.28);
   --pf-input: rgba(54, 40, 57, 0.05);
   --pf-panel-1: #ffffff;
   --pf-panel-2: #fdf8fb;
