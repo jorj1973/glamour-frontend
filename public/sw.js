@@ -42,7 +42,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(payload.title || 'GLAMOUR', {
       body: payload.body || '',
       icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      badge: '/badge-96.png',
       data: { url: payload.url || '/' },
       // Уведомления об одной записи не должны множиться.
       tag: payload.tag || undefined,
