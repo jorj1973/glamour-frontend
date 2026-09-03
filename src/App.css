@@ -308,7 +308,7 @@ input {
 }
 
 .sidebar-brand span {
-  color: #d8a7c9;
+  color: var(--app-gold);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -5743,6 +5743,19 @@ body {
   --app-accent-muted: #d8a7c9;
   --app-accent-pale: #fff8fc;
   --app-accent-pale2: #f4eaf2;
+
+  /*
+   * Золото из иконки. Церемония, а не действие.
+   *
+   * Знак, надзаголовки разделов, разделители, отметка премиального
+   * тарифа. Кнопки и ссылки остаются розовыми: акцентом красят
+   * мелочь, а золото на светлой теме даёт 2,05:1 — там его надо
+   * затемнять, и это делает соседний блок.
+   */
+  --app-gold: #e1ac52;
+  --app-gold-deep: #ad7b30;
+  --app-gold-soft: #fde08f;
+  --app-gold-rgb: 225, 172, 82;
 }
 
 :root[data-theme="light"] {
@@ -5750,5 +5763,16 @@ body {
   --app-accent-warm: #b04a63;
   --app-accent-muted: #8d5c7c;
   --app-accent-pale: #2a2130;
+
+  /*
+   * То же золото, доведённое до читаемости на белом: 4,53:1
+   * вместо 2,05:1. Имя переменной одно на обе темы — значит
+   * золото нигде не сможет оказаться нечитаемым, куда бы
+   * мы его потом ни поставили.
+   */
+  --app-gold: #9d6d1b;
+  --app-gold-deep: #7a5514;
+  --app-gold-soft: #c79a3b;
+  --app-gold-rgb: 157, 109, 27;
   --app-accent-pale2: #33293a;
 }
