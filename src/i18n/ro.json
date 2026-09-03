@@ -541,7 +541,11 @@
     "loadingLink": "Se încarcă linkul tău...",
     "saveSlugFirst": "Mai întâi salvează slug-ul de mai sus.",
     "slugHintFull": "Alege un nume scurt pentru linkul tău. Doar litere latine, cifre și cratimă. De exemplu:",
-    "qrGenerate": "Generează gratuit pe"
+    "qrGenerate": "Generează gratuit pe",
+    "qrShort": "Cod QR",
+    "qrSvg": "Pentru tipar",
+    "qrPng": "Ca imagine",
+    "qrClose": "Închide"
   },
   "language": {
     "select": "Limbă",

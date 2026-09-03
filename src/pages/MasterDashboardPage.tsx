@@ -15,6 +15,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { LinkQrCode } from '../components/LinkQrCode';
 import api from '../api/api';
 import WelcomeDialog from '../components/WelcomeDialog';
 import AppLayout from '../components/AppLayout';
@@ -575,9 +576,12 @@ function MasterDashboardPage() {
                 <div>
                   <strong style={{ color: 'var(--app-text)', fontSize: 13 }}>{t("promotion.qrTitle")}</strong>
                   <p style={{ color: 'var(--app-text-muted)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>
-                    {t('promotion.qrSubtitle')} {t('promotion.qrGenerate')}{' '}
-                    <a href="https://qrcode-monkey.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--app-accent-strong)' }}>qrcode-monkey.com</a>
+                    {t('promotion.qrSubtitle')}
                   </p>
+
+                  <div style={{ marginTop: 14 }}>
+                    <LinkQrCode value={promoUrl} hint={false} />
+                  </div>
                 </div>
               </div>
             </>

@@ -5,7 +5,6 @@ import {
   ExternalLink,
   Link2,
   Plus,
-  QrCode,
   RefreshCw,
   Share2,
   Store,
@@ -14,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
+import { LinkQrButton } from '../components/LinkQrCode';
 
 type WorkspaceMode = 'platform' | 'salon' | 'master';
 
@@ -933,16 +933,7 @@ function PromotionLinksPage() {
                             fontSize: 12,
                           }}
                         >
-                          <QrCode size={13} />
-                          QR:{' '}
-                          <a
-                            href="https://qrcode-monkey.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: 'var(--app-accent-strong)' }}
-                          >
-                            qrcode-monkey.com
-                          </a>
+                          <LinkQrButton value={getLinkUrl(link)} bare />
                         </div>
                       </div>
                     </div>

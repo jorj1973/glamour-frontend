@@ -536,7 +536,11 @@
     "loadingLink": "Loading your link...",
     "saveSlugFirst": "Save your slug above first.",
     "slugHintFull": "Choose a short name for your link. Only latin letters, digits and hyphen. For example:",
-    "qrGenerate": "Generate it for free at"
+    "qrGenerate": "Generate it for free at",
+    "qrShort": "QR code",
+    "qrSvg": "For print",
+    "qrPng": "As image",
+    "qrClose": "Close"
   },
   "language": {
     "select": "Language",
