@@ -324,7 +324,7 @@ function SmsPage() {
 
   const kickerStyle = {
     margin: '0 0 8px',
-    color: 'var(--app-accent)',
+    color: 'var(--app-gold)',
     fontSize: 12,
     fontWeight: 700,
     letterSpacing: '0.16em',
