@@ -5789,3 +5789,17 @@ body {
   --app-gold-rgb: 157, 109, 27;
   --app-accent-pale2: #33293a;
 }
+
+/*
+ * Надзаголовок регистрации — золотом.
+ *
+ * Отдельным правилом в конце файла, а не правкой исходного:
+ * там он делит объявление со ссылкой «войти», а ссылку золотить
+ * нельзя — это действие. Перечислены и два места, где у него
+ * правила посильнее, иначе они бы перебили.
+ */
+.registration-eyebrow,
+.registration-form-header .registration-eyebrow,
+.registration-visual-content .registration-eyebrow {
+  color: var(--app-gold);
+}
