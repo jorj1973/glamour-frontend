@@ -301,7 +301,7 @@ function SalonInfoPage() {
                         width: 'fit-content',
                         fontSize: 12,
                         fontWeight: 700,
-                        color: 'var(--app-accent)',
+                        color: 'var(--app-accent-text)',
                         textDecoration: 'none',
                       }}
                     >

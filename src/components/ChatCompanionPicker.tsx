@@ -203,7 +203,7 @@ function ChatCompanionPicker({ onClose, onOpened }: Props) {
                       flexShrink: 0,
                       borderRadius: '50%',
                       background: 'rgba(var(--app-accent-rgb), 0.16)',
-                      color: 'var(--app-accent)',
+                      color: 'var(--app-accent-text)',
                       fontSize: 15,
                       fontWeight: 700,
                     }}

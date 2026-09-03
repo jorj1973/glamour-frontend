@@ -166,7 +166,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
             <p style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>{pick(profile.profession, profile.professionRo, profile.professionRu, profile.professionEn, i18n.language)}</p>
           )}
           {profile.experienceYears != null && profile.experienceYears > 0 && (
-            <p style={{ color: 'var(--app-accent)', fontSize: 12, fontWeight: 600 }}>
+            <p style={{ color: 'var(--app-accent-text)', fontSize: 12, fontWeight: 600 }}>
               {t('myProfile.experienceHint', { count: profile.experienceYears })}
             </p>
           )}
@@ -209,7 +209,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
 
       {publicCredentials.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <p style={{ color: 'var(--app-accent)', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em' }}>
+          <p style={{ color: 'var(--app-accent-text)', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em' }}>
             {t('credentials.title').toUpperCase()}
           </p>
 
@@ -264,7 +264,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
 
       {reviews.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <p style={{ color: 'var(--app-accent)', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em' }}>
+          <p style={{ color: 'var(--app-accent-text)', fontSize: 11, fontWeight: 800, letterSpacing: '0.14em' }}>
             {t('reviews.title').toUpperCase()}
           </p>
 
@@ -291,7 +291,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
                 )}
                 {review.masterReply && (
                   <p style={{ color: 'var(--app-text)', fontSize: 12, marginTop: 4, lineHeight: 1.5 }}>
-                    <strong style={{ color: 'var(--app-accent)' }}>{t('reviews.masterReplyLabel')}: </strong>
+                    <strong style={{ color: 'var(--app-accent-text)' }}>{t('reviews.masterReplyLabel')}: </strong>
                     {review.masterReply}
                   </p>
                 )}

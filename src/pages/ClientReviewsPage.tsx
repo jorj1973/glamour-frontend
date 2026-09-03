@@ -263,7 +263,7 @@ function ClientReviewsPage() {
                     border: '1px solid rgba(var(--app-accent-rgb), 0.3)',
                     borderRadius: 11,
                     background: 'rgba(var(--app-accent-rgb), 0.08)',
-                    color: 'var(--app-accent)',
+                    color: 'var(--app-accent-text)',
                     fontSize: 13,
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -329,7 +329,7 @@ function ClientReviewsPage() {
                     background: 'rgba(var(--app-accent-rgb), 0.06)',
                   }}
                 >
-                  <p style={{ color: 'var(--app-accent)', fontSize: 11, fontWeight: 800, marginBottom: 4 }}>
+                  <p style={{ color: 'var(--app-accent-text)', fontSize: 11, fontWeight: 800, marginBottom: 4 }}>
                     {t('reviews.masterReplyLabel')}
                   </p>
                   <p style={{ color: 'var(--app-text)', fontSize: 13, lineHeight: 1.5 }}>

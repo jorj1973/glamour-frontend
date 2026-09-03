@@ -620,7 +620,7 @@ function ChatPage() {
                         <span
                           style={{
                             display: 'block',
-                            color: 'var(--app-accent)',
+                            color: 'var(--app-accent-text)',
                             fontSize: 11.5,
                             fontWeight: 700,
                           }}
@@ -750,7 +750,7 @@ function ChatPage() {
                           flexShrink: 0,
                           borderRadius: '50%',
                           background: 'rgba(var(--app-accent-rgb), 0.16)',
-                          color: 'var(--app-accent)',
+                          color: 'var(--app-accent-text)',
                           fontSize: 16,
                           fontWeight: 700,
                         }}

@@ -139,7 +139,7 @@ function WelcomeDialog({ role, firstName, doneKeys = [] }: Props) {
         <p
           style={{
             margin: 0,
-            color: 'var(--app-accent)',
+            color: 'var(--app-accent-text)',
             fontSize: 12,
             fontWeight: 800,
             letterSpacing: '0.14em',
@@ -203,7 +203,7 @@ function WelcomeDialog({ role, firstName, doneKeys = [] }: Props) {
                   height: 36,
                   borderRadius: 11,
                   background: 'rgba(var(--app-accent-rgb), 0.14)',
-                  color: 'var(--app-accent)',
+                  color: 'var(--app-accent-text)',
                   flexShrink: 0,
                 }}
               >
@@ -236,7 +236,7 @@ function WelcomeDialog({ role, firstName, doneKeys = [] }: Props) {
               {step.done && (
                 <span
                   style={{
-                    color: 'var(--app-accent)',
+                    color: 'var(--app-accent-text)',
                     fontSize: 16,
                     flexShrink: 0,
                   }}

@@ -342,7 +342,7 @@ function MastersPage() {
 
             {filtered.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
-                <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+                <Scissors size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.4 }} />
                 <p>{search ? t('masters.notFound') : t('masters.noMasters')}</p>
                 {!search && canManage && (
                   <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 16px', border: 0, borderRadius: 12, background: 'var(--app-accent)', color: '#17151c', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={openRegistrationPanel}>
@@ -399,7 +399,7 @@ function MastersPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
                           {rating && (
                             <div style={{ textAlign: 'right' }}>
-                              <strong style={{ color: 'var(--app-accent)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <strong style={{ color: 'var(--app-accent-text)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Star size={13} />{rating}
                               </strong>
                               <div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t('masters.rating')}</div>
@@ -433,7 +433,7 @@ function MastersPage() {
                               <span>{t('masters.experienceLabel')}</span><strong>{master.experienceYears != null ? `${master.experienceYears} ${t('masters.experience')}` : '—'}</strong>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
-                              <span>{t('masters.rating')}</span><strong style={{ color: 'var(--app-accent)' }}>{rating ? `${rating} ★` : '—'}</strong>
+                              <span>{t('masters.rating')}</span><strong style={{ color: 'var(--app-accent-text)' }}>{rating ? `${rating} ★` : '—'}</strong>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.profile')}</span><strong style={{ color: master.isPublic ? '#8ee5b5' : 'var(--app-accent-strong)' }}>{master.isPublic ? t('masters.profilePublic') : t('masters.profileHidden')}</strong>

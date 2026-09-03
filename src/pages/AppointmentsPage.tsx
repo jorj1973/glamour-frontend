@@ -525,7 +525,7 @@ function AppointmentsPage() {
 
             {filtered.length === 0 ? (
               <div style={styles.emptyState}>
-                <Calendar size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+                <Calendar size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.4 }} />
                 <p>{t("appointments.noResults")}</p>
                 {search || statusFilter !== 'all' ? (
                   <button type="button" style={styles.secondaryBtn}
@@ -600,7 +600,7 @@ function AppointmentsPage() {
                         {/* Цена */}
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           {a.price != null && (
-                            <strong style={{ color: 'var(--app-accent)', fontSize: 15 }}>{a.price} MDL</strong>
+                            <strong style={{ color: 'var(--app-accent-text)', fontSize: 15 }}>{a.price} MDL</strong>
                           )}
                           <div style={{ color: 'var(--app-text-muted)', fontSize: 11, marginTop: 3 }}>
                             {isExpanded ? '▲' : '▼'}

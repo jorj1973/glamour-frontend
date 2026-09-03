@@ -1197,7 +1197,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
 
                     <span
                       style={{
-                        color: 'var(--app-accent)',
+                        color: 'var(--app-accent-text)',
                         fontSize: 11,
                         fontWeight: 800,
                         letterSpacing: 0.4,
@@ -1247,7 +1247,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
                         style={{
                           display: 'block',
                           marginBottom: 3,
-                          color: 'var(--app-accent)',
+                          color: 'var(--app-accent-text)',
                           fontSize: 11.5,
                           fontWeight: 700,
                         }}
@@ -1522,7 +1522,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
             marginBottom: 7,
             borderRadius: 11,
             background: 'rgba(var(--app-accent-rgb), 0.12)',
-            color: 'var(--app-accent)',
+            color: 'var(--app-accent-text)',
             fontSize: 12,
             fontWeight: 700,
           }}
@@ -1563,7 +1563,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
             <span
               style={{
                 display: 'block',
-                color: 'var(--app-accent)',
+                color: 'var(--app-accent-text)',
                 fontSize: 11,
                 fontWeight: 700,
               }}

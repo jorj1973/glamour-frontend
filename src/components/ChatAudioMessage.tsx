@@ -181,7 +181,7 @@ function ChatAudioMessage({ message, mine, onBurned }: Props) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 3,
-                color: 'var(--app-accent)',
+                color: 'var(--app-accent-text)',
                 fontWeight: 700,
               }}
             >

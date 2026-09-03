@@ -178,7 +178,7 @@ function FinancePage() {
 
         {message && !data ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '60px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
-            <CreditCard size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+            <CreditCard size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.4 }} />
             <p>{message}</p>
             <p style={{ fontSize: 13 }}>{t("finance.noData")}</p>
           </div>

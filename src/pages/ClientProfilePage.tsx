@@ -120,7 +120,7 @@ function ClientProfilePage() {
             height: 62,
             borderRadius: 20,
             background: 'rgba(var(--app-accent-rgb), 0.14)',
-            color: 'var(--app-accent)',
+            color: 'var(--app-accent-text)',
             fontSize: 20,
             fontWeight: 800,
           }}

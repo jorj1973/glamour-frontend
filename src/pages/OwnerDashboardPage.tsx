@@ -258,7 +258,7 @@ function OwnerDashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
             {quickActions.map((item) => (
               <button key={item.hash} type="button" onClick={() => { window.location.hash = item.hash; }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, background: 'rgba(255,255,255,0.04)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                <span style={{ color: 'var(--app-accent)' }}>{item.icon}</span>{item.label}
+                <span style={{ color: 'var(--app-accent-text)' }}>{item.icon}</span>{item.label}
               </button>
             ))}
           </div>
@@ -307,7 +307,7 @@ function OwnerDashboardPage() {
                   <div className="ranking-row" key={master.masterProfileId}>
                     <span className="ranking-number">{i + 1}</span>
                     <div className="ranking-main"><strong>{master.profession}</strong><span>{master.salonName}</span></div>
-                    <div className="ranking-value"><strong style={{ color: 'var(--app-accent)' }}>{master.revenue} MDL</strong><span>{master.paymentsCount}</span></div>
+                    <div className="ranking-value"><strong style={{ color: 'var(--app-accent-text)' }}>{master.revenue} MDL</strong><span>{master.paymentsCount}</span></div>
                   </div>
                 ))}
               </div>
@@ -326,7 +326,7 @@ function OwnerDashboardPage() {
                 <div className="ranking-row" key={s.serviceId}>
                   <span className="ranking-number">{i + 1}</span>
                   <div className="ranking-main"><strong>{s.name}</strong><span>{s.durationMinutes} {t('services.duration')} · {s.basePrice} MDL</span></div>
-                  <div className="ranking-value"><strong style={{ color: 'var(--app-accent)' }}>{s.revenue} MDL</strong><span>{s.bookingsCount}</span></div>
+                  <div className="ranking-value"><strong style={{ color: 'var(--app-accent-text)' }}>{s.revenue} MDL</strong><span>{s.bookingsCount}</span></div>
                 </div>
               ))}
             </div>

@@ -85,7 +85,7 @@ function hrefFor(value: string): string {
 }
 
 const linkStyle = {
-  color: 'var(--app-accent)',
+  color: 'var(--app-accent-text)',
   textDecoration: 'underline',
   wordBreak: 'break-word' as const,
 };

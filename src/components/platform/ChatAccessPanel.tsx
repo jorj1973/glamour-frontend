@@ -348,7 +348,7 @@ function ChatAccessPanel() {
             display: 'flex',
             alignItems: 'center',
             gap: 7,
-            color: 'var(--app-accent)',
+            color: 'var(--app-accent-text)',
             fontSize: 13,
             fontWeight: 700,
             margin: '0 0 12px',

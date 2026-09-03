@@ -186,7 +186,7 @@ function LoyaltyPage() {
                       <span style={{ fontSize: 13, color: 'var(--app-text-muted)' }}>
                         {t('loyalty.calcPoints')}
                       </span>
-                      <strong style={{ color: 'var(--app-accent)', fontSize: 15 }}>
+                      <strong style={{ color: 'var(--app-accent-text)', fontSize: 15 }}>
                         {pointsExample}
                       </strong>
                     </div>

@@ -101,7 +101,7 @@
   }
 
   .mobile-tabbar a.active {
-    color: var(--app-accent);
+    color: var(--app-accent-text);
   }
 
   /* Контент не должен прятаться под панелью. */

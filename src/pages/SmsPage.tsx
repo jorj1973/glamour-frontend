@@ -530,7 +530,7 @@ function SmsPage() {
 
                     <span
                       style={{
-                        color: 'var(--app-accent)',
+                        color: 'var(--app-accent-text)',
                         fontSize: 16,
                         fontWeight: 600,
                       }}
@@ -1541,7 +1541,7 @@ function Terms({ allowance }: { allowance: number }) {
       <p
         style={{
           margin: '0 0 14px',
-          color: 'var(--app-accent)',
+          color: 'var(--app-accent-text)',
           fontSize: 12,
           fontWeight: 700,
           letterSpacing: '0.16em',

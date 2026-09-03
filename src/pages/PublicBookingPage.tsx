@@ -910,7 +910,7 @@ function PublicBookingPage() {
                     <p
                         style={{
                             margin: '0 0 8px',
-                            color: 'var(--app-accent)',
+                            color: 'var(--app-accent-text)',
                             fontSize: 12,
                             fontWeight: 800,
                             letterSpacing: '0.14em',
@@ -1153,7 +1153,7 @@ function PublicBookingPage() {
                                             <p
                                                 style={{
                                                     marginTop: 12,
-                                                    color: 'var(--app-accent)',
+                                                    color: 'var(--app-accent-text)',
                                                     fontSize: 13,
                                                     fontWeight: 700,
                                                 }}
@@ -1606,7 +1606,7 @@ function PublicBookingPage() {
                                             borderRadius: 14,
                                             border: '1px solid var(--app-accent)',
                                             background: 'transparent',
-                                            color: 'var(--app-accent)',
+                                            color: 'var(--app-accent-text)',
                                             fontWeight: 800,
                                             fontSize: 14,
                                             cursor: 'pointer',
@@ -1708,7 +1708,7 @@ function PublicBookingPage() {
                                 <p
                                     style={{
                                         margin: '0 0 18px',
-                                        color: 'var(--app-accent)',
+                                        color: 'var(--app-accent-text)',
                                         fontSize: 13.5,
                                         fontWeight: 700,
                                     }}

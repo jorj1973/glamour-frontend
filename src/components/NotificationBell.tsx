@@ -342,7 +342,7 @@ function NotificationBell({ inline = false }: BellProps) {
                                     borderRadius: 11,
                                     border: '1px solid var(--app-accent)',
                                     background: 'transparent',
-                                    color: 'var(--app-accent)',
+                                    color: 'var(--app-accent-text)',
                                     fontSize: 13,
                                     fontWeight: 700,
                                     cursor: 'pointer',
@@ -406,7 +406,7 @@ function NotificationBell({ inline = false }: BellProps) {
                                             borderRadius: 10,
                                             background:
                                                 'rgba(var(--app-accent-rgb), 0.14)',
-                                            color: 'var(--app-accent)',
+                                            color: 'var(--app-accent-text)',
                                             flexShrink: 0,
                                         }}
                                     >

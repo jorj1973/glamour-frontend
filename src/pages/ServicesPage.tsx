@@ -988,7 +988,7 @@ function ServicesPage() {
 
             {filteredMasterServices.length === 0 ? (
               <div style={styles.emptyState}>
-                <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.5 }} />
+                <Scissors size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.5 }} />
                 <p>{t('services.noServices')}</p>
                 <p style={{ fontSize: 13, color: '#888' }}>{t('services.emptyHint')}</p>
               </div>
@@ -1034,7 +1034,7 @@ function ServicesPage() {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
                           <div style={{ textAlign: 'right' }}>
-                            <strong style={{ color: 'var(--app-accent)', fontSize: 16 }}>
+                            <strong style={{ color: 'var(--app-accent-text)', fontSize: 16 }}>
                               {Number(ms.price).toFixed(0)} MDL
                             </strong>
                             <div style={{ color: 'var(--app-text-muted)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1394,7 +1394,7 @@ function ServicesPage() {
 
           {filteredServices.length === 0 ? (
             <div style={styles.emptyState}>
-              <Scissors size={40} style={{ color: 'var(--app-accent)', opacity: 0.5 }} />
+              <Scissors size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.5 }} />
               <p>{t('services.noServices')}</p>
             </div>
           ) : (

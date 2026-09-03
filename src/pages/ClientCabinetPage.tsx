@@ -203,7 +203,7 @@ function ClientCabinetPage() {
         )}
 
         {item.price != null && (
-          <p style={{ color: 'var(--app-accent)', fontSize: 14, fontWeight: 700, marginTop: 8 }}>
+          <p style={{ color: 'var(--app-accent-text)', fontSize: 14, fontWeight: 700, marginTop: 8 }}>
             {item.price} MDL
           </p>
         )}
@@ -221,7 +221,7 @@ function ClientCabinetPage() {
                 border: '1px solid rgba(var(--app-accent-rgb), 0.32)',
                 borderRadius: 12,
                 background: 'rgba(var(--app-accent-rgb), 0.1)',
-                color: 'var(--app-accent)',
+                color: 'var(--app-accent-text)',
                 fontSize: 13,
                 fontWeight: 700,
                 cursor: 'pointer',

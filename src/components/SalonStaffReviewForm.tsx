@@ -233,7 +233,7 @@ function SalonStaffReviewForm() {
           </div>
 
           {salonName(review.salonId) && (
-            <p style={{ color: 'var(--app-accent)', fontSize: 12, fontWeight: 700, marginTop: 6 }}>
+            <p style={{ color: 'var(--app-accent-text)', fontSize: 12, fontWeight: 700, marginTop: 6 }}>
               {salonName(review.salonId)}
             </p>
           )}

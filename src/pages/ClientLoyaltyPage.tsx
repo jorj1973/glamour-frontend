@@ -153,7 +153,7 @@ function ClientLoyaltyPage() {
                     marginBottom: 16,
                   }}
                 >
-                  <strong style={{ color: 'var(--app-accent)', fontSize: 26 }}>
+                  <strong style={{ color: 'var(--app-accent-text)', fontSize: 26 }}>
                     {balance?.points ?? 0}
                   </strong>
                   <span style={{ color: 'var(--app-text-muted, var(--app-text-muted))', fontSize: 13 }}>

@@ -635,7 +635,7 @@ function PromotionLinksPage() {
                     <Link2
                       size={36}
                       style={{
-                        color: 'var(--app-accent)',
+                        color: 'var(--app-accent-text)',
                         opacity: 0.4,
                       }}
                     />

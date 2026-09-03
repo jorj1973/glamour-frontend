@@ -337,7 +337,7 @@ function MasterProfilePage() {
                     borderRadius: 13,
                     border: '1px solid var(--app-accent)',
                     background: 'transparent',
-                    color: 'var(--app-accent)',
+                    color: 'var(--app-accent-text)',
                     fontSize: 14,
                     fontWeight: 700,
                     cursor: isUploading ? 'default' : 'pointer',

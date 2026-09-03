@@ -134,7 +134,7 @@ function SalonReviewsPage() {
               background: 'rgba(var(--app-accent-rgb), 0.06)',
             }}
           >
-            <p style={{ color: 'var(--app-accent)', fontSize: 11, fontWeight: 800, marginBottom: 4 }}>
+            <p style={{ color: 'var(--app-accent-text)', fontSize: 11, fontWeight: 800, marginBottom: 4 }}>
               {t('reviews.masterReplyLabel')}
             </p>
             <p style={{ color: 'var(--app-text)', fontSize: 13, lineHeight: 1.5 }}>

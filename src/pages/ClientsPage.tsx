@@ -182,7 +182,7 @@ function ClientsPage() {
 
         {message && !clients.length ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
-            <Users size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+            <Users size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.4 }} />
             <p>{message}</p>
             {isMasterWorkspace && <p style={{ fontSize: 13 }}>{t("clients.appointmentsHistory")}</p>}
           </div>
@@ -195,7 +195,7 @@ function ClientsPage() {
 
             {filtered.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
-                <Users size={40} style={{ color: 'var(--app-accent)', opacity: 0.4 }} />
+                <Users size={40} style={{ color: 'var(--app-accent-text)', opacity: 0.4 }} />
                 <p>{search ? t('clients.noResults') : t('clients.noClientsYet')}</p>
               </div>
             ) : (
@@ -221,7 +221,7 @@ function ClientsPage() {
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 4vw, 18px)', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end', marginLeft: 'auto' }}>
-                          {client.totalSpent != null && <div style={{ textAlign: 'right' }}><strong style={{ color: 'var(--app-accent)', fontSize: 14 }}>{client.totalSpent} MDL</strong><div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("clients.spent")}</div></div>}
+                          {client.totalSpent != null && <div style={{ textAlign: 'right' }}><strong style={{ color: 'var(--app-accent-text)', fontSize: 14 }}>{client.totalSpent} MDL</strong><div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("clients.spent")}</div></div>}
                           {client.totalAppointments != null && <div style={{ textAlign: 'right' }}><strong style={{ color: 'var(--app-text)', fontSize: 14 }}>{client.totalAppointments}</strong><div style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{t("clients.visits")}</div></div>}
                           <span style={{ color: 'var(--app-text-muted)', fontSize: 14 }}>{isExpanded ? '▲' : '▼'}</span>
                         </div>
@@ -246,7 +246,7 @@ function ClientsPage() {
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-                                <strong style={{ color: 'var(--app-accent)', fontSize: 18 }}>
+                                <strong style={{ color: 'var(--app-accent-text)', fontSize: 18 }}>
                                   {balance.points}
                                 </strong>
                                 <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>
