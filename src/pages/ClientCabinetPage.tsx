@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarDays, Clock, LogOut, Scissors, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { bookingUrl, readLastSalon } from '../lastSalon';
 import api from '../api/api';
 import { getErrorKey } from '../api/errorMessage';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -50,6 +51,10 @@ const STATUS_COLORS: Record<string, string> = {
  */
 function ClientCabinetPage() {
   const { t } = useTranslation();
+
+  // Салон, куда человек ходил. Без него кнопка «Создать запись»
+  // раньше вела на адрес с пустым кодом — то есть в тупик.
+  const lastSalon = readLastSalon();
   const [appointments, setAppointments] = useState<ClientAppointment[]>([]);
   /** Активный раздел кабинета. */
   const [tab, setTab] = useState<
@@ -447,25 +452,33 @@ function ClientCabinetPage() {
               {t('clientCabinet.createText')}
             </p>
 
-            <a
-              href={
-                '/#book?identifier=' +
-                encodeURIComponent(
-                  localStorage.getItem('glamour_booking_link') ?? '',
-                )
-              }
-              className="primary-action"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 46,
-                padding: '0 26px',
-                textDecoration: 'none',
-              }}
-            >
-              {t('clientCabinet.createButton')}
-            </a>
+            {lastSalon ? (
+              <a
+                href={bookingUrl(lastSalon.identifier)}
+                className="primary-action"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: 46,
+                  padding: '0 26px',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('clientCabinet.createButton')}
+              </a>
+            ) : (
+              <p
+                style={{
+                  margin: 0,
+                  color: 'var(--app-text-muted)',
+                  fontSize: 13,
+                  lineHeight: 1.55,
+                }}
+              >
+                {t('clientCabinet.noLink')}
+              </p>
+            )}
           </section>
         ) : (
         <>

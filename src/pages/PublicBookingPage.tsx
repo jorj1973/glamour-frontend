@@ -7,6 +7,11 @@ import {
     subscribeToPush,
 } from '../api/push';
 import {
+    bookingUrl,
+    readLastSalon,
+    rememberLastSalon,
+} from '../lastSalon';
+import {
     ArrowLeft,
     CalendarDays,
     Check,
@@ -25,6 +30,17 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 
 const TOKEN_STORAGE_KEY = 'glamour_access_token';
 const VISITOR_TOKEN_STORAGE_KEY = 'glamour_promotion_visitor_token';
+
+/**
+ * Почему не открылось. Раньше на экран выводился текст сервера как есть —
+ * посторонний человек мог увидеть техническую фразу, да ещё и не на своём
+ * языке. Теперь причина сводится к трём случаям, и на каждый есть свой
+ * текст на всех трёх языках.
+ */
+type BookingErrorKind =
+    | 'incomplete'
+    | 'unknownLink'
+    | 'salon';
 
 type BookingStep =
     | 'loading'
@@ -171,6 +187,21 @@ type LoginResponse = {
 
 function getIdentifier(): string {
     const hash = window.location.hash;
+
+    // Короткая форма: #salon/glamour. В ней нет вопросительного знака,
+    // а режут адрес при пересылке именно по нему.
+    const shortForm = hash.match(/^#salon\/([^/?#]+)/);
+
+    if (shortForm) {
+        try {
+            return decodeURIComponent(shortForm[1]).trim();
+        } catch {
+            // Кривая последовательность %-кодов: берём как есть,
+            // сервер всё равно ответит «такой ссылки нет».
+            return shortForm[1].trim();
+        }
+    }
+
     const questionMarkIndex = hash.indexOf('?');
 
     if (questionMarkIndex === -1) {
@@ -182,6 +213,36 @@ function getIdentifier(): string {
 
     return params.get('identifier')?.trim() ?? '';
 }
+
+const ERROR_PRIMARY: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 46,
+    borderRadius: 13,
+    border: 0,
+    background: 'var(--app-accent)',
+    color: 'var(--app-bg)',
+    fontSize: 14,
+    fontWeight: 800,
+    textDecoration: 'none',
+    cursor: 'pointer',
+};
+
+const ERROR_SECONDARY: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 46,
+    borderRadius: 13,
+    border: '1px solid rgba(var(--app-overlay-rgb), 0.18)',
+    background: 'transparent',
+    color: 'var(--app-text)',
+    fontSize: 14,
+    fontWeight: 700,
+    textDecoration: 'none',
+    cursor: 'pointer',
+};
 
 function formatPrice(value: number | string): string {
     const numericValue = Number(value);
@@ -233,6 +294,19 @@ function PublicBookingPage() {
     const identifier = useMemo(() => getIdentifier(), []);
 
     const [step, setStep] = useState<BookingStep>('loading');
+
+    const [errorKind, setErrorKind] =
+        useState<BookingErrorKind>('unknownLink');
+
+    // Салон, куда человек ходил раньше. Единственная соломинка,
+    // если ссылка, по которой он пришёл сейчас, не открылась.
+    const [lastSalon] = useState(() => readLastSalon());
+
+    // Предлагать возврат стоит только в другой салон: вести обратно
+    // по той же ссылке, которая только что не открылась, — издевательство.
+    const canReturn = Boolean(
+        lastSalon && lastSalon.identifier !== identifier,
+    );
 
     const [salon, setSalon] = useState<SalonInfo | null>(null);
     const [targetType, setTargetType] = useState('');
@@ -290,7 +364,7 @@ function PublicBookingPage() {
 
         async function initialize() {
             if (!identifier) {
-                setErrorMessage(t('booking.badLink'));
+                setErrorKind('incomplete');
                 setStep('error');
                 return;
             }
@@ -329,8 +403,12 @@ function PublicBookingPage() {
 
                 // Кабинету нужна ссылка, чтобы клиент мог записаться
                 // заново. У каждого салона она своя, поэтому
-                // запоминаем ту, по которой человек пришёл.
-                localStorage.setItem('glamour_booking_link', identifier);
+                // запоминаем ту, по которой человек пришёл, — и название,
+                // чтобы кнопка возврата звала салон по имени, а не «сюда».
+                rememberLastSalon(
+                    identifier,
+                    resolved.salon?.name ?? '',
+                );
 
                 const servicesResponse =
                     await api.get<ServiceItem[]>('/services/active', { params: { salonId: resolved.salonId } });
@@ -382,16 +460,9 @@ function PublicBookingPage() {
                     return;
                 }
 
-                const message =
-                    error?.response?.data?.message;
-
-                setErrorMessage(
-                    Array.isArray(message)
-                        ? message.join(', ')
-                        : message ||
-                        t('booking.openLinkError'),
-                );
-
+                // Сообщение сервера сюда не попадает намеренно:
+                // оно написано для нас, а читать его будет клиент.
+                setErrorKind('unknownLink');
                 setStep('error');
             }
         }
@@ -410,7 +481,7 @@ function PublicBookingPage() {
         resolvedTargetId = targetId,
     ) {
         if (!salonId) {
-            setErrorMessage(t('booking.salonUnknown'));
+            setErrorKind('salon');
             setStep('error');
             return;
         }
@@ -1772,19 +1843,90 @@ function PublicBookingPage() {
                         <div
                             style={{
                                 textAlign: 'center',
-                                padding: '34px 10px',
+                                padding: '30px 10px 12px',
                             }}
                         >
-                            <h2>{t('booking.linkUnavailable')}</h2>
+                            <h2>
+                                {t(
+                                    'booking.error.' +
+                                    errorKind +
+                                    '.title',
+                                )}
+                            </h2>
 
                             <p
                                 style={{
-                                    color: 'var(--app-danger-soft)',
+                                    margin: '0 auto 24px',
+                                    maxWidth: 360,
+                                    color: 'var(--app-text-muted)',
+                                    fontSize: 14,
                                     lineHeight: 1.6,
                                 }}
                             >
-                                {errorMessage}
+                                {t(
+                                    'booking.error.' +
+                                    errorKind +
+                                    '.text',
+                                )}
                             </p>
+
+                            {/* Без этих кнопок экран был тупиком:
+                                заголовок, строка текста и всё. Уйти
+                                отсюда можно было только закрыв вкладку. */}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 10,
+                                    maxWidth: 320,
+                                    margin: '0 auto',
+                                }}
+                            >
+                                {canReturn && lastSalon && (
+                                        <a
+                                            href={bookingUrl(
+                                                lastSalon.identifier,
+                                            )}
+                                            style={ERROR_PRIMARY}
+                                        >
+                                            {lastSalon.name
+                                                ? t(
+                                                    'booking.error.backToSalon',
+                                                    {
+                                                        salon: lastSalon.name,
+                                                    },
+                                                )
+                                                : t(
+                                                    'booking.error.backToBooking',
+                                                )}
+                                        </a>
+                                    )}
+
+                                <a
+                                    href="/#login"
+                                    style={
+                                        canReturn
+                                            ? ERROR_SECONDARY
+                                            : ERROR_PRIMARY
+                                    }
+                                >
+                                    {hasAccount
+                                        ? t('booking.error.myBookings')
+                                        : t('booking.error.signIn')}
+                                </a>
+
+                                {errorKind !== 'incomplete' && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            window.location.reload()
+                                        }
+                                        style={ERROR_SECONDARY}
+                                    >
+                                        {t('booking.error.retry')}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

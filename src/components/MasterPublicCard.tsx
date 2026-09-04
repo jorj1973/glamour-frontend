@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { bookingUrl } from '../lastSalon';
 import { Award, BadgeCheck, MessageSquareText, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import StarRating from './StarRating';
@@ -303,7 +304,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
 
       {!compact && profile.bookingCode && (
         <a
-          href={'#book?identifier=' + profile.bookingCode}
+          href={bookingUrl(profile.bookingCode)}
           style={{
             display: 'flex',
             alignItems: 'center',

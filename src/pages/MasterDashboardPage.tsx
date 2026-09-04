@@ -88,7 +88,8 @@ const CURRENT_SALON_ID_KEY = 'glamour_current_salon_id';
 function getPromoUrl(data: PromotionLink, baseUrl: string): string {
   const identifier = data.slug?.trim() || data.code?.trim() || '';
   if (identifier) {
-    return `${baseUrl}/#book?identifier=${encodeURIComponent(identifier)}`;
+    // Короткая форма: её не режет пересылка и можно продиктовать голосом.
+    return `${baseUrl}/#salon/${encodeURIComponent(identifier)}`;
   }
   return data.publicUrl ?? data.registrationUrl ?? data.url ?? '';
 }
@@ -213,7 +214,7 @@ function MasterDashboardPage() {
       });
 
       setCurrentSlug(slug);
-      setPromoUrl(`${baseUrl}/#book?identifier=${encodeURIComponent(slug)}`);
+      setPromoUrl(`${baseUrl}/#salon/${encodeURIComponent(slug)}`);
       setSlugSuccess(t('promotion.linkSaved'));
       setTimeout(() => setSlugSuccess(''), 3000);
     } catch (err: any) {

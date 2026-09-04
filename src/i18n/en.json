@@ -751,7 +751,26 @@
     "postpone": "Postpone",
     "pushOffer": "Remind you a day and an hour before the visit? The notification comes straight to your phone — no calls, no checking.",
     "pushEnable": "Enable reminders",
-    "pushDone": "Done — we will remind you before the visit."
+    "pushDone": "Done — we will remind you before the visit.",
+    "error": {
+      "incomplete": {
+        "title": "Incomplete address",
+        "text": "The link looks cut off — messengers and email clients often shorten long addresses. Ask the salon to send it again."
+      },
+      "unknownLink": {
+        "title": "This link does not open",
+        "text": "The salon may have turned it off or replaced it. Ask for a fresh one — or open the salon you visited before."
+      },
+      "salon": {
+        "title": "Could not open the salon",
+        "text": "This is a fault on our side, not yours. Please try again in a minute."
+      },
+      "backToSalon": "Book at “{{salon}}”",
+      "backToBooking": "Back to booking",
+      "signIn": "Sign in",
+      "myBookings": "My bookings",
+      "retry": "Try again"
+    }
   },
   "platform": {
     "adminTitle": "Platform Admin",
@@ -964,7 +983,8 @@
     "noticeTitle": "Time is not reserved in advance",
     "noticeText": "A postponed booking only reminds you of your choice — the slot stays open to everyone. To get the time you want, finish the booking right away: masters are booked tightly and good hours go fast.",
     "noticeClose": "Got it",
-    "rescheduleButton": "Reschedule"
+    "rescheduleButton": "Reschedule",
+    "noLink": "To book, open your salon’s link — they send it in a message or share it as a QR code."
   },
   "reviews": {
     "title": "Reviews",

@@ -105,15 +105,19 @@ function getLinkUrl(link: PromotionLink): string {
     case 'master_registration':
       return `${window.location.origin}/#master-register?identifier=${encodedIdentifier}`;
 
+    // Короткая форма без вопросительного знака: мессенджеры и почтовые
+    // клиенты режут адрес именно по нему, и до салона доезжала половина
+    // ссылки. Прежняя форма продолжает открываться — уже напечатанные
+    // визитки и разосланные письма не должны перестать работать.
     case 'salon':
     case 'master':
     case 'service':
     case 'booking':
     case 'promotion':
-      return `${window.location.origin}/#book?identifier=${encodedIdentifier}`;
+      return `${window.location.origin}/#salon/${encodedIdentifier}`;
 
     default:
-      return `${window.location.origin}/#book?identifier=${encodedIdentifier}`;
+      return `${window.location.origin}/#salon/${encodedIdentifier}`;
   }
 }
 

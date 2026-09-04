@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CalendarDays, Scissors, Trash2, UserRound } from 'lucide-react';
 
 import api from '../api/api';
+import { bookingUrl, readLastSalon } from '../lastSalon';
 
 const STORAGE_KEY = 'glamour_postponed';
 
@@ -43,6 +44,10 @@ function write(items: Postponed[]) {
 
 function PostponedList() {
     const { t, i18n } = useTranslation();
+
+    // Куда возвращаться, чтобы завершить отложенную запись.
+    // Раньше сюда подставлялся пустой код и человек попадал в тупик.
+    const lastSalon = readLastSalon();
 
     const [items, setItems] = useState<Postponed[]>([]);
     const [notice, setNotice] = useState(false);
@@ -264,31 +269,42 @@ function PostponedList() {
                                 </button>
                             </>
                         ) : (
-                            <a
-                                href={
-                                    '/#book?identifier=' +
-                                    encodeURIComponent(
-                                        localStorage.getItem(
-                                            'glamour_booking_link',
-                                        ) ?? '',
-                                    )
-                                }
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    minHeight: 44,
-                                    marginTop: 14,
-                                    borderRadius: 13,
-                                    background: 'var(--app-accent)',
-                                    color: 'var(--app-bg)',
-                                    fontSize: 14,
-                                    fontWeight: 800,
-                                    textDecoration: 'none',
-                                }}
-                            >
-                                {t('clientCabinet.postponedFinish')}
-                            </a>
+                            lastSalon ? (
+                                <a
+                                    href={bookingUrl(
+                                        lastSalon.identifier,
+                                    )}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        minHeight: 44,
+                                        marginTop: 14,
+                                        borderRadius: 13,
+                                        background: 'var(--app-accent)',
+                                        color: 'var(--app-bg)',
+                                        fontSize: 14,
+                                        fontWeight: 800,
+                                        textDecoration: 'none',
+                                    }}
+                                >
+                                    {t('clientCabinet.postponedFinish')}
+                                </a>
+                            ) : (
+                                // Ссылку салона забыли — но пустой адрес
+                                // вместо неё уводил в тупик, поэтому здесь
+                                // подсказка, а не кнопка в никуда.
+                                <p
+                                    style={{
+                                        margin: '14px 0 0',
+                                        color: 'var(--app-text-muted)',
+                                        fontSize: 13,
+                                        lineHeight: 1.5,
+                                    }}
+                                >
+                                    {t('clientCabinet.noLink')}
+                                </p>
+                            )
                         )}
                     </article>
                 ))}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { bookingUrl } from '../lastSalon';
 import { Copy, Gift, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/api';
@@ -65,7 +66,9 @@ function ClientLoyaltyPage() {
   }
 
   function buildUrl(code: string) {
-    return `${window.location.origin}/#book?identifier=${code}`;
+    // Реферальную ссылку человек пересылает в мессенджере — там адрес
+    // и режут по вопросительному знаку. Короткая форма это переживает.
+    return window.location.origin + bookingUrl(code);
   }
 
   async function copyLink(code: string) {

@@ -234,9 +234,14 @@ function App() {
     return <SalonRegistrationPage />;
   }
 
+  // Две формы одного адреса. Короткая — #salon/glamour — не ломается
+  // при пересылке: резать по вопросительному знаку в ней нечего.
+  // Длинная оставлена работать навсегда: по ней уже напечатаны визитки
+  // и разосланы письма.
   if (
     currentPage === '#book' ||
-    currentPage.startsWith('#book?')
+    currentPage.startsWith('#book?') ||
+    currentPage.startsWith('#salon/')
   ) {
     return <PublicBookingPage />;
   }

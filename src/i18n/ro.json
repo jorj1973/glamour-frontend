@@ -756,7 +756,26 @@
     "postpone": "Amână",
     "pushOffer": "Să vă amintim de vizită cu o zi și cu o oră înainte? Notificarea vine direct pe telefon — fără apeluri și fără întrebări.",
     "pushEnable": "Activează memento-urile",
-    "pushDone": "Gata — vă amintim înainte de vizită."
+    "pushDone": "Gata — vă amintim înainte de vizită.",
+    "error": {
+      "incomplete": {
+        "title": "Adresă incompletă",
+        "text": "Se pare că linkul a fost tăiat când a fost retrimis — se întâmplă des în mesagerie și e-mail. Cere-i salonului să ți-l trimită din nou."
+      },
+      "unknownLink": {
+        "title": "Linkul nu se deschide",
+        "text": "Poate că salonul l-a dezactivat sau l-a înlocuit. Cere unul nou — sau deschide salonul unde ai mai fost."
+      },
+      "salon": {
+        "title": "Salonul nu a putut fi deschis",
+        "text": "Este o problemă de partea noastră, nu a ta. Încearcă din nou peste un minut."
+      },
+      "backToSalon": "Programare la „{{salon}}”",
+      "backToBooking": "Înapoi la programare",
+      "signIn": "Autentificare",
+      "myBookings": "Programările mele",
+      "retry": "Încearcă din nou"
+    }
   },
   "platform": {
     "adminTitle": "Admin platformă",
@@ -970,7 +989,8 @@
     "noticeTitle": "Ora nu se rezervă în avans",
     "noticeText": "Programarea amânată doar îți amintește alegerea — ora rămâne liberă pentru toți. Ca să prinzi ora dorită, finalizează programarea imediat: maeștrii au agenda plină, iar orele bune se ocupă repede.",
     "noticeClose": "Am înțeles",
-    "rescheduleButton": "Mută programarea"
+    "rescheduleButton": "Mută programarea",
+    "noLink": "Ca să te programezi, deschide linkul salonului — ți-l trimit într-un mesaj sau ți-l dau ca cod QR."
   },
   "reviews": {
     "title": "Recenzii",
