@@ -775,7 +775,8 @@
       "signIn": "Autentificare",
       "myBookings": "Programările mele",
       "retry": "Încearcă din nou"
-    }
+    },
+    "fromLink": "Din linkul tău"
   },
   "platform": {
     "adminTitle": "Admin platformă",

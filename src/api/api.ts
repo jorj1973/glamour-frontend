@@ -30,28 +30,53 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+/**
+ * Адреса, открытые без учётной записи.
+ *
+ * Держим их одним списком и рядом с проверкой: раньше он был вписан
+ * прямо в перехватчик строчками, и стоило завести новый публичный адрес,
+ * как про него забывали. Так и вышло с коротким `#salon/`: человек шёл
+ * по ссылке салона, ошибался паролем, сервер отвечал 401 — и его
+ * выбрасывало на главную вместе со всем выбором.
+ *
+ * Держится в согласии с разбором адреса в App.tsx. Меняешь там —
+ * меняй и здесь.
+ */
+const PUBLIC_PATHS = ['/reset-password'];
+
+const PUBLIC_HASHES = [
+  '#reset-password',
+  '#salon/',
+  '#book',
+  '#master/',
+  '#master-register',
+  '#master-registration',
+  '#register-master',
+  '#register',
+];
+
+function isPublicPage(): boolean {
+  const path = window.location.pathname;
+  const hash = window.location.hash;
+
+  if (PUBLIC_PATHS.some((prefix) => path.startsWith(prefix))) {
+    return true;
+  }
+
+  return PUBLIC_HASHES.some((prefix) => hash.startsWith(prefix));
+}
+
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // На странице сброса пароля 401 ожидаем: пользователь ещё не вошёл.
-      // Перезагрузка здесь зациклила бы форму.
-      // Публичные страницы: у гостя сессии нет по определению,
-      // и 401 здесь ожидаем. Выбрасывать его на главную нельзя —
-      // иначе он не дойдёт до формы регистрации.
-      const isPublicPage =
-        window.location.pathname.startsWith('/reset-password') ||
-        window.location.hash.startsWith('#reset-password') ||
-        window.location.hash.startsWith('#book') ||
-        window.location.hash.startsWith('#master/') ||
-        window.location.hash.startsWith('#register');
-
       // Токен стираем всегда: просроченный или чужой только мешает.
       localStorage.removeItem(TOKEN_STORAGE_KEY);
 
-      // А вот уводить на главную можно только с закрытых страниц.
-      // На публичных 401 ожидаем — там человек продолжает свой путь.
-      if (!isPublicPage) {
+      // А уводить на главную можно только с закрытых страниц.
+      // На публичных 401 ожидаем — у гостя сессии нет по определению,
+      // и он продолжает свой путь, а не начинает его заново.
+      if (!isPublicPage()) {
         window.location.assign(`${window.location.origin}/`);
       }
     }

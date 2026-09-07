@@ -770,7 +770,8 @@
       "signIn": "Sign in",
       "myBookings": "My bookings",
       "retry": "Try again"
-    }
+    },
+    "fromLink": "From your link"
   },
   "platform": {
     "adminTitle": "Platform Admin",

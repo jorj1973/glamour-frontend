@@ -10,6 +10,7 @@ import {
     bookingUrl,
     readLastSalon,
     rememberLastSalon,
+    wantsFullChoice,
 } from '../lastSalon';
 import {
     ArrowLeft,
@@ -293,6 +294,10 @@ function PublicBookingPage() {
     const { t, i18n } = useTranslation();
     const identifier = useMemo(() => getIdentifier(), []);
 
+    // Пришёл из кабинета, а не по чужой ссылке: ссылка служит только
+    // чтобы опознать салон, а услугу и мастера человек выбирает заново.
+    const fullChoice = useMemo(() => wantsFullChoice(), []);
+
     const [step, setStep] = useState<BookingStep>('loading');
 
     const [errorKind, setErrorKind] =
@@ -350,6 +355,10 @@ function PublicBookingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    // Мастер, по чьей ссылке пришёл клиент: показываем его первым
+    // и подписываем, иначе непонятно, почему он наверху.
+    const [invitedMasterId, setInvitedMasterId] = useState('');
+
     const [authMode, setAuthMode] =
         useState<'register' | 'login'>('register');
 
@@ -390,9 +399,19 @@ function PublicBookingPage() {
 
                 const resolved = resolveResponse.data;
 
+                // Из кабинета ссылка означает только «этот салон».
+                // Всё остальное, что она несла, здесь не действует.
+                const targetKind = fullChoice
+                    ? 'salon'
+                    : resolved.targetType;
+
+                const targetWhat = fullChoice
+                    ? null
+                    : resolved.targetId;
+
                 setSalon(resolved.salon);
-                setTargetType(resolved.targetType);
-                setTargetId(resolved.targetId);
+                setTargetType(targetKind);
+                setTargetId(targetWhat);
 
                 if (resolved.visitorToken) {
                     localStorage.setItem(
@@ -425,19 +444,16 @@ function PublicBookingPage() {
 
                 let initialServices = salonServices;
 
-                if (
-                    resolved.targetType === 'service' &&
-                    resolved.targetId
-                ) {
+                if (targetKind === 'service' && targetWhat) {
                     initialServices = salonServices.filter(
-                        (service) => service.id === resolved.targetId,
+                        (service) => service.id === targetWhat,
                     );
                 }
 
                 setServices(initialServices);
 
                 if (
-                    resolved.targetType === 'service' &&
+                    targetKind === 'service' &&
                     initialServices.length === 1
                 ) {
                     const service = initialServices[0];
@@ -447,8 +463,8 @@ function PublicBookingPage() {
                     await loadMastersForService(
                         service,
                         resolved.salonId,
-                        resolved.targetType,
-                        resolved.targetId,
+                        targetKind,
+                        targetWhat,
                     );
 
                     return;
@@ -525,26 +541,33 @@ function PublicBookingPage() {
                 return master.isActive !== false;
             });
 
+            // Ссылка мастера больше не отсекает остальных. Клиент должен
+            // видеть, кто ещё делает эту услугу, и иметь возможность выбрать;
+            // мастер, по чьей ссылке пришли, просто стоит первым и помечен.
             if (
                 resolvedTargetType === 'master' &&
                 resolvedTargetId
             ) {
-                availableMasters = availableMasters.filter(
+                const invited = availableMasters.filter(
                     (master) => master.id === resolvedTargetId,
                 );
+
+                const others = availableMasters.filter(
+                    (master) => master.id !== resolvedTargetId,
+                );
+
+                availableMasters = invited.concat(others);
+                setInvitedMasterId(resolvedTargetId);
+            } else {
+                setInvitedMasterId('');
             }
 
             setMasters(availableMasters);
 
-            if (
-                resolvedTargetType === 'master' &&
-                availableMasters.length === 1
-            ) {
-                setSelectedMaster(availableMasters[0]);
-                setStep('time');
-            } else {
-                setStep('master');
-            }
+            // Экран выбора мастера показываем ВСЕГДА. Раньше он пропускался
+            // при переходе по ссылке мастера, и клиент не видел ни команды
+            // салона, ни даже того, к кому он в итоге записан.
+            setStep('master');
         } catch (error: any) {
             const message =
                 error?.response?.data?.message;
@@ -1231,6 +1254,18 @@ function PublicBookingPage() {
                                             >
                                                 {getMasterName(master)}
                                             </p>
+
+                                            {master.id === invitedMasterId && (
+                                                <p
+                                                    style={{
+                                                        marginTop: 4,
+                                                        color: 'var(--app-text-muted)',
+                                                        fontSize: 12,
+                                                    }}
+                                                >
+                                                    {t('booking.fromLink')}
+                                                </p>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -1886,6 +1921,7 @@ function PublicBookingPage() {
                                         <a
                                             href={bookingUrl(
                                                 lastSalon.identifier,
+                                                true,
                                             )}
                                             style={ERROR_PRIMARY}
                                         >

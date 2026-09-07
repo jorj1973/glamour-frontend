@@ -273,6 +273,7 @@ function PostponedList() {
                                 <a
                                     href={bookingUrl(
                                         lastSalon.identifier,
+                                        true,
                                     )}
                                     style={{
                                         display: 'flex',

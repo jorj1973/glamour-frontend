@@ -454,7 +454,7 @@ function ClientCabinetPage() {
 
             {lastSalon ? (
               <a
-                href={bookingUrl(lastSalon.identifier)}
+                href={bookingUrl(lastSalon.identifier, true)}
                 className="primary-action"
                 style={{
                   display: 'inline-flex',

@@ -26,8 +26,29 @@ export type LastSalon = {
  * `#book?identifier=` продолжает работать — напечатанные визитки
  * и разосланные письма не должны перестать открываться.
  */
-export function bookingUrl(identifier: string): string {
-  return '/#salon/' + encodeURIComponent(identifier);
+export function bookingUrl(
+  identifier: string,
+  fullChoice = false,
+): string {
+  const base = '/#salon/' + encodeURIComponent(identifier);
+
+  // Полный выбор нужен там, где человек пришёл НЕ по чужой ссылке,
+  // а сам: из своего кабинета или из отложенных. Ссылка мастера
+  // в этом случае не должна навязывать ему этого мастера — он хочет
+  // услугу, и мастера выбирает заново.
+  return fullChoice ? base + '?all=1' : base;
+}
+
+/** Просили ли открыть запись без привязки к мастеру или услуге ссылки. */
+export function wantsFullChoice(): boolean {
+  const hash = window.location.hash;
+  const mark = hash.indexOf('?');
+
+  if (mark === -1) {
+    return false;
+  }
+
+  return new URLSearchParams(hash.slice(mark + 1)).get('all') === '1';
 }
 
 export function readLastSalon(): LastSalon | null {
