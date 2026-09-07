@@ -771,7 +771,7 @@
       "myBookings": "My bookings",
       "retry": "Try again"
     },
-    "fromLink": "From your link"
+    "recommended": "Recommended"
   },
   "platform": {
     "adminTitle": "Platform Admin",

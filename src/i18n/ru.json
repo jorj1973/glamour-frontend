@@ -781,7 +781,7 @@
       "myBookings": "Мои записи",
       "retry": "Попробовать ещё раз"
     },
-    "fromLink": "По вашей ссылке"
+    "recommended": "Рекомендуем"
   },
   "platform": {
     "adminTitle": "Админ платформы",

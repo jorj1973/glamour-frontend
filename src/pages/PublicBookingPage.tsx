@@ -355,9 +355,18 @@ function PublicBookingPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Мастер, по чьей ссылке пришёл клиент: показываем его первым
-    // и подписываем, иначе непонятно, почему он наверху.
-    const [invitedMasterId, setInvitedMasterId] = useState('');
+    /**
+     * Рекомендованный мастер — тот, кого показываем первым и помечаем.
+     *
+     * Сейчас это мастер, по чьей ссылке пришёл клиент: он привёл человека,
+     * значит и стоит впереди. Позже сюда же ляжет рекомендация платформы,
+     * поэтому понятие названо шире приглашения.
+     *
+     * Список строится по услуге, поэтому если пригласивший её не делает —
+     * его в списке просто нет, и рекомендации не будет. Это правильно:
+     * нельзя советовать того, кто не может выполнить работу.
+     */
+    const [recommendedMasterId, setRecommendedMasterId] = useState('');
 
     const [authMode, setAuthMode] =
         useState<'register' | 'login'>('register');
@@ -548,7 +557,7 @@ function PublicBookingPage() {
                 resolvedTargetType === 'master' &&
                 resolvedTargetId
             ) {
-                const invited = availableMasters.filter(
+                const recommended = availableMasters.filter(
                     (master) => master.id === resolvedTargetId,
                 );
 
@@ -556,10 +565,10 @@ function PublicBookingPage() {
                     (master) => master.id !== resolvedTargetId,
                 );
 
-                availableMasters = invited.concat(others);
-                setInvitedMasterId(resolvedTargetId);
+                availableMasters = recommended.concat(others);
+                setRecommendedMasterId(resolvedTargetId);
             } else {
-                setInvitedMasterId('');
+                setRecommendedMasterId('');
             }
 
             setMasters(availableMasters);
@@ -1223,22 +1232,48 @@ function PublicBookingPage() {
                                         gap: 12,
                                     }}
                                 >
-                                    {masters.map((master) => (
+                                    {masters.map((master) => {
+                                        const isPicked =
+                                            master.id ===
+                                            recommendedMasterId;
+
+                                        return (
                                         <div
                                             key={master.id}
                                             onClick={() => selectMaster(master)}
                                             style={{
                                                 padding: 16,
-                                                border:
-                                                    '1px solid rgba(var(--app-overlay-rgb), 0.09)',
+                                                border: isPicked
+                                                    ? '1px solid var(--app-gold, #e1ac52)'
+                                                    : '1px solid rgba(var(--app-overlay-rgb), 0.09)',
                                                 borderRadius: 16,
-                                                background:
-                                                    'rgba(var(--app-overlay-rgb), 0.04)',
+                                                background: isPicked
+                                                    ? 'rgba(225, 172, 82, 0.07)'
+                                                    : 'rgba(var(--app-overlay-rgb), 0.04)',
                                                 color: 'var(--app-text, var(--app-text))',
                                                 cursor: 'pointer',
                                                 textAlign: 'left',
                                             }}
                                         >
+                                            {isPicked && (
+                                                <p
+                                                    style={{
+                                                        display: 'inline-block',
+                                                        margin: '0 0 12px',
+                                                        padding: '3px 10px',
+                                                        borderRadius: 20,
+                                                        background:
+                                                            'var(--app-gold, #e1ac52)',
+                                                        color: 'var(--app-bg)',
+                                                        fontSize: 11,
+                                                        fontWeight: 800,
+                                                        letterSpacing: '0.04em',
+                                                    }}
+                                                >
+                                                    {t('booking.recommended')}
+                                                </p>
+                                            )}
+
                                             <MasterPublicCard
                                                 masterProfileId={master.id}
                                                 compact
@@ -1255,19 +1290,9 @@ function PublicBookingPage() {
                                                 {getMasterName(master)}
                                             </p>
 
-                                            {master.id === invitedMasterId && (
-                                                <p
-                                                    style={{
-                                                        marginTop: 4,
-                                                        color: 'var(--app-text-muted)',
-                                                        fontSize: 12,
-                                                    }}
-                                                >
-                                                    {t('booking.fromLink')}
-                                                </p>
-                                            )}
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </>
