@@ -1342,7 +1342,9 @@
       "general": "Chatul general al salonului",
       "materials": "Materiale și furnizori",
       "education": "Instruire și cursuri",
-      "jobs": "Lucru și înlocuiri"
+      "jobs": "Lucru și înlocuiri",
+      "care": "Produse de îngrijire",
+      "hairScalp": "Probleme ale părului și scalpului"
     },
     "topicLeaveConfirm": "Ieși din temă? Mesajele rămân, dar nu vor mai veni.",
     "unreadFrom": "MESAJE NOI"

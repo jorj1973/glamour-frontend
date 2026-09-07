@@ -1335,7 +1335,9 @@
       "general": "Salon general chat",
       "materials": "Materials and suppliers",
       "education": "Training and courses",
-      "jobs": "Work and cover shifts"
+      "jobs": "Work and cover shifts",
+      "care": "Hair care products",
+      "hairScalp": "Hair and scalp problems"
     },
     "topicLeaveConfirm": "Leave this topic? The messages stay, but they stop reaching you.",
     "unreadFrom": "NEW MESSAGES"
