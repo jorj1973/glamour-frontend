@@ -104,10 +104,15 @@ function ClientsPage() {
         setClients(res.data);
         setMessage(res.data.length === 0 ? '' : '');
       } else {
-        // Для салона — все клиенты с ролью client
-        const res = await api.get<Client[]>('/users', { params: { salonId } });
-        const clientsOnly = res.data.filter((u: any) => u.role === 'client');
-        setClients(clientsOnly);
+        // Для салона — его клиенты по записям и истории визитов.
+        // Раньше здесь был GET /users: все пользователи платформы,
+        // отфильтрованные по глобальной роли client. С одним салоном это
+        // выглядело верно, со вторым показало бы чужих клиентов. Когда
+        // GET /users ограничили участниками салона, список опустел —
+        // членства клиентам не создаются, клиент привязан к салону
+        // только записями. Теперь тот же источник, что у мастера.
+        const res = await api.get<Client[]>('/client-history/salon-clients', { params: { salonId } });
+        setClients(res.data);
       }
       setMessage('');
     } catch {
