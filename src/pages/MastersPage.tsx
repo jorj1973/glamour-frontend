@@ -220,7 +220,9 @@ function MastersPage() {
     }
   }
 
-  const canManage = salon?.membershipRole === 'salon_owner' || salon?.membershipRole === 'admin' || salon?.membershipRole === 'owner' || salon?.membershipRole === 'administrator';
+  // 'administrator' здесь сравнивалось напрасно: enum роли в базе такого
+  // значения не содержит, условие никогда не срабатывало.
+  const canManage = salon?.membershipRole === 'salon_owner' || salon?.membershipRole === 'admin' || salon?.membershipRole === 'owner';
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

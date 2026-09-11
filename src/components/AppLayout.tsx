@@ -77,12 +77,18 @@ const WORKSPACE_MODE_KEY =
 const CURRENT_SALON_ID_KEY =
   'glamour_current_salon_id';
 
+// Роли, дающие доступ к управлению салоном.
+//
+// Значения обязаны совпадать с тем, что реально хранит база:
+// salon_memberships_role_enum = ('salon_owner','admin','master','client'),
+// users_role_enum = ('platform_owner','owner','admin','master','client').
+// Раньше здесь были ещё 'administrator' и 'reception' — таких значений
+// enum не допускает, поэтому они никогда не совпадали ни с чем и создавали
+// ложное впечатление, что в системе есть роль администратора стойки.
 const SALON_MANAGEMENT_ROLES = new Set([
   'salon_owner',
   'owner',
   'admin',
-  'administrator',
-  'reception',
 ]);
 
 function getSavedWorkspaceMode(): WorkspaceMode {
