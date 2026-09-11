@@ -315,11 +315,15 @@ function ClientCabinetPage() {
           </div>
         </header>
 
+        {/* Заголовок принадлежит разделу, а не кабинету. Раньше здесь
+            всегда стояло «Мои записи», и на вкладках Салон, Профиль и
+            остальных оно висело над чужим содержимым. Подстраницы своих
+            заголовков не имеют, поэтому убрать его нельзя — он меняется. */}
         <h1 style={{ color: 'var(--app-text, var(--app-text))', fontSize: 28, marginBottom: 4 }}>
-          {t('clientCabinet.title')}
+          {t('clientCabinet.section.' + tab + '.title')}
         </h1>
         <p style={{ color: 'var(--app-text-muted, var(--app-text-muted))', fontSize: 14, marginBottom: 22 }}>
-          {t('clientCabinet.subtitle')}
+          {t('clientCabinet.section.' + tab + '.subtitle')}
         </p>
 
         {/* Разделы кабинета. Клиент приходит с телефона,

@@ -776,7 +776,8 @@
       "myBookings": "Programările mele",
       "retry": "Încearcă din nou"
     },
-    "recommended": "Recomandăm"
+    "recommended": "Recomandăm",
+    "phone": "Telefon"
   },
   "platform": {
     "adminTitle": "Admin platformă",
@@ -991,7 +992,33 @@
     "noticeText": "Programarea amânată doar îți amintește alegerea — ora rămâne liberă pentru toți. Ca să prinzi ora dorită, finalizează programarea imediat: maeștrii au agenda plină, iar orele bune se ocupă repede.",
     "noticeClose": "Am înțeles",
     "rescheduleButton": "Mută programarea",
-    "noLink": "Ca să te programezi, deschide linkul salonului — ți-l trimit într-un mesaj sau ți-l dau ca cod QR."
+    "noLink": "Ca să te programezi, deschide linkul salonului — ți-l trimit într-un mesaj sau ți-l dau ca cod QR.",
+    "section": {
+      "appointments": {
+        "title": "Programările mele",
+        "subtitle": "Vizitele tale și istoricul programărilor."
+      },
+      "masters": {
+        "title": "Maeștri",
+        "subtitle": "Maeștrii la care ai fost și ceilalți din salon."
+      },
+      "salon": {
+        "title": "Salon",
+        "subtitle": "Saloanele în care ai fost."
+      },
+      "reviews": {
+        "title": "Recenzii",
+        "subtitle": "Recenziile tale despre vizite."
+      },
+      "loyalty": {
+        "title": "Puncte",
+        "subtitle": "Puncte pentru vizite și invitații."
+      },
+      "profile": {
+        "title": "Profil",
+        "subtitle": "Datele tale și modul de autentificare."
+      }
+    }
   },
   "reviews": {
     "title": "Recenzii",

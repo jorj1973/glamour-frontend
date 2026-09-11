@@ -771,7 +771,8 @@
       "myBookings": "My bookings",
       "retry": "Try again"
     },
-    "recommended": "Recommended"
+    "recommended": "Recommended",
+    "phone": "Phone"
   },
   "platform": {
     "adminTitle": "Platform Admin",
@@ -985,7 +986,33 @@
     "noticeText": "A postponed booking only reminds you of your choice — the slot stays open to everyone. To get the time you want, finish the booking right away: masters are booked tightly and good hours go fast.",
     "noticeClose": "Got it",
     "rescheduleButton": "Reschedule",
-    "noLink": "To book, open your salon’s link — they send it in a message or share it as a QR code."
+    "noLink": "To book, open your salon’s link — they send it in a message or share it as a QR code.",
+    "section": {
+      "appointments": {
+        "title": "My appointments",
+        "subtitle": "Your visits and booking history."
+      },
+      "masters": {
+        "title": "Masters",
+        "subtitle": "Masters you have visited, and others at the salon."
+      },
+      "salon": {
+        "title": "Salon",
+        "subtitle": "Salons you have visited."
+      },
+      "reviews": {
+        "title": "Reviews",
+        "subtitle": "Your reviews of your visits."
+      },
+      "loyalty": {
+        "title": "Points",
+        "subtitle": "Points from visits and invitations."
+      },
+      "profile": {
+        "title": "Profile",
+        "subtitle": "Your details and how you sign in."
+      }
+    }
   },
   "reviews": {
     "title": "Reviews",
