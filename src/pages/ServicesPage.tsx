@@ -135,7 +135,7 @@ function Toggle({
           width: 40,
           height: 22,
           borderRadius: 11,
-          background: checked ? 'var(--app-accent)' : 'rgba(255,255,255,0.12)',
+          background: checked ? 'var(--app-accent)' : 'rgba(var(--app-ink-rgb),0.12)',
           position: 'relative',
           transition: 'background 0.2s',
           cursor: 'pointer',
@@ -750,7 +750,7 @@ function ServicesPage() {
                     maxHeight: 320,
                     overflowY: 'auto',
                     padding: 4,
-                    border: '1px solid rgba(255,255,255,0.09)',
+                    border: '1px solid rgba(var(--app-ink-rgb),0.09)',
                     borderRadius: 14,
                   }}
                 >
@@ -797,7 +797,7 @@ function ServicesPage() {
                             borderRadius: 6,
                             border: isAdded
                               ? '1px solid #4dd08b'
-                              : '1px solid rgba(255,255,255,0.25)',
+                              : '1px solid rgba(var(--app-ink-rgb),0.25)',
                             background: isAdded ? '#4dd08b' : 'transparent',
                             color: '#17151c',
                             fontSize: 13,
@@ -1478,9 +1478,9 @@ const styles = {
     justifyContent: 'center',
     width: 36,
     height: 36,
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)',
     borderRadius: 10,
-    background: 'rgba(255,255,255,0.05)',
+    background: 'rgba(var(--app-ink-rgb),0.05)',
     color: 'var(--app-text-muted)',
     cursor: 'pointer',
   } as React.CSSProperties,
@@ -1488,9 +1488,9 @@ const styles = {
   select: {
     width: '100%',
     padding: '11px 13px',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)',
     borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)',
+    background: 'rgba(var(--app-ink-rgb),0.06)',
     color: 'var(--app-text)',
     fontSize: 14,
   } as React.CSSProperties,
@@ -1500,9 +1500,9 @@ const styles = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: 12,
     padding: '16px',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.08)',
     borderRadius: 14,
-    background: 'rgba(255,255,255,0.03)',
+    background: 'rgba(var(--app-ink-rgb),0.03)',
   } as React.CSSProperties,
 
   searchBar: {
@@ -1510,9 +1510,9 @@ const styles = {
     alignItems: 'center',
     gap: 10,
     padding: '10px 14px',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.1)',
     borderRadius: 14,
-    background: 'rgba(255,255,255,0.05)',
+    background: 'rgba(var(--app-ink-rgb),0.05)',
     marginBottom: 16,
   } as React.CSSProperties,
 
@@ -1544,11 +1544,11 @@ const styles = {
   },
 
   serviceCard: (isActive: boolean) => ({
-    border: `1px solid ${isActive ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.05)'}`,
+    border: `1px solid ${isActive ? 'rgba(var(--app-ink-rgb),0.09)' : 'rgba(var(--app-ink-rgb),0.05)'}`,
     borderRadius: 16,
     padding: '16px 18px',
     marginBottom: 10,
-    background: isActive ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.015)',
+    background: isActive ? 'rgba(var(--app-ink-rgb),0.03)' : 'rgba(var(--app-ink-rgb),0.015)',
     opacity: isActive ? 1 : 0.7,
   } as React.CSSProperties),
 
@@ -1594,9 +1594,9 @@ const styles = {
     justifyContent: 'center',
     width: 32,
     height: 32,
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.1)',
     borderRadius: 9,
-    background: 'rgba(255,255,255,0.05)',
+    background: 'rgba(var(--app-ink-rgb),0.05)',
     color: 'var(--app-text-muted)',
     cursor: 'pointer',
   } as React.CSSProperties,
@@ -1604,7 +1604,7 @@ const styles = {
   expandedDetails: {
     marginTop: 14,
     paddingTop: 14,
-    borderTop: '1px solid rgba(255,255,255,0.07)',
+    borderTop: '1px solid rgba(var(--app-ink-rgb),0.07)',
   } as React.CSSProperties,
 
   detailGrid: {
@@ -1620,7 +1620,7 @@ const styles = {
     gap: 3,
     padding: '10px 12px',
     borderRadius: 10,
-    background: 'rgba(255,255,255,0.04)',
+    background: 'rgba(var(--app-ink-rgb),0.04)',
     fontSize: 12,
     color: 'var(--app-text-muted)',
   },

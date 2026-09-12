@@ -156,8 +156,8 @@ function MasterCredentials() {
     }
   }
 
-  const inputStyle = { padding: '10px 13px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none' };
-  const smallButton = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 600, cursor: 'pointer' };
+  const inputStyle = { padding: '10px 13px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none' };
+  const smallButton = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 600, cursor: 'pointer' };
 
   if (isLoading) {
     return <p className="dashboard-status">{t('common.loading')}</p>;
@@ -205,7 +205,7 @@ function MasterCredentials() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {credentials.map((item) => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '12px 14px', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.04)', border: '1px solid rgba(var(--app-ink-rgb),0.07)' }}>
                 <FileText size={18} color={item.fileUrl ? '#9ae9bd' : '#6d656f'} />
                 <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                   <p style={{ color: 'var(--app-text)', fontSize: 13, fontWeight: 700 }}>{item.title}</p>
@@ -285,7 +285,7 @@ function MasterCredentials() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
             {portfolio.map((item) => (
-              <div key={item.id} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div key={item.id} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(var(--app-ink-rgb),0.08)' }}>
                 <img src={item.imageUrl} alt={item.caption ?? ''} style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }} />
                 <button type="button" onClick={() => void handleDeletePhoto(item.id)} style={{ position: 'absolute', top: 6, right: 6, display: 'inline-flex', padding: 6, border: 0, borderRadius: 8, background: 'rgba(23,21,28,0.75)', color: 'var(--app-danger)', cursor: 'pointer' }}>
                   <Trash2 size={14} />

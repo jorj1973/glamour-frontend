@@ -1826,7 +1826,7 @@ function Td({
     <td
       style={{
         padding: '9px 10px 9px 0',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        borderBottom: '1px solid rgba(var(--app-ink-rgb),0.05)',
         color: color ?? (muted ? 'var(--app-text-muted)' : 'var(--app-text)'),
         textAlign: align ?? 'left',
         whiteSpace: 'nowrap',

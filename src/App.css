@@ -49,9 +49,9 @@ input {
 
 .dashboard-status {
   padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--app-ink-rgb), 0.05);
   color: #d7ced8;
 }
 
@@ -120,7 +120,7 @@ input {
 
 .metric-card,
 .dashboard-panel {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   background: linear-gradient(
     145deg,
     var(--pf-panel-1),
@@ -176,7 +176,7 @@ input {
   justify-content: space-between;
   gap: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(var(--app-ink-rgb), 0.09);
   color: #efb6d8;
 }
 
@@ -197,7 +197,7 @@ input {
   gap: 12px;
   align-items: center;
   padding: 18px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--app-ink-rgb), 0.08);
 }
 
 .ranking-row:last-child {
@@ -297,7 +297,7 @@ input {
   width: 260px;
   height: 100vh;
   padding: 28px 20px;
-  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  border-right: 1px solid rgba(var(--app-ink-rgb), 0.09);
   background: rgba(20, 17, 24, 0.96);
 }
 
@@ -361,9 +361,9 @@ input {
 .service-form textarea,
 .service-search input {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.12);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(var(--app-ink-rgb), 0.06);
   color: #fff7fc;
   padding: 13px 14px;
   outline: none;
@@ -433,7 +433,7 @@ input {
 .login-card {
   width: min(100%, 460px);
   padding: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 24px;
   background: linear-gradient(
     145deg,
@@ -477,9 +477,9 @@ input {
   gap: 10px;
   min-height: 50px;
   padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.13);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(var(--app-ink-rgb), 0.06);
   color: #efb6d8;
 }
 
@@ -566,7 +566,7 @@ input {
 .branding-card,
 .branding-preview {
   padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 22px;
   background: linear-gradient(
     145deg,
@@ -616,10 +616,10 @@ input {
 .branding-fields textarea {
   width: 100%;
   padding: 13px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.12);
   border-radius: 14px;
   outline: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(var(--app-ink-rgb), 0.06);
   color: #fff7fc;
 }
 
@@ -640,9 +640,9 @@ input {
   gap: 12px;
   min-height: 48px;
   padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.12);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(var(--app-ink-rgb), 0.06);
 }
 
 .color-control input {
@@ -672,9 +672,9 @@ input {
   justify-content: center;
   gap: 9px;
   min-height: 52px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.12);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(var(--app-ink-rgb), 0.05);
   color: #b9b0bb;
   cursor: pointer;
 }
@@ -852,6 +852,8 @@ input {
   --app-border: rgba(225, 172, 82, 0.18);
   --app-input: rgba(255, 255, 255, 0.06);
   --app-shadow: rgba(0, 0, 0, 0.18);
+  /* Цвет «чернил» темы: тонкие линии и подложки как rgba(var(--app-ink-rgb), α). */
+  --app-ink-rgb: 255, 255, 255;
 }
 
 :root[data-theme="light"] {
@@ -864,6 +866,7 @@ input {
   --app-border: rgba(157, 109, 27, 0.28);
   --app-input: rgba(54, 40, 57, 0.05);
   --app-shadow: rgba(54, 40, 57, 0.08);
+  --app-ink-rgb: 54, 40, 57;
 }
 
 :root[data-theme="light"] body {
@@ -3849,7 +3852,7 @@ input {
   min-height: calc(100vh - 56px);
   padding-bottom: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 28px;
   background: rgba(26, 22, 29, 0.96);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
@@ -3885,7 +3888,7 @@ input {
   right: -110px;
   width: 310px;
   height: 310px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.08);
   border-radius: 50%;
   content: '';
 }
@@ -3916,9 +3919,9 @@ input {
   width: 66px;
   height: 66px;
   flex: 0 0 66px;
-  border: 1px solid rgba(255, 255, 255, 0.17);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.17);
   border-radius: 19px;
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(var(--app-ink-rgb), 0.09);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
@@ -3988,9 +3991,9 @@ input {
   gap: 14px;
   align-items: flex-start;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.08);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(var(--app-ink-rgb), 0.045);
 }
 
 .registration-benefit > span {
@@ -4319,7 +4322,7 @@ input {
   width: min(660px, 100%);
   margin: 70px auto;
   padding: 46px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 26px;
   background: linear-gradient(
     145deg,
@@ -4389,9 +4392,9 @@ input {
   align-items: center;
   justify-content: center;
   padding: 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.15);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(var(--app-ink-rgb), 0.06);
   color: #fff7fc;
   cursor: pointer;
   font: inherit;
@@ -4404,9 +4407,9 @@ input {
   gap: 8px;
   margin-top: 22px;
   padding: 10px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.1);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(var(--app-ink-rgb), 0.055);
   color: #e7dfe8;
   font-size: 13px;
 }
@@ -5049,12 +5052,12 @@ input {
   height: 76px;
   flex: 0 0 76px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(var(--app-ink-rgb), 0.24);
   border-radius: 21px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(var(--app-ink-rgb), 0.08);
   box-shadow:
     0 14px 34px rgba(0, 0, 0, 0.28),
-    0 0 0 4px rgba(255, 255, 255, 0.025);
+    0 0 0 4px rgba(var(--app-ink-rgb), 0.025);
 }
 
 .registration-brand-logo {

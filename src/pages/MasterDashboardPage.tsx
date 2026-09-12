@@ -434,7 +434,7 @@ function MasterDashboardPage() {
               <div className="ranking-list">
                 {upcoming.map((apt) => (
                   <div className="ranking-row" key={apt.id}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 42, padding: '4px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 42, padding: '4px 8px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)' }}>
                       <strong style={{ color: 'var(--app-text)', fontSize: 13 }}>{new Date(apt.startTime).toLocaleString(dateLocale, { day: '2-digit', month: '2-digit' })}</strong>
                       <span style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{new Date(apt.startTime).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
@@ -450,7 +450,7 @@ function MasterDashboardPage() {
               </div>
             )}
             <div style={{ marginTop: 16 }}>
-              <a href="#appointments" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <a href="#appointments" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(var(--app-ink-rgb),0.1)', background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 <CalendarDays size={14} /> {t('dashboard.allAppointments')}
               </a>
             </div>
@@ -500,8 +500,8 @@ function MasterDashboardPage() {
             </p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-start' }}>
               <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1px solid rgba(255,255,255,0.15)', borderRadius: 13, overflow: 'hidden', background: 'rgba(255,255,255,0.06)' }}>
-                  <span style={{ padding: '11px 12px', color: 'var(--app-text-muted)', fontSize: 13, borderRight: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'nowrap', flexShrink: 0 }}>glamour/</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1px solid rgba(var(--app-ink-rgb),0.15)', borderRadius: 13, overflow: 'hidden', background: 'rgba(var(--app-ink-rgb),0.06)' }}>
+                  <span style={{ padding: '11px 12px', color: 'var(--app-text-muted)', fontSize: 13, borderRight: '1px solid rgba(var(--app-ink-rgb),0.08)', whiteSpace: 'nowrap', flexShrink: 0 }}>glamour/</span>
                   <input
                     type="text"
                     value={slugInput}
@@ -545,7 +545,7 @@ function MasterDashboardPage() {
                   value={promoUrl}
                   readOnly
                   onFocus={(e) => e.currentTarget.select()}
-                  style={{ flex: 1, minWidth: 200, padding: '11px 14px', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 13, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none' }}
+                  style={{ flex: 1, minWidth: 200, padding: '11px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.15)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none' }}
                 />
                 <button
                   type="button"
@@ -566,7 +566,7 @@ function MasterDashboardPage() {
                   <button type="button" onClick={() => shareVia('telegram')} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 42, padding: '0 16px', border: '1px solid rgba(41,182,246,0.3)', borderRadius: 12, background: 'rgba(41,182,246,0.1)', color: '#67c8f7', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                     Telegram
                   </button>
-                  <a href={promoUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 42, padding: '0 16px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                  <a href={promoUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 42, padding: '0 16px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                     <ExternalLink size={14} /> {t('common.open')}
                   </a>
                 </div>

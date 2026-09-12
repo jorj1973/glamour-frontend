@@ -152,9 +152,9 @@ function SalonInfoPage() {
 
   const inputStyle = {
     padding: '11px 14px',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)',
     borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)',
+    background: 'rgba(var(--app-ink-rgb),0.06)',
     color: 'var(--app-text)',
     fontSize: 14,
     outline: 'none',

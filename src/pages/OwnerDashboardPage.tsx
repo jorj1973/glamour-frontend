@@ -127,7 +127,7 @@ function OwnerDashboardPage() {
               <span>{t('dashboard.salon')}</span>
               <strong>{salon?.name ?? '—'}</strong>
             </div>
-            <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadDashboard()} disabled={isLoading}>
+            <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 14, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadDashboard()} disabled={isLoading}>
               <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} />
               {t('common.refresh')}
             </button>
@@ -257,7 +257,7 @@ function OwnerDashboardPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
             {quickActions.map((item) => (
-              <button key={item.hash} type="button" onClick={() => { window.location.hash = item.hash; }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, background: 'rgba(255,255,255,0.04)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              <button key={item.hash} type="button" onClick={() => { window.location.hash = item.hash; }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.08)', borderRadius: 14, background: 'rgba(var(--app-ink-rgb),0.04)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                 <span style={{ color: 'var(--app-accent-text)' }}>{item.icon}</span>{item.label}
               </button>
             ))}
@@ -274,7 +274,7 @@ function OwnerDashboardPage() {
               <div className="ranking-list">
                 {upcoming.map((apt) => (
                   <div className="ranking-row" key={apt.id}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 42, padding: '4px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 42, padding: '4px 8px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)' }}>
                       <strong style={{ color: 'var(--app-text)', fontSize: 13 }}>{new Date(apt.startTime).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit' })}</strong>
                       <span style={{ color: 'var(--app-text-muted)', fontSize: 11 }}>{new Date(apt.startTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
@@ -290,7 +290,7 @@ function OwnerDashboardPage() {
               </div>
             )}
             <div style={{ marginTop: 14 }}>
-              <a href="#appointments" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <a href="#appointments" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(var(--app-ink-rgb),0.1)', background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 <CalendarDays size={14} /> {t('nav.appointments')}
               </a>
             </div>

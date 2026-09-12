@@ -938,7 +938,7 @@ function AppLayout({ children }: AppLayoutProps) {
             <ChatUnreadBadge />
           </a>
         </nav>
-        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto' }}>
+        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(var(--app-ink-rgb),0.07)', marginTop: 'auto' }}>
           <LanguageSwitcher />
 
                     <div style={{ height: 10 }} />

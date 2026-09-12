@@ -189,7 +189,7 @@ function MasterSchedulePage() {
         </header>
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-          <a href="#schedule" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+          <a href="#schedule" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
             <CalendarDays size={14} /> {t('calendar.backToCalendar')}
           </a>
         </div>
@@ -219,7 +219,7 @@ function MasterSchedulePage() {
           ) : (
             <div>
               {rows.map((row) => (
-                <div key={row.dayOfWeek} style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: row.isWorkingDay ? 'transparent' : 'rgba(255,255,255,0.015)', opacity: row.isWorkingDay ? 1 : 0.65 }}>
+                <div key={row.dayOfWeek} style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '14px 16px', borderBottom: '1px solid rgba(var(--app-ink-rgb),0.06)', background: row.isWorkingDay ? 'transparent' : 'rgba(var(--app-ink-rgb),0.015)', opacity: row.isWorkingDay ? 1 : 0.65 }}>
                   <div style={{ minWidth: 130 }}>
                     <strong style={{ color: 'var(--app-text)', fontSize: 14 }}>{t('schedule.days.' + row.dayOfWeek)}</strong>
                   </div>
@@ -227,7 +227,7 @@ function MasterSchedulePage() {
                   <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', color: 'var(--app-text)', fontSize: 13, minWidth: 130 }}>
                     <span
                       onClick={() => updateRow(row.dayOfWeek, { isWorkingDay: !row.isWorkingDay })}
-                      style={{ display: 'inline-flex', width: 40, height: 22, borderRadius: 11, background: row.isWorkingDay ? 'var(--app-accent)' : 'rgba(255,255,255,0.12)', position: 'relative', transition: 'background 0.2s', cursor: 'pointer', flexShrink: 0 }}
+                      style={{ display: 'inline-flex', width: 40, height: 22, borderRadius: 11, background: row.isWorkingDay ? 'var(--app-accent)' : 'rgba(var(--app-ink-rgb),0.12)', position: 'relative', transition: 'background 0.2s', cursor: 'pointer', flexShrink: 0 }}
                     >
                       <span style={{ position: 'absolute', top: 3, left: row.isWorkingDay ? 21 : 3, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
                     </span>
@@ -279,9 +279,9 @@ function MasterSchedulePage() {
 
 const inputStyle: React.CSSProperties = {
   padding: '7px 10px',
-  border: '1px solid rgba(255,255,255,0.12)',
+  border: '1px solid rgba(var(--app-ink-rgb),0.12)',
   borderRadius: 10,
-  background: 'rgba(255,255,255,0.06)',
+  background: 'rgba(var(--app-ink-rgb),0.06)',
   color: 'var(--app-text)',
   fontSize: 13,
 };

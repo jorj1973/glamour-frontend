@@ -112,7 +112,7 @@ function MasterPaymentPage() {
     }
   }
 
-  const inputStyle = { padding: '11px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14, outline: 'none' };
+  const inputStyle = { padding: '11px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 14, outline: 'none' };
   const labelStyle = { display: 'flex', flexDirection: 'column' as const, gap: 6, fontSize: 13, color: 'var(--app-text)' };
 
   return (
@@ -190,7 +190,7 @@ function MasterPaymentPage() {
                 <Wallet size={22} />
               </div>
               <p style={{ color: 'var(--app-text-muted)', fontSize: 13, marginBottom: 12 }}>{t('payment.noteSubtitle')}</p>
-              <textarea value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder={t('payment.notePlaceholder')} maxLength={200} rows={3} style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+              <textarea value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder={t('payment.notePlaceholder')} maxLength={200} rows={3} style={{ width: '100%', padding: '11px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
               <p style={{ color: '#555', fontSize: 11, marginTop: 4 }}>{currentNote.length}/200</p>
             </article>
 

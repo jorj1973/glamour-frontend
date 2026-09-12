@@ -1057,7 +1057,7 @@ function SmsPlatformPanel() {
                     gap: 12,
                     flexWrap: 'wrap',
                     padding: '9px 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    borderBottom: '1px solid rgba(var(--app-ink-rgb),0.05)',
                   }}
                 >
                   <strong

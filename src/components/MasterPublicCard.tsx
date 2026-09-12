@@ -201,7 +201,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
                 height: compact ? 72 : 120,
                 objectFit: 'cover',
                 borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid rgba(var(--app-ink-rgb),0.08)',
               }}
             />
           ))}
@@ -251,7 +251,7 @@ function MasterPublicCard({ masterProfileId, compact = false }: Props) {
                       maxWidth: 260,
                       marginTop: 6,
                       borderRadius: 10,
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(var(--app-ink-rgb),0.08)',
                       pointerEvents: 'none',
                       userSelect: 'none',
                     }}

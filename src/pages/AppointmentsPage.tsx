@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Clock,
   Filter,
+  Lock,
   MessageSquare,
   Phone,
   Plus,
@@ -53,6 +54,13 @@ type Appointment = {
   masterName?: string;
   serviceName?: string;
   createdAt: string;
+
+  /**
+   * Запись независимого мастера в календаре салона: время занято, а чей
+   * это клиент и какая услуга — знает только мастер и администратор
+   * салона. Сервер присылает такие записи без подробностей (ADR-005).
+   */
+  opaque?: boolean;
 };
 
 type NewAppointmentForm = {
@@ -88,7 +96,7 @@ function getStatusConfig(t: (key: string) => string): Record<string, { label: st
     confirmed: { label: t('appointments.status.confirmed'), color: '#a8c9ff', bg: 'rgba(114,167,255,0.12)', icon: <Check size={13} /> },
     completed: { label: t('appointments.status.completed'), color: '#8ee5b5', bg: 'rgba(77,208,139,0.12)', icon: <CheckCircle size={13} /> },
     cancelled: { label: t('appointments.status.cancelled'), color: 'var(--app-danger)', bg: 'rgba(255,96,128,0.12)', icon: <XCircle size={13} /> },
-    no_show: { label: t('appointments.status.no_show'), color: '#c9beca', bg: 'rgba(255,255,255,0.08)', icon: <X size={13} /> },
+    no_show: { label: t('appointments.status.no_show'), color: '#c9beca', bg: 'rgba(var(--app-ink-rgb),0.08)', icon: <X size={13} /> },
   };
 }
 
@@ -100,7 +108,7 @@ function getWorkspaceMode(): WorkspaceMode {
 
 function StatusBadge({ status }: { status: string }) {
   const { t: tBadge } = useTranslation();
-  const cfg = getStatusConfig(tBadge)[status] ?? { label: status, color: 'var(--app-text-muted)', bg: 'rgba(255,255,255,0.08)', icon: null };
+  const cfg = getStatusConfig(tBadge)[status] ?? { label: status, color: 'var(--app-text-muted)', bg: 'rgba(var(--app-ink-rgb),0.08)', icon: null };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -568,6 +576,13 @@ function AppointmentsPage() {
                             )}
                           </div>
                           <div style={{ display: 'flex', gap: 14, marginTop: 6, flexWrap: 'wrap' }}>
+                            {/* Время независимого мастера: только «Занято». */}
+                            {a.opaque && (
+                              <span style={styles.infoChip}>
+                                <Lock size={12} /> {t('appointments.busy')}
+                              </span>
+                            )}
+
                             {/* Имя первым: мастер смотрит список, чтобы понять,
                                 кто придёт. Телефон нужен реже — только для звонка. */}
                             {a.clientName && (
@@ -637,8 +652,17 @@ function AppointmentsPage() {
                             </div>
                           )}
 
+                          {/* Чужая запись: ни подробностей, ни действий —
+                              их делает сам мастер или администратор. */}
+                          {a.opaque && (
+                            <div style={styles.commentBlock}>
+                              <Lock size={13} style={{ color: 'var(--app-text-muted)' }} />
+                              <span>{t('appointments.busyHint')}</span>
+                            </div>
+                          )}
+
                           {/* Управление статусом */}
-                          {!isMasterWorkspace && a.status !== 'completed' && a.status !== 'cancelled' && (
+                          {!a.opaque && !isMasterWorkspace && a.status !== 'completed' && a.status !== 'cancelled' && (
                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
                               {a.status === 'pending' && (
                                 <button type="button" style={styles.actionBtn('confirm')}
@@ -677,7 +701,7 @@ function AppointmentsPage() {
                               завершённого визита, и после отмены.
                               Ряд выше к этому времени скрыт целиком,
                               а повод написать как раз тогда и есть. */}
-                          {!isMasterWorkspace && (
+                          {!a.opaque && !isMasterWorkspace && (
                             <ChatWithButton
                               userId={a.clientUserId}
                               small
@@ -685,7 +709,7 @@ function AppointmentsPage() {
                             />
                           )}
 
-                          {isMasterWorkspace && (
+                          {!a.opaque && isMasterWorkspace && (
                             <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
                               {a.status === 'pending' && (
                                 <button type="button" style={styles.actionBtn('confirm')}
@@ -774,28 +798,28 @@ const styles = {
   secondaryBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 7,
     minHeight: 42, padding: '0 14px',
-    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12,
-    background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)',
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12,
+    background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)',
     fontSize: 13, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties,
 
   closeBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    width: 34, height: 34, border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: 10, background: 'rgba(255,255,255,0.05)',
+    width: 34, height: 34, border: '1px solid rgba(var(--app-ink-rgb),0.12)',
+    borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.05)',
     color: 'var(--app-text-muted)', cursor: 'pointer',
   } as React.CSSProperties,
 
   select: {
     width: '100%', padding: '11px 13px',
-    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14,
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13,
+    background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 14,
   } as React.CSSProperties,
 
   input: {
     width: '100%', padding: '11px 13px',
-    border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13,
-    background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14,
+    border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13,
+    background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 14,
     outline: 'none',
   } as React.CSSProperties,
 
@@ -806,8 +830,8 @@ const styles = {
 
   searchBar: {
     display: 'flex', alignItems: 'center', gap: 8,
-    padding: '8px 13px', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 12, background: 'rgba(255,255,255,0.05)', flex: 1, minWidth: 200,
+    padding: '8px 13px', border: '1px solid rgba(var(--app-ink-rgb),0.1)',
+    borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.05)', flex: 1, minWidth: 200,
   } as React.CSSProperties,
 
   searchInput: {
@@ -827,9 +851,9 @@ const styles = {
   filterBtn: (active: boolean) => ({
     display: 'inline-flex', alignItems: 'center', gap: 5,
     minHeight: 34, padding: '0 12px',
-    border: `1px solid ${active ? 'rgba(var(--app-accent-rgb), 0.4)' : 'rgba(255,255,255,0.1)'}`,
+    border: `1px solid ${active ? 'rgba(var(--app-accent-rgb), 0.4)' : 'rgba(var(--app-ink-rgb),0.1)'}`,
     borderRadius: 10,
-    background: active ? 'rgba(var(--app-accent-rgb), 0.14)' : 'rgba(255,255,255,0.04)',
+    background: active ? 'rgba(var(--app-accent-rgb), 0.14)' : 'rgba(var(--app-ink-rgb),0.04)',
     color: active ? 'var(--app-danger)' : 'var(--app-text-muted)',
     fontSize: 12, fontWeight: 700, cursor: 'pointer',
   } as React.CSSProperties),
@@ -837,7 +861,7 @@ const styles = {
   filterCount: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     minWidth: 20, height: 18, padding: '0 5px', borderRadius: 999,
-    background: 'rgba(255,255,255,0.1)', color: 'var(--app-text)', fontSize: 10, fontWeight: 700,
+    background: 'rgba(var(--app-ink-rgb),0.1)', color: 'var(--app-text)', fontSize: 10, fontWeight: 700,
   } as React.CSSProperties,
 
   emptyState: {
@@ -847,7 +871,7 @@ const styles = {
   },
 
   appointmentCard: (isToday: boolean) => ({
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    borderBottom: '1px solid rgba(var(--app-ink-rgb),0.06)',
     borderLeft: isToday ? '3px solid rgba(114,167,255,0.5)' : '3px solid transparent',
     padding: '14px 16px',
     transition: 'background 0.15s',
@@ -861,7 +885,7 @@ const styles = {
     display: 'flex', flexDirection: 'column' as const,
     alignItems: 'center', gap: 2, minWidth: 42,
     padding: '6px 8px', borderRadius: 10,
-    background: 'rgba(255,255,255,0.04)', flexShrink: 0,
+    background: 'rgba(var(--app-ink-rgb),0.04)', flexShrink: 0,
   },
 
   infoChip: {
@@ -871,7 +895,7 @@ const styles = {
 
   expandedBlock: {
     marginTop: 12, paddingTop: 12,
-    borderTop: '1px solid rgba(255,255,255,0.06)',
+    borderTop: '1px solid rgba(var(--app-ink-rgb),0.06)',
   } as React.CSSProperties,
 
   detailGrid: {
@@ -882,7 +906,7 @@ const styles = {
   detailItem: {
     display: 'flex', flexDirection: 'column' as const, gap: 3,
     padding: '9px 11px', borderRadius: 9,
-    background: 'rgba(255,255,255,0.04)', fontSize: 11, color: 'var(--app-text-muted)',
+    background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 11, color: 'var(--app-text-muted)',
   },
 
   commentBlock: {

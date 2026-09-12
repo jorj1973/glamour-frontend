@@ -156,7 +156,9 @@
     "count_few": "{{count}} programări",
     "count_other": "{{count}} de programări",
     "delete": "Șterge",
-    "confirmDelete": "Elimini programarea din calendar și rapoarte? Datele rămân în bază."
+    "confirmDelete": "Elimini programarea din calendar și rapoarte? Datele rămân în bază.",
+    "busy": "Ocupat",
+    "busyHint": "Programare a unui maestru independent. Detaliile sunt vizibile administratorului salonului."
   },
   "clients": {
     "title": "Clienții salonului",

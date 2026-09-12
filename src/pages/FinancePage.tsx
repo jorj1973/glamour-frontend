@@ -166,7 +166,7 @@ function FinancePage() {
             </div>
             <button
               type="button"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 14, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 14, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
               onClick={() => salon && loadFinance(salon.id)}
               disabled={isLoading}
             >

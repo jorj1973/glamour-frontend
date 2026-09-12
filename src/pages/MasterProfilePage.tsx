@@ -42,6 +42,11 @@ const CURRENT_YEAR = new Date().getFullYear();
 function MasterProfilePage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
+  /**
+   * Профиль дошёл с сервера. До этого форма пуста, и сохранение стёрло бы
+   * настоящие данные пустыми полями — кнопка закрыта, пока не загрузилось.
+   */
+  const [isLoaded, setIsLoaded] = useState(false);
   const [saveState, setSaveState] = useState<ActionState>('idle');
   const [saveHint, setSaveHint] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -153,6 +158,7 @@ function MasterProfilePage() {
 
   async function loadProfile() {
     setIsLoading(true);
+    setIsLoaded(false);
     try {
       const res = await api.get<MasterProfile>('/masters/me');
       const p = res.data;
@@ -178,6 +184,7 @@ function MasterProfilePage() {
       setAcceptsOnlineBooking(p.acceptsOnlineBooking ?? true);
       setAcceptsNewClients(p.acceptsNewClients ?? true);
       setIsPublic(p.isPublic ?? true);
+      setIsLoaded(true);
     } catch {
       setErrorMsg(t('common.loadError'));
     } finally {
@@ -226,6 +233,11 @@ function MasterProfilePage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!isLoaded) {
+      return;
+    }
+
     setSaveState('loading');
     setSaveHint('');
     setErrorMsg('');
@@ -266,9 +278,9 @@ function MasterProfilePage() {
     }
   }
 
-  const inputStyle = { padding: '11px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 13, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 14, outline: 'none' };
+  const inputStyle = { padding: '11px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 14, outline: 'none' };
   const labelStyle = { display: 'flex', flexDirection: 'column' as const, gap: 6, fontSize: 13, color: 'var(--app-text)' };
-  const toggleRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' };
+  const toggleRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(var(--app-ink-rgb),0.06)' };
 
   return (
     <AppLayout>
@@ -492,6 +504,7 @@ function MasterProfilePage() {
             <div style={{ marginTop: 20 }}>
               <ActionButton
                 type="submit"
+                disabled={!isLoaded}
                 state={saveState}
                 label={t('payment.saveButton')}
                 loadingLabel={t('payment.saving')}

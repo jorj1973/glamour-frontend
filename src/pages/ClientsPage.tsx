@@ -174,12 +174,12 @@ function ClientsPage() {
         {salon?.id && <ClientImportPanel salonId={salon.id} />}
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => salon && loadClients(salon.id)} disabled={isLoading}>
+          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => salon && loadClients(salon.id)} disabled={isLoading}>
             <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} /> {t('clients.refresh')}
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 13, background: 'rgba(255,255,255,0.05)', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.1)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.05)', marginBottom: 16 }}>
           <Search size={16} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("clients.searchPlaceholder")} style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }} />
           {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
@@ -210,7 +210,7 @@ function ClientsPage() {
                   const fullName = `${client.firstName} ${client.lastName}`.trim();
                   const initials = getInitials(client.firstName, client.lastName);
                   return (
-                    <div key={client.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
+                    <div key={client.id} style={{ borderBottom: '1px solid rgba(var(--app-ink-rgb),0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
                       <div className="client-row" style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => {
                         const next = isExpanded ? null : client.id;
                         setExpandedId(next);
@@ -232,11 +232,11 @@ function ClientsPage() {
                         </div>
                       </div>
                       {isExpanded && (
-                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(var(--app-ink-rgb),0.06)' }}>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8, marginBottom: 12 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.clientSince")}</span><strong>{formatDate(client.createdAt)}</strong></div>
-                            {client.lastVisit && <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.lastVisit")}</span><strong>{formatDate(client.lastVisit)}</strong></div>}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.status")}</span><strong style={{ color: client.isActive !== false ? '#8ee5b5' : 'var(--app-danger)' }}>{client.isActive !== false ? t('clients.active') : t('clients.inactive')}</strong></div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.clientSince")}</span><strong>{formatDate(client.createdAt)}</strong></div>
+                            {client.lastVisit && <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.lastVisit")}</span><strong>{formatDate(client.lastVisit)}</strong></div>}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}><span>{t("clients.status")}</span><strong style={{ color: client.isActive !== false ? '#8ee5b5' : 'var(--app-danger)' }}>{client.isActive !== false ? t('clients.active') : t('clients.inactive')}</strong></div>
                           </div>
                           {/* Баллы: копятся сами, списывает мастер при расчёте.
                               Тратить необязательно — решает клиент. */}
@@ -271,9 +271,9 @@ function ClientsPage() {
                                     style={{
                                       flex: '1 1 120px',
                                       padding: '9px 12px',
-                                      border: '1px solid rgba(255,255,255,0.12)',
+                                      border: '1px solid rgba(var(--app-ink-rgb),0.12)',
                                       borderRadius: 10,
-                                      background: 'rgba(255,255,255,0.06)',
+                                      background: 'rgba(var(--app-ink-rgb),0.06)',
                                       color: 'var(--app-text)',
                                       fontSize: 13,
                                     }}
@@ -304,9 +304,9 @@ function ClientsPage() {
                           )}
 
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                            {client.email && <a href={`mailto:${client.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}><Mail size={13} />{t("clients.sendEmail")}</a>}
-                            {client.phone && <a href={`tel:${client.phone}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}><Phone size={13} />{t("clients.call")}</a>}
-                            <button type="button" onClick={() => { window.location.hash = '#appointments'; }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><CalendarDays size={13} />{t('clients.appointments')}</button>
+                            {client.email && <a href={`mailto:${client.email}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(var(--app-ink-rgb),0.1)', background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}><Mail size={13} />{t("clients.sendEmail")}</a>}
+                            {client.phone && <a href={`tel:${client.phone}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(var(--app-ink-rgb),0.1)', background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}><Phone size={13} />{t("clients.call")}</a>}
+                            <button type="button" onClick={() => { window.location.hash = '#appointments'; }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, minHeight: 34, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(var(--app-ink-rgb),0.1)', background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}><CalendarDays size={13} />{t('clients.appointments')}</button>
                           </div>
                         </div>
                       )}

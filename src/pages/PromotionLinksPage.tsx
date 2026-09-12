@@ -407,9 +407,9 @@ function PromotionLinksPage() {
                 gap: 7,
                 minHeight: 46,
                 padding: '0 14px',
-                border: '1px solid rgba(255,255,255,0.12)',
+                border: '1px solid rgba(var(--app-ink-rgb),0.12)',
                 borderRadius: 14,
-                background: 'rgba(255,255,255,0.05)',
+                background: 'rgba(var(--app-ink-rgb),0.05)',
                 color: 'var(--app-text)',
                 fontSize: 13,
                 fontWeight: 700,
@@ -492,9 +492,9 @@ function PromotionLinksPage() {
                   justifyContent: 'center',
                   width: 34,
                   height: 34,
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(var(--app-ink-rgb),0.12)',
                   borderRadius: 10,
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(var(--app-ink-rgb),0.05)',
                   color: 'var(--app-text-muted)',
                   cursor: 'pointer',
                 }}
@@ -545,9 +545,9 @@ function PromotionLinksPage() {
                     style={{
                       padding: '11px 13px',
                       border:
-                        '1px solid rgba(255,255,255,0.12)',
+                        '1px solid rgba(var(--app-ink-rgb),0.12)',
                       borderRadius: 13,
-                      background: 'rgba(255,255,255,0.06)',
+                      background: 'rgba(var(--app-ink-rgb),0.06)',
                       color: 'var(--app-text)',
                       fontSize: 14,
                     }}
@@ -682,11 +682,11 @@ function PromotionLinksPage() {
                       style={{
                         padding: '16px 18px',
                         border:
-                          '1px solid rgba(255,255,255,0.08)',
+                          '1px solid rgba(var(--app-ink-rgb),0.08)',
                         borderRadius: 16,
                         background: link.isActive
-                          ? 'rgba(255,255,255,0.03)'
-                          : 'rgba(255,255,255,0.01)',
+                          ? 'rgba(var(--app-ink-rgb),0.03)'
+                          : 'rgba(var(--app-ink-rgb),0.01)',
                         opacity: link.isActive ? 1 : 0.6,
                       }}
                     >
@@ -746,7 +746,7 @@ function PromotionLinksPage() {
                                   borderRadius: 999,
                                   fontSize: 11,
                                   background:
-                                    'rgba(255,255,255,0.08)',
+                                    'rgba(var(--app-ink-rgb),0.08)',
                                   color: 'var(--app-text-muted)',
                                 }}
                               >
@@ -775,7 +775,7 @@ function PromotionLinksPage() {
                               padding: '8px 12px',
                               borderRadius: 10,
                               background:
-                                'rgba(255,255,255,0.04)',
+                                'rgba(var(--app-ink-rgb),0.04)',
                               fontFamily: 'monospace',
                               fontSize: 12,
                               color: 'var(--app-text-muted)',
@@ -803,12 +803,12 @@ function PromotionLinksPage() {
                               minHeight: 36,
                               padding: '0 12px',
                               border:
-                                '1px solid rgba(255,255,255,0.1)',
+                                '1px solid rgba(var(--app-ink-rgb),0.1)',
                               borderRadius: 10,
                               background:
                                 copiedId === link.id
                                   ? 'rgba(77,208,139,0.1)'
-                                  : 'rgba(255,255,255,0.05)',
+                                  : 'rgba(var(--app-ink-rgb),0.05)',
                               color:
                                 copiedId === link.id
                                   ? '#8ee5b5'
@@ -840,10 +840,10 @@ function PromotionLinksPage() {
                               width: 36,
                               height: 36,
                               border:
-                                '1px solid rgba(255,255,255,0.1)',
+                                '1px solid rgba(var(--app-ink-rgb),0.1)',
                               borderRadius: 10,
                               background:
-                                'rgba(255,255,255,0.05)',
+                                'rgba(var(--app-ink-rgb),0.05)',
                               color: 'var(--app-text)',
                               textDecoration: 'none',
                             }}
@@ -1032,10 +1032,10 @@ function PromotionLinksPage() {
                           minHeight: 34,
                           padding: '0 12px',
                           border:
-                            '1px solid rgba(255,255,255,0.1)',
+                            '1px solid rgba(var(--app-ink-rgb),0.1)',
                           borderRadius: 10,
                           background:
-                            'rgba(255,255,255,0.05)',
+                            'rgba(var(--app-ink-rgb),0.05)',
                           color: 'var(--app-text)',
                           fontSize: 12,
                           fontWeight: 700,
@@ -1089,10 +1089,10 @@ function PromotionLinksPage() {
                         gap: 12,
                         padding: '12px 16px',
                         border:
-                          '1px solid rgba(255,255,255,0.07)',
+                          '1px solid rgba(var(--app-ink-rgb),0.07)',
                         borderRadius: 14,
                         background:
-                          'rgba(255,255,255,0.02)',
+                          'rgba(var(--app-ink-rgb),0.02)',
                       }}
                     >
                       <div
@@ -1134,10 +1134,10 @@ function PromotionLinksPage() {
                           minHeight: 34,
                           padding: '0 12px',
                           border:
-                            '1px solid rgba(255,255,255,0.1)',
+                            '1px solid rgba(var(--app-ink-rgb),0.1)',
                           borderRadius: 10,
                           background:
-                            'rgba(255,255,255,0.05)',
+                            'rgba(var(--app-ink-rgb),0.05)',
                           color: 'var(--app-text)',
                           fontSize: 12,
                           fontWeight: 700,

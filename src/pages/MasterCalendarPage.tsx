@@ -59,9 +59,9 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; color: string 
   exception:   { bg: 'rgba(255,208,139,0.14)', border: 'rgba(255,208,139,0.4)',  color: '#ffd08b' },
   vacation:    { bg: 'rgba(114,167,255,0.14)', border: 'rgba(114,167,255,0.4)',  color: '#a8c9ff' },
   sick_leave:  { bg: 'rgba(255,96,128,0.12)',  border: 'rgba(255,96,128,0.35)',  color: 'var(--app-danger)' },
-  day_off:     { bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.08)', color: 'var(--app-text-muted)' },
-  blocked:     { bg: 'rgba(255,255,255,0.06)', border: 'var(--app-toggle-track)', color: 'var(--app-text-muted)' },
-  not_working: { bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.06)', color: '#6f6870' },
+  day_off:     { bg: 'rgba(var(--app-ink-rgb),0.04)', border: 'rgba(var(--app-ink-rgb),0.08)', color: 'var(--app-text-muted)' },
+  blocked:     { bg: 'rgba(var(--app-ink-rgb),0.06)', border: 'var(--app-toggle-track)', color: 'var(--app-text-muted)' },
+  not_working: { bg: 'rgba(var(--app-ink-rgb),0.02)', border: 'rgba(var(--app-ink-rgb),0.06)', color: '#6f6870' },
 };
 
 /**
@@ -535,7 +535,7 @@ function MasterCalendarPage() {
                         gap: 3, minHeight: 68, padding: '8px 4px', cursor: 'pointer',
                         border: `1px solid ${isSelected ? 'var(--app-accent)' : c.border}`,
                         borderRadius: 12, background: c.bg, color: c.color,
-                        outline: isToday ? '2px solid rgba(255,255,255,0.25)' : 'none',
+                        outline: isToday ? '2px solid rgba(var(--app-ink-rgb),0.25)' : 'none',
                         outlineOffset: -2,
                       }}
                     >
@@ -657,7 +657,7 @@ function MasterCalendarPage() {
               )}
 
               {selected.isWorkingDay && (
-                <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(var(--app-ink-rgb),0.07)' }}>
                   <p style={{ color: 'var(--app-danger)', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', marginBottom: 12 }}>
                     {t('daySlots.title').toUpperCase()}
                   </p>
@@ -722,7 +722,7 @@ function MasterCalendarPage() {
 
                       if (row.kind === 'break') {
                         return (
-                          <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 12, border: '1px dashed var(--app-toggle-track)', background: 'rgba(255,255,255,0.02)', color: '#6f6870' }}>
+                          <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 12, border: '1px dashed var(--app-toggle-track)', background: 'rgba(var(--app-ink-rgb),0.02)', color: '#6f6870' }}>
                             <strong style={{ fontSize: 13, minWidth: 96 }}>{row.label}–{row.labelTo}</strong>
                             <span style={{ fontSize: 12 }}>{t('schedule.break')}</span>
                           </div>
@@ -833,7 +833,7 @@ function alertStyle(type: 'success' | 'error'): React.CSSProperties {
 const navBtnStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   width: 36, height: 36, border: '1px solid var(--app-toggle-track)',
-  borderRadius: 10, background: 'rgba(255,255,255,0.05)',
+  borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.05)',
   color: 'var(--app-text)', cursor: 'pointer',
 };
 
@@ -841,7 +841,7 @@ const linkBtnStyle: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 7,
   minHeight: 40, padding: '0 14px',
   border: '1px solid var(--app-toggle-track)', borderRadius: 12,
-  background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)',
+  background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)',
   fontSize: 13, fontWeight: 700, textDecoration: 'none',
 };
 
@@ -852,13 +852,13 @@ const labelStyle: React.CSSProperties = {
 
 const selectStyle: React.CSSProperties = {
   padding: '11px 13px', border: '1px solid var(--app-toggle-track)',
-  borderRadius: 13, background: 'rgba(255,255,255,0.06)',
+  borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.06)',
   color: 'var(--app-text)', fontSize: 14, minWidth: 220,
 };
 
 const timeStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid var(--app-toggle-track)',
-  borderRadius: 11, background: 'rgba(255,255,255,0.06)',
+  borderRadius: 11, background: 'rgba(var(--app-ink-rgb),0.06)',
   color: 'var(--app-text)', fontSize: 13,
 };
 

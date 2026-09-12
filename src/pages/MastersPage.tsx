@@ -321,12 +321,12 @@ function MastersPage() {
 
         {/* Кнопка обновления и поиск */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadData()} disabled={isLoading}>
+          <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 40, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 12, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadData()} disabled={isLoading}>
             <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} /> {t('masters.refresh')}
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 13, background: 'rgba(255,255,255,0.05)', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', border: '1px solid rgba(var(--app-ink-rgb),0.1)', borderRadius: 13, background: 'rgba(var(--app-ink-rgb),0.05)', marginBottom: 16 }}>
           <Search size={16} style={{ color: 'var(--app-danger)', flexShrink: 0 }} />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("masters.searchPlaceholder")} style={{ flex: 1, border: 0, outline: 0, background: 'transparent', color: 'var(--app-text)', fontSize: 13 }} />
           {search && <button type="button" style={{ display: 'flex', border: 0, background: 'transparent', color: 'var(--app-text-muted)', cursor: 'pointer' }} onClick={() => setSearch('')}><X size={14} /></button>}
@@ -361,7 +361,7 @@ function MastersPage() {
                   const fullName = [master.firstName, master.lastName].filter(Boolean).join(' ');
 
                   return (
-                    <div key={master.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
+                    <div key={master.id} style={{ borderBottom: '1px solid rgba(var(--app-ink-rgb),0.06)', padding: '14px 16px', background: isExpanded ? 'rgba(var(--app-accent-rgb), 0.04)' : 'transparent' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => setExpandedId(isExpanded ? null : master.id)}>
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'rgba(var(--app-accent-rgb), 0.12)', color: 'var(--app-danger)', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{index + 1}</span>
 
@@ -418,36 +418,36 @@ function MastersPage() {
                       </div>
 
                       {isExpanded && (
-                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(var(--app-ink-rgb),0.06)' }}>
                           {master.bio && (
                             // Абзацы разделяем: описание в одну строку
                             // читается тяжело, а мастера пишут длинно.
                             <div style={{ color: 'var(--app-text)', fontSize: 13.5, lineHeight: 1.65, marginBottom: 12, whiteSpace: 'pre-line', textAlign: 'left' }}>{masterBio(master, i18n.language)}</div>
                           )}
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.profession')}</span><strong>{byLanguage(master.profession, master.professionRo, master.professionRu, master.professionEn, i18n.language) || '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.city')}</span><strong>{master.city ?? '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.experienceLabel')}</span><strong>{master.experienceYears != null ? `${master.experienceYears} ${t('masters.experience')}` : '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.rating')}</span><strong style={{ color: 'var(--app-accent-text)' }}>{rating ? `${rating} ★` : '—'}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.profile')}</span><strong style={{ color: master.isPublic ? '#8ee5b5' : 'var(--app-danger)' }}>{master.isPublic ? t('masters.profilePublic') : t('masters.profileHidden')}</strong>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                               <span>{t('masters.type')}</span>
                               {canManage ? (
                                 <select
                                   value={master.cooperationType?.toLowerCase() === 'independent' ? 'independent' : 'staff'}
                                   disabled={savingCoopId === master.id}
                                   onChange={(e) => void changeCooperationType(master.id, e.target.value)}
-                                  style={{ marginTop: 2, padding: '6px 8px', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 8, background: 'rgba(255,255,255,0.06)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                                  style={{ marginTop: 2, padding: '6px 8px', border: '1px solid rgba(var(--app-ink-rgb),0.14)', borderRadius: 8, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                                 >
                                   <option value="staff">{t('masters.staff')}</option>
                                   <option value="independent">{t('masters.independent')}</option>

@@ -155,7 +155,9 @@
     "count_one": "{{count}} appointment",
     "count_other": "{{count}} appointments",
     "delete": "Delete",
-    "confirmDelete": "Remove this appointment from the calendar and reports? Data stays in the database."
+    "confirmDelete": "Remove this appointment from the calendar and reports? Data stays in the database.",
+    "busy": "Busy",
+    "busyHint": "Appointment of an independent master. Details are visible to the salon administrator."
   },
   "clients": {
     "title": "Salon Clients",

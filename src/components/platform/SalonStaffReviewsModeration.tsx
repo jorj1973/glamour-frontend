@@ -102,7 +102,7 @@ function SalonStaffReviewsModeration() {
       </div>
 
       {reviews.length === 0 ? (
-        <p style={{ color: 'var(--pf-text-muted, rgba(255,255,255,0.6))', padding: '12px 0' }}>
+        <p style={{ color: 'var(--pf-text-muted, rgba(var(--app-ink-rgb),0.6))', padding: '12px 0' }}>
           Мастера пока не оставляли отзывов о салонах.
         </p>
       ) : (
@@ -113,15 +113,15 @@ function SalonStaffReviewsModeration() {
               style={{
                 padding: 16,
                 borderRadius: 16,
-                border: '1px solid var(--pf-border, rgba(255,255,255,0.1))',
-                background: 'var(--pf-panel, rgba(255,255,255,0.04))',
+                border: '1px solid var(--pf-border, rgba(var(--app-ink-rgb),0.1))',
+                background: 'var(--pf-panel, rgba(var(--app-ink-rgb),0.04))',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                 <StarRating value={review.rating} />
 
                 <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ color: 'var(--pf-text-muted, rgba(255,255,255,0.6))', fontSize: 12 }}>
+                  <span style={{ color: 'var(--pf-text-muted, rgba(var(--app-ink-rgb),0.6))', fontSize: 12 }}>
                     {formatDate(review.createdAt)}
                   </span>
 
@@ -188,10 +188,10 @@ function SalonStaffReviewsModeration() {
                       gap: 6,
                       minHeight: 38,
                       padding: '0 14px',
-                      border: '1px solid var(--pf-border, rgba(255,255,255,0.15))',
+                      border: '1px solid var(--pf-border, rgba(var(--app-ink-rgb),0.15))',
                       borderRadius: 11,
                       background: 'transparent',
-                      color: 'var(--pf-text-muted, rgba(255,255,255,0.6))',
+                      color: 'var(--pf-text-muted, rgba(var(--app-ink-rgb),0.6))',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',
