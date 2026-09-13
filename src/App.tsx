@@ -314,6 +314,11 @@ function App() {
       case '#finance':
         return <FinancePage />;
 
+      // Своя ведомость мастера. Без этой ветки кабинет мастера
+      // проваливался в default и показывал главную.
+      case '#my-payout':
+        return <MyPayoutPage />;
+
       case '#loyalty':
         return <LoyaltyPage />;
       case '#payment-settings':
