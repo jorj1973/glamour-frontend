@@ -106,7 +106,9 @@
     "qaAppointmentsDesc": "Program și istoric",
     "qaClientsDesc": "Baza de clienți și istoric",
     "qaIncomeDesc": "Statistici financiare",
-    "upcoming": "Programări viitoare"
+    "upcoming": "Programări viitoare",
+    "adminTitle": "Panoul administratorului",
+    "adminSubtitle": "Programări, clienți și activitatea salonului."
   },
   "appointments": {
     "title": "Programările clienților",

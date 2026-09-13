@@ -112,7 +112,9 @@
     "qaAppointmentsDesc": "Расписание и история",
     "qaClientsDesc": "База клиентов и история",
     "qaIncomeDesc": "Финансовая статистика",
-    "upcoming": "Предстоящие записи"
+    "upcoming": "Предстоящие записи",
+    "adminTitle": "Панель администратора",
+    "adminSubtitle": "Записи, клиенты и работа салона."
   },
   "appointments": {
     "client": "Клиент",

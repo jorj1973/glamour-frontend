@@ -22,7 +22,13 @@ type SalonSummary = { id: string; name: string; };
 type TopMaster = { masterProfileId: string; profession: string; salonName: string; paymentsCount: number; revenue: number; };
 type TopService = { serviceId: string; name: string; durationMinutes: number; basePrice: number; bookingsCount: number; paymentsCount: number; revenue: number; };
 type Appointment = { id: string; startTime: string; endTime: string; status: string; clientName?: string; masterName?: string; serviceName?: string; };
-type DashboardData = { revenueToday: number; revenueMonth: number; appointmentsToday: number; clientsTotal: number; activeGiftCards: number; activePromoCodes: number; loyaltyClients: number; paymentsCount: number; averageTicket: number; topMasters: TopMaster[]; topServices: TopService[]; salonHealth?: SalonHealth; };
+/**
+ * Панель салона приходит в двух видах. Владельцу — с деньгами;
+ * администратору — без них: выручки, среднего чека и лучших мастеров по
+ * деньгам в ответе просто нет (ADR-005 и решение владельца о ресепшн).
+ * Поэтому денежные поля необязательные, а `role` говорит, чья это панель.
+ */
+type DashboardData = { role?: 'owner' | 'administrator'; revenueToday?: number; revenueMonth?: number; appointmentsToday: number; clientsTotal: number; activeGiftCards: number; activePromoCodes: number; loyaltyClients: number; paymentsCount?: number; averageTicket?: number; topMasters?: TopMaster[]; topServices: TopService[]; salonHealth?: SalonHealth; };
 
 /** Заполненность профиля салона: процент и список пунктов. */
 type SalonHealth = {
@@ -74,12 +80,22 @@ function OwnerDashboardPage() {
   if (message && !data) return <AppLayout><main className="dashboard-page"><p className="dashboard-status">{message}</p></main></AppLayout>;
   if (!data) return null;
 
+  const isAdministrator = data.role === 'administrator';
+
   const metrics = [
-    { label: t('dashboard.revenueToday'), value: `${data.revenueToday} MDL`, icon: <Wallet size={22} /> },
-    { label: t('dashboard.revenueMonth'), value: `${data.revenueMonth} MDL`, icon: <TrendingUp size={22} /> },
+    ...(isAdministrator
+      ? []
+      : [
+          { label: t('dashboard.revenueToday'), value: `${data.revenueToday} MDL`, icon: <Wallet size={22} /> },
+          { label: t('dashboard.revenueMonth'), value: `${data.revenueMonth} MDL`, icon: <TrendingUp size={22} /> },
+        ]),
     { label: t('dashboard.appointmentsToday'), value: data.appointmentsToday, icon: <CalendarDays size={22} /> },
     { label: t('dashboard.clientsTotal'), value: data.clientsTotal, icon: <Users size={22} /> },
-    { label: t('dashboard.averageTicket'), value: `${data.averageTicket} MDL`, icon: <CreditCard size={22} /> },
+    ...(isAdministrator
+      ? []
+      : [
+          { label: t('dashboard.averageTicket'), value: `${data.averageTicket} MDL`, icon: <CreditCard size={22} /> },
+        ]),
     { label: t('dashboard.certificates'), value: data.activeGiftCards, icon: <Gift size={22} /> },
     { label: t('dashboard.promoCodes'), value: data.activePromoCodes, icon: <Percent size={22} /> },
     { label: t('dashboard.loyaltyClients'), value: data.loyaltyClients, icon: <Star size={22} /> },
@@ -90,7 +106,9 @@ function OwnerDashboardPage() {
     { label: t('nav.clients'), icon: <Users size={18} />, hash: '#clients' },
     { label: t('nav.masters'), icon: <Scissors size={18} />, hash: '#masters' },
     { label: t('nav.services'), icon: <Scissors size={18} />, hash: '#services' },
-    { label: t('nav.finance'), icon: <Wallet size={18} />, hash: '#finance' },
+    ...(isAdministrator
+      ? []
+      : [{ label: t('nav.finance'), icon: <Wallet size={18} />, hash: '#finance' }]),
     { label: t('nav.links'), icon: <Link2 size={18} />, hash: '#promotion-links' },
   ];
 
@@ -119,8 +137,16 @@ function OwnerDashboardPage() {
       <main className="dashboard-page">
         <header className="dashboard-header">
           <div>
-            <h1>{t('dashboard.ownerTitle')}</h1>
-            <p className="dashboard-subtitle">{t('dashboard.ownerSubtitle')}</p>
+            <h1>
+              {isAdministrator
+                ? t('dashboard.adminTitle')
+                : t('dashboard.ownerTitle')}
+            </h1>
+            <p className="dashboard-subtitle">
+              {isAdministrator
+                ? t('dashboard.adminSubtitle')
+                : t('dashboard.ownerSubtitle')}
+            </p>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div className="dashboard-period">
@@ -296,14 +322,15 @@ function OwnerDashboardPage() {
             </div>
           </article>
 
+          {!isAdministrator && (
           <article className="dashboard-panel">
             <div className="panel-heading">
               <div><p className="panel-kicker">{t('dashboard.topMasters').toUpperCase()}</p><h2>{t('dashboard.topMasters')}</h2></div>
               <Scissors size={22} />
             </div>
-            {data.topMasters.length === 0 ? <p className="empty-state">{t('dashboard.noMastersData')}</p> : (
+            {(data.topMasters ?? []).length === 0 ? <p className="empty-state">{t('dashboard.noMastersData')}</p> : (
               <div className="ranking-list">
-                {data.topMasters.map((master, i) => (
+                {(data.topMasters ?? []).map((master, i) => (
                   <div className="ranking-row" key={master.masterProfileId}>
                     <span className="ranking-number">{i + 1}</span>
                     <div className="ranking-main"><strong>{master.profession}</strong><span>{master.salonName}</span></div>
@@ -313,6 +340,7 @@ function OwnerDashboardPage() {
               </div>
             )}
           </article>
+          )}
         </section>
 
         <article className="dashboard-panel" style={{ marginTop: 24 }}>

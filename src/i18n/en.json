@@ -106,7 +106,9 @@
     "qaAppointmentsDesc": "Schedule and history",
     "qaClientsDesc": "Client base and history",
     "qaIncomeDesc": "Financial statistics",
-    "upcoming": "Upcoming appointments"
+    "upcoming": "Upcoming appointments",
+    "adminTitle": "Administrator panel",
+    "adminSubtitle": "Appointments, clients and the salon at work."
   },
   "appointments": {
     "title": "Client Appointments",

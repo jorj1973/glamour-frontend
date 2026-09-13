@@ -85,6 +85,7 @@ type SalonSummary = {
   name: string;
   slug: string;
   membershipRole: string;
+  membershipRoles?: string[];
   membershipStatus: string;
 };
 
@@ -222,7 +223,16 @@ function MastersPage() {
 
   // 'administrator' здесь сравнивалось напрасно: enum роли в базе такого
   // значения не содержит, условие никогда не срабатывало.
-  const canManage = salon?.membershipRole === 'salon_owner' || salon?.membershipRole === 'admin' || salon?.membershipRole === 'owner';
+  /**
+   * Заводить мастеров и менять тип сотрудничества — владельца салона.
+   * Штатный или независимый — это про деньги: у штатного выручка салона,
+   * у независимого своя. Администратор ведёт ресепшн и список только
+   * читает (решение владельца 2026-09-13).
+   */
+  const canManage =
+    salon?.membershipRole === 'salon_owner' ||
+    salon?.membershipRole === 'owner' ||
+    (salon?.membershipRoles ?? []).includes('salon_owner');
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();

@@ -215,6 +215,30 @@ function AppLayout({ children }: AppLayoutProps) {
     }
   }, []);
 
+  /**
+   * Страницы владельца салона. Администратору их не показываем, и если он
+   * попал туда по адресу — возвращаем к записям, а не к пустому экрану с
+   * ошибкой от сервера.
+   */
+  useEffect(() => {
+    const ownerOnly = new Set([
+      '#finance',
+      '#salon-info',
+      '#branding',
+      '#sms',
+      '#administrators',
+    ]);
+
+    if (
+      workspaceMode === 'salon' &&
+      !isSalonOwner &&
+      canOpenSalon &&
+      ownerOnly.has(currentHash)
+    ) {
+      window.location.hash = '#appointments';
+    }
+  }, [currentHash, isSalonOwner, canOpenSalon, workspaceMode]);
+
   const loadWorkspaceAccess =
     useCallback(async () => {
       try {
@@ -857,52 +881,56 @@ function AppLayout({ children }: AppLayoutProps) {
                 {t('nav.links')}
               </a>
 
-              <a
-                className={
-                  currentHash === '#finance'
-                    ? 'active'
-                    : ''
-                }
-                href="#finance"
-              >
-                <CreditCard size={18} />
-                {t('nav.finance')}
-              </a>
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#finance'
+                      ? 'active'
+                      : ''
+                  }
+                  href="#finance"
+                >
+                  <CreditCard size={18} />
+                  {t('nav.finance')}
+                </a>
+              )}
 
-              <a
-                className={
-                  currentHash === '#salon-info'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#salon-info"
-                style={
-                  salonPercent < 70
-                    ? {
-                        color: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
-                        fontWeight: 700,
-                      }
-                    : undefined
-                }
-              >
-                <Info size={18} />
-                {t('nav.salonInfo')}
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#salon-info'
+                      ? 'sidebar-nav-link active'
+                      : 'sidebar-nav-link'
+                  }
+                  href="#salon-info"
+                  style={
+                    salonPercent < 70
+                      ? {
+                          color: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
+                          fontWeight: 700,
+                        }
+                      : undefined
+                  }
+                >
+                  <Info size={18} />
+                  {t('nav.salonInfo')}
 
-                {/* Точка заметнее цвета текста: пункт меню мелкий,
-                    один оттенок легко пропустить. */}
-                {salonPercent < 70 && (
-                  <span
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: '50%',
-                      background: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
-                      marginLeft: 'auto',
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-              </a>
+                  {/* Точка заметнее цвета текста: пункт меню мелкий,
+                      один оттенок легко пропустить. */}
+                  {salonPercent < 70 && (
+                    <span
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: '50%',
+                        background: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
+                        marginLeft: 'auto',
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                </a>
+              )}
               <a
                 className={
                   currentHash === '#reviews'
@@ -914,30 +942,34 @@ function AppLayout({ children }: AppLayoutProps) {
                 <Star size={18} />
                 {t('nav.reviews')}
               </a>
-              <a
-                className={
-                  currentHash === '#branding'
-                    ? 'active'
-                    : ''
-                }
-                href="#branding"
-              >
-                <Palette size={18} />
-                {t('nav.branding')}
-              </a>
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#branding'
+                      ? 'active'
+                      : ''
+                  }
+                  href="#branding"
+                >
+                  <Palette size={18} />
+                  {t('nav.branding')}
+                </a>
+              )}
               {/* Раздел про деньги: мастера его не видят,
                   поэтому он внутри ветки владельца. */}
-              <a
-                className={
-                  currentHash === '#sms'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#sms"
-              >
-                <Smartphone size={18} />
-                {t('nav.sms')}
-              </a>
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#sms'
+                      ? 'sidebar-nav-link active'
+                      : 'sidebar-nav-link'
+                  }
+                  href="#sms"
+                >
+                  <Smartphone size={18} />
+                  {t('nav.sms')}
+                </a>
+              )}
             </>
           )}
 
@@ -985,7 +1017,10 @@ function AppLayout({ children }: AppLayoutProps) {
               { hash: '#appointments', icon: <CalendarDays size={19} />, label: t('nav.appointments') },
               { hash: '#clients', icon: <Users size={19} />, label: t('nav.clients') },
               { hash: '#masters', icon: <Scissors size={19} />, label: t('nav.masters') },
-              { hash: '#finance', icon: <CreditCard size={19} />, label: t('nav.finance') },
+              // Ресепшн не ходит в деньги салона — у него там услуги.
+              isSalonOwner
+                ? { hash: '#finance', icon: <CreditCard size={19} />, label: t('nav.finance') }
+                : { hash: '#services', icon: <Sparkles size={19} />, label: t('nav.services') },
             ]
         ).map((item) => (
           <a
