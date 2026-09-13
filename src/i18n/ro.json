@@ -61,7 +61,8 @@
     "scheduleTemplate": "Programul meu",
     "chat": "Comunicare",
     "sms": "SMS",
-    "administrators": "Administratori"
+    "administrators": "Administratori",
+    "actionLog": "Jurnal"
   },
   "auth": {
     "login": "Autentificare",
@@ -1627,5 +1628,45 @@
     "remove": "Retrage accesul",
     "linkError": "Linkul nu a putut fi creat.",
     "removeError": "Accesul nu a putut fi retras."
+  },
+  "actionLog": {
+    "title": "Jurnalul acțiunilor",
+    "subtitle": "Cine, ce și când a făcut în salon",
+    "kicker": "Salon",
+    "listTitle": "Ultimele acțiuni",
+    "empty": "Jurnalul este încă gol",
+    "emptyHint": "Aici vor apărea mutările, anulările și plățile.",
+    "loadMore": "Arată mai multe",
+    "refused": "Refuzat",
+    "actor": {
+      "system": "Sistem"
+    },
+    "role": {
+      "salon_owner": "proprietar",
+      "admin": "administrator",
+      "master": "maestru",
+      "client": "client",
+      "system": "sarcină"
+    },
+    "action": {
+      "appointment.created": "Programare creată",
+      "appointment.rescheduled": "Programare mutată",
+      "appointment.status_changed": "Starea programării schimbată",
+      "appointment.cancelled": "Programare anulată",
+      "appointment.deleted": "Programare ștearsă",
+      "payment.created": "Plată înregistrată",
+      "payment.marked_paid": "Clientul a plătit",
+      "payment.refunded": "Plată returnată",
+      "payment.failed": "Plată anulată",
+      "gift_card.issued": "Card cadou vândut",
+      "gift_card.redeemed": "Plată cu card cadou"
+    },
+    "status": {
+      "pending": "în așteptare",
+      "confirmed": "confirmată",
+      "cancelled": "anulată",
+      "completed": "finalizată",
+      "no_show": "nu a venit"
+    }
   }
 }

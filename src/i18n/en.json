@@ -61,7 +61,8 @@
     "scheduleTemplate": "My schedule",
     "chat": "Chat",
     "sms": "SMS",
-    "administrators": "Administrators"
+    "administrators": "Administrators",
+    "actionLog": "Journal"
   },
   "auth": {
     "login": "Sign In",
@@ -1620,5 +1621,45 @@
     "remove": "Revoke access",
     "linkError": "The link could not be created.",
     "removeError": "Access could not be revoked."
+  },
+  "actionLog": {
+    "title": "Action journal",
+    "subtitle": "Who did what in the salon, and when",
+    "kicker": "Salon",
+    "listTitle": "Latest actions",
+    "empty": "The journal is still empty",
+    "emptyHint": "Reschedules, cancellations and payments will appear here.",
+    "loadMore": "Show more",
+    "refused": "Refused",
+    "actor": {
+      "system": "System"
+    },
+    "role": {
+      "salon_owner": "owner",
+      "admin": "administrator",
+      "master": "master",
+      "client": "client",
+      "system": "task"
+    },
+    "action": {
+      "appointment.created": "Appointment created",
+      "appointment.rescheduled": "Appointment rescheduled",
+      "appointment.status_changed": "Appointment status changed",
+      "appointment.cancelled": "Appointment cancelled",
+      "appointment.deleted": "Appointment deleted",
+      "payment.created": "Payment registered",
+      "payment.marked_paid": "Client paid",
+      "payment.refunded": "Payment refunded",
+      "payment.failed": "Payment cancelled",
+      "gift_card.issued": "Gift card sold",
+      "gift_card.redeemed": "Paid with a gift card"
+    },
+    "status": {
+      "pending": "pending",
+      "confirmed": "confirmed",
+      "cancelled": "cancelled",
+      "completed": "completed",
+      "no_show": "no show"
+    }
   }
 }

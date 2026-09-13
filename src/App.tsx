@@ -10,6 +10,7 @@ import OwnerDashboardPage from './pages/OwnerDashboardPage';
 import MasterDashboardPage from './pages/MasterDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import ClientsPage from './pages/ClientsPage';
+import ActionLogPage from './pages/ActionLogPage';
 import AdministratorsPage from './pages/AdministratorsPage';
 import MastersPage from './pages/MastersPage';
 import ServicesPage from './pages/ServicesPage';
@@ -358,6 +359,9 @@ function App() {
 
     case '#administrators':
       return <AdministratorsPage />;
+
+    case '#action-log':
+      return <ActionLogPage />;
 
     case '#services':
       return <ServicesPage />;

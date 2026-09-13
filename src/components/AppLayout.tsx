@@ -18,6 +18,7 @@ import {
   Info,
   Palette,
   Scissors,
+  ScrollText,
   ShieldCheck,
   Sparkles,
   UserRound,
@@ -879,6 +880,20 @@ function AppLayout({ children }: AppLayoutProps) {
               >
                 <Link2 size={18} />
                 {t('nav.links')}
+              </a>
+
+              {/* Журнал читают оба: владелец — весь, администратор — без
+                  денег салона. Отбор делает сервер, не меню. */}
+              <a
+                className={
+                  currentHash === '#action-log'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#action-log"
+              >
+                <ScrollText size={18} />
+                {t('nav.actionLog')}
               </a>
 
               {isSalonOwner && (

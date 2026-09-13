@@ -61,7 +61,8 @@
     "scheduleTemplate": "Мой график",
     "chat": "Общение",
     "sms": "SMS",
-    "administrators": "Администраторы"
+    "administrators": "Администраторы",
+    "actionLog": "Журнал"
   },
   "auth": {
     "login": "Вход в систему",
@@ -1632,5 +1633,45 @@
     "remove": "Снять доступ",
     "linkError": "Не удалось создать ссылку.",
     "removeError": "Не удалось снять доступ."
+  },
+  "actionLog": {
+    "title": "Журнал действий",
+    "subtitle": "Кто, что и когда сделал в салоне",
+    "kicker": "Салон",
+    "listTitle": "Последние действия",
+    "empty": "Журнал пока пуст",
+    "emptyHint": "Здесь появятся записи о переносах, отменах и оплатах.",
+    "loadMore": "Показать ещё",
+    "refused": "Отказано",
+    "actor": {
+      "system": "Система"
+    },
+    "role": {
+      "salon_owner": "владелец",
+      "admin": "администратор",
+      "master": "мастер",
+      "client": "клиент",
+      "system": "задача"
+    },
+    "action": {
+      "appointment.created": "Запись создана",
+      "appointment.rescheduled": "Запись перенесена",
+      "appointment.status_changed": "Состояние записи изменено",
+      "appointment.cancelled": "Запись отменена",
+      "appointment.deleted": "Запись удалена",
+      "payment.created": "Платёж заведён",
+      "payment.marked_paid": "Клиент оплатил",
+      "payment.refunded": "Платёж возвращён",
+      "payment.failed": "Платёж отменён",
+      "gift_card.issued": "Подарочная карта продана",
+      "gift_card.redeemed": "Оплата подарочной картой"
+    },
+    "status": {
+      "pending": "ожидает",
+      "confirmed": "подтверждена",
+      "cancelled": "отменена",
+      "completed": "завершена",
+      "no_show": "не пришёл"
+    }
   }
 }
