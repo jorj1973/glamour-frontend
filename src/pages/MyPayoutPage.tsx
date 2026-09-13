@@ -11,6 +11,12 @@ import type { MasterStatement } from '../api/payouts';
 type SalonSummary = { id: string; name: string };
 type MyProfile = { id: string };
 
+type MyTerms = {
+    cooperationType: 'staff' | 'independent' | null;
+    percent: number | null;
+    services: { masterServiceId: string; title: string; percent: number }[];
+};
+
 /**
  * Моя ведомость — кабинет мастера.
  *
@@ -25,6 +31,7 @@ function MyPayoutPage() {
     const [profileId, setProfileId] = useState<string | null>(null);
     const [weekStart, setWeekStart] = useState(mondayOf(new Date()));
     const [statement, setStatement] = useState<MasterStatement | null>(null);
+    const [terms, setTerms] = useState<MyTerms | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState('');
 
@@ -49,15 +56,21 @@ function MyPayoutPage() {
                 return;
             }
 
-            const response = await api.get<MasterStatement>('/payouts/week', {
-                params: {
-                    salonId: current.id,
-                    masterProfileId: profileResponse.data.id,
-                    weekStart: week,
-                },
-            });
+            const [response, termsResponse] = await Promise.all([
+                api.get<MasterStatement>('/payouts/week', {
+                    params: {
+                        salonId: current.id,
+                        masterProfileId: profileResponse.data.id,
+                        weekStart: week,
+                    },
+                }),
+                api.get<MyTerms>('/payouts/my-terms', {
+                    params: { salonId: current.id },
+                }),
+            ]);
 
             setStatement(response.data);
+            setTerms(termsResponse.data);
         } catch {
             setMessage(t('payouts.noAccess'));
         } finally {
@@ -87,6 +100,50 @@ function MyPayoutPage() {
                         </p>
                     </div>
                 </header>
+
+                {/* Мастер обязан знать, на чём он работает, не спрашивая
+                    владельца. Это первое, что он видит на странице. */}
+                {terms && (
+                    <div
+                        style={{
+                            padding: '13px 16px',
+                            borderRadius: 14,
+                            marginBottom: 16,
+                            border: '1px solid rgba(var(--app-ink-rgb),0.1)',
+                            background: 'rgba(var(--app-ink-rgb),0.04)',
+                            color: 'var(--app-text)',
+                            fontSize: 13,
+                        }}
+                    >
+                        <strong>
+                            {terms.cooperationType === 'independent'
+                                ? t('payouts.termsIndependent')
+                                : terms.percent === null
+                                  ? t('payouts.termsNotSet')
+                                  : t('payouts.termsStaff', {
+                                        percent: terms.percent,
+                                    })}
+                        </strong>
+
+                        {terms.services.length > 0 && (
+                            <div
+                                style={{
+                                    marginTop: 6,
+                                    color: 'var(--app-text-muted)',
+                                    fontSize: 12,
+                                }}
+                            >
+                                {t('payouts.termsExceptions')}:{' '}
+                                {terms.services
+                                    .map(
+                                        (service) =>
+                                            `${service.title} — ${service.percent}%`,
+                                    )
+                                    .join(', ')}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div
                     style={{

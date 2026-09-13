@@ -20,6 +20,7 @@ type SalonSummary = { id: string; name: string };
 type PercentRow = {
   masterProfileId: string;
   masterName: string;
+  cooperationType: 'staff' | 'independent' | null;
   percent: number | null;
 };
 
@@ -297,10 +298,26 @@ function PayoutsPage() {
           {!isLoading && percents.length === 0 && (
             <div className="empty-state">
               <Users size={26} />
-              <p>{t('payouts.noStaff')}</p>
-              <span>{t('payouts.noStaffHint')}</span>
+              <p>{t('payouts.noMasters')}</p>
+              <span>{t('payouts.noMastersHint')}</span>
             </div>
           )}
+
+          {/* Салон, где все мастера независимые: экран не пустой, но и
+              задавать нечего — объясняем, а не молчим. */}
+          {!isLoading &&
+            percents.length > 0 &&
+            percents.every((row) => row.cooperationType !== 'staff') && (
+              <p
+                style={{
+                  color: 'var(--app-text-muted)',
+                  fontSize: 13,
+                  margin: '0 0 14px',
+                }}
+              >
+                {t('payouts.allIndependent')}
+              </p>
+            )}
 
           {!isLoading &&
             percents.map((row) => {
@@ -351,39 +368,58 @@ function PayoutsPage() {
                       {row.masterName}
                     </button>
 
-                    <label
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        color: 'var(--app-text-muted)',
-                        fontSize: 12,
-                      }}
-                    >
-                      <Percent size={14} />
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        step={0.5}
-                        defaultValue={row.percent ?? ''}
-                        placeholder={t('payouts.notAgreed')}
-                        disabled={savingId === row.masterProfileId}
-                        onBlur={(event) =>
-                          void saveMasterPercent(row, event.currentTarget.value)
-                        }
+                    {row.cooperationType === 'staff' ? (
+                      <label
                         style={{
-                          width: 90,
-                          minHeight: 36,
-                          padding: '0 10px',
-                          border: '1px solid rgba(var(--app-ink-rgb),0.16)',
-                          borderRadius: 10,
-                          background: 'var(--app-surface)',
-                          color: 'var(--app-text)',
-                          fontSize: 13,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          color: 'var(--app-text-muted)',
+                          fontSize: 12,
                         }}
-                      />
-                    </label>
+                      >
+                        <Percent size={14} />
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.5}
+                          defaultValue={row.percent ?? ''}
+                          placeholder={t('payouts.notAgreed')}
+                          disabled={savingId === row.masterProfileId}
+                          onBlur={(event) =>
+                            void saveMasterPercent(
+                              row,
+                              event.currentTarget.value,
+                            )
+                          }
+                          style={{
+                            width: 90,
+                            minHeight: 36,
+                            padding: '0 10px',
+                            border: '1px solid rgba(var(--app-ink-rgb),0.16)',
+                            borderRadius: 10,
+                            background: 'var(--app-surface)',
+                            color: 'var(--app-text)',
+                            fontSize: 13,
+                          }}
+                        />
+                      </label>
+                    ) : (
+                      <span
+                        title={t('payouts.independentHint')}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: 9,
+                          background: 'rgba(var(--app-ink-rgb),0.06)',
+                          color: 'var(--app-text-muted)',
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {t('payouts.independent')}
+                      </span>
+                    )}
 
                     <div
                       style={{

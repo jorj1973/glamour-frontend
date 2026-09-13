@@ -1696,6 +1696,15 @@
     "serviceExceptions": "Excepții pe servicii — gol înseamnă „ca la maestru”",
     "percentRange": "Procentul trebuie să fie între 0 și 100",
     "saveError": "Nu s-a putut salva",
-    "withoutPercent": "Vizite fără procent: {{count}}. Nu au intrat în totaluri."
+    "withoutPercent": "Vizite fără procent: {{count}}. Nu au intrat în totaluri.",
+    "noMasters": "Nu există maeștri în salon",
+    "noMastersHint": "Invitați un maestru — apoi aici va apărea procentul lui.",
+    "allIndependent": "Toți maeștrii salonului lucrează independent: încasează singuri de la client și plătesc salonului pentru loc. Procentul se setează doar celor angajați — se schimbă în pagina „Maeștri”.",
+    "independent": "independent",
+    "independentHint": "Banii maestrului independent sunt ai lui, nu e nimic de împărțit.",
+    "termsStaff": "Sunteți maestru angajat. Cota dumneavoastră — {{percent}}% din suma plătită de client.",
+    "termsIndependent": "Sunteți maestru independent: banii clientului sunt ai dumneavoastră, salonului îi plătiți pentru loc.",
+    "termsNotSet": "Procentul nu este încă setat — întrebați proprietarul salonului.",
+    "termsExceptions": "Pentru anumite servicii"
   }
 }

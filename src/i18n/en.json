@@ -1689,6 +1689,15 @@
     "serviceExceptions": "Per-service exceptions — empty means “same as the master”",
     "percentRange": "The percentage must be between 0 and 100",
     "saveError": "Could not save",
-    "withoutPercent": "Visits without a percentage: {{count}}. They are not in the totals."
+    "withoutPercent": "Visits without a percentage: {{count}}. They are not in the totals.",
+    "noMasters": "No masters in the salon",
+    "noMastersHint": "Invite a master — his percentage will appear here.",
+    "allIndependent": "Every master in this salon works independently: they take the client's money themselves and pay the salon for the chair. A percentage is set only for staff — the switch is on the Masters page.",
+    "independent": "independent",
+    "independentHint": "An independent master's money is his own; there is nothing to split.",
+    "termsStaff": "You are a staff master. Your share is {{percent}}% of what the client paid.",
+    "termsIndependent": "You are an independent master: the client's money is yours, and you pay the salon for the chair.",
+    "termsNotSet": "No percentage set yet — ask the salon owner.",
+    "termsExceptions": "For particular services"
   }
 }
