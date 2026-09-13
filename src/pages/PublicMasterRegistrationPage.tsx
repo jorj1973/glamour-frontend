@@ -25,6 +25,7 @@ import {
 } from 'react';
 import axios from 'axios';
 import {
+    completeAdminRegistration,
     completeMasterRegistration,
     resolveMasterRegistration,
     type ResolveRegistrationResponse,
@@ -286,6 +287,14 @@ function PublicMasterRegistrationPage() {
         };
     }, [identifier]);
 
+    /**
+     * Приглашение администратора отличается от приглашения мастера только
+     * тем, чем оно заканчивается: профиля мастера у администратора нет,
+     * он — ресепшн салона (ADR-005).
+     */
+    const isAdminInvite =
+        registrationData?.targetType === 'admin_registration';
+
     function updateField<K extends keyof RegistrationForm>(
         field: K,
         value: RegistrationForm[K],
@@ -410,7 +419,14 @@ function PublicMasterRegistrationPage() {
 
             const email = normalizeEmail(form.email);
 
-            const response = await completeMasterRegistration(identifier, {
+            // Ссылка решает, кем человек становится: мастером или
+            // администратором салона. Поля формы одни и те же.
+            const complete =
+                registrationData.targetType === 'admin_registration'
+                    ? completeAdminRegistration
+                    : completeMasterRegistration;
+
+            const response = await complete(identifier, {
                 visitId: registrationData.visitId,
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
@@ -551,12 +567,18 @@ function PublicMasterRegistrationPage() {
                         РЕГИСТРАЦИЯ ЗАВЕРШЕНА
                     </p>
 
-                    <h1>Ваш аккаунт мастера создан</h1>
+                    <h1>
+                        {isAdminInvite
+                            ? 'Ваш аккаунт администратора создан'
+                            : 'Ваш аккаунт мастера создан'}
+                    </h1>
 
                     <p>
                         Вы успешно зарегистрированы в салоне{' '}
-                        <strong>{salonName}</strong>. Теперь можно войти в
-                        GLAMOUR Salon Studio и заполнить профиль мастера.
+                        <strong>{salonName}</strong>.{' '}
+                        {isAdminInvite
+                            ? 'Теперь можно войти в GLAMOUR Salon Studio и вести записи салона.'
+                            : 'Теперь можно войти в GLAMOUR Salon Studio и заполнить профиль мастера.'}
                     </p>
 
                     {registeredEmail && (
@@ -585,7 +607,11 @@ function PublicMasterRegistrationPage() {
                             <span>
                                 <Check size={16} />
                             </span>
-                            <p>Профиль мастера подготовлен</p>
+                            <p>
+                                {isAdminInvite
+                                    ? 'Роль администратора назначена'
+                                    : 'Профиль мастера подготовлен'}
+                            </p>
                         </div>
                     </div>
 

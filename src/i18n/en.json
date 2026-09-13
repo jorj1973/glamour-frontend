@@ -60,7 +60,8 @@
     },
     "scheduleTemplate": "My schedule",
     "chat": "Chat",
-    "sms": "SMS"
+    "sms": "SMS",
+    "administrators": "Administrators"
   },
   "auth": {
     "login": "Sign In",
@@ -1593,5 +1594,29 @@
     "allowanceSaving": "Saving…",
     "allowanceJustSaved": "Saved",
     "allowanceStored": "saved"
+  },
+  "administrators": {
+    "title": "Administrators",
+    "subtitle": "The salon desk: appointments, clients, payments — including the appointments of independent masters.",
+    "kicker": "INVITATION",
+    "inviteTitle": "Add an administrator",
+    "inviteDescription": "Send the link to the person. They create their own account and receive administrator access to the salon.",
+    "whatTheySee": "An administrator sees the salon calendar, including the details of an independent master’s appointments.",
+    "whatTheyDoNotSee": "They never see an independent master’s money, clients, history or profile.",
+    "noLimit": "The plan does not limit the number of administrators.",
+    "seatsLeft": "Seats left on your plan: {{left}} of {{limit}}.",
+    "createInvite": "Create the invitation link",
+    "gettingLink": "Preparing the link…",
+    "inviteLink": "Invitation link",
+    "linkNote": "The link is permanent. Anyone who opens it becomes an administrator of this salon — send it only to the right person.",
+    "noLinkYet": "No link yet",
+    "noLinkYetHint": "Use the button on the left.",
+    "listKicker": "IN THE SALON",
+    "listTitle": "Active administrators",
+    "empty": "This salon has no administrators.",
+    "emptyHint": "Without one, an independent master’s appointments can be moved only by the master.",
+    "remove": "Revoke access",
+    "linkError": "The link could not be created.",
+    "removeError": "Access could not be revoked."
   }
 }

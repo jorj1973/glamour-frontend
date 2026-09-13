@@ -60,7 +60,8 @@
     },
     "scheduleTemplate": "Programul meu",
     "chat": "Comunicare",
-    "sms": "SMS"
+    "sms": "SMS",
+    "administrators": "Administratori"
   },
   "auth": {
     "login": "Autentificare",
@@ -1600,5 +1601,29 @@
     "allowanceSaving": "Se salvează…",
     "allowanceJustSaved": "Salvat",
     "allowanceStored": "salvat"
+  },
+  "administrators": {
+    "title": "Administratori",
+    "subtitle": "Recepția salonului: programări, clienți, plăți — inclusiv programările maeștrilor independenți.",
+    "kicker": "INVITAȚIE",
+    "inviteTitle": "Adaugă un administrator",
+    "inviteDescription": "Trimite linkul persoanei. Ea își creează contul și primește accesul de administrator în salon.",
+    "whatTheySee": "Administratorul vede programările salonului, inclusiv detaliile maeștrilor independenți.",
+    "whatTheyDoNotSee": "Nu vede banii, clienții, istoricul și profilul unui maestru independent.",
+    "noLimit": "Tariful nu limitează numărul de administratori.",
+    "seatsLeft": "Locuri libere după tarif: {{left}} din {{limit}}.",
+    "createInvite": "Creează linkul de invitație",
+    "gettingLink": "Se pregătește linkul…",
+    "inviteLink": "Link de invitație",
+    "linkNote": "Linkul este permanent. Oricine îl deschide devine administrator al acestui salon — trimite-l doar persoanei potrivite.",
+    "noLinkYet": "Linkul nu a fost creat încă",
+    "noLinkYetHint": "Apasă butonul din stânga.",
+    "listKicker": "ÎN SALON",
+    "listTitle": "Administratori activi",
+    "empty": "Salonul nu are administratori.",
+    "emptyHint": "Fără administrator, programările maeștrilor independenți le mută doar ei înșiși.",
+    "remove": "Retrage accesul",
+    "linkError": "Linkul nu a putut fi creat.",
+    "removeError": "Accesul nu a putut fi retras."
   }
 }

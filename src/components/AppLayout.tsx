@@ -18,6 +18,7 @@ import {
   Info,
   Palette,
   Scissors,
+  ShieldCheck,
   Sparkles,
   UserRound,
   Users,
@@ -134,6 +135,11 @@ function AppLayout({ children }: AppLayoutProps) {
   const [canOpenPlatform, setCanOpenPlatform] =
     useState(false);
 
+  /**
+   * Владелец салона, а не любой управляющий: места администраторов —
+   * его дело, администратор себе равных не заводит (ADR-005).
+   */
+  const [isSalonOwner, setIsSalonOwner] = useState(false);
   const [canOpenSalon, setCanOpenSalon] =
     useState(false);
 
@@ -312,6 +318,7 @@ function AppLayout({ children }: AppLayoutProps) {
 
         setCanOpenPlatform(hasPlatformAccess);
         setCanOpenSalon(hasSalonAccess);
+        setIsSalonOwner(roles.includes('salon_owner'));
         setCanOpenMaster(hasMasterAccess);
 
         const savedMode = getSavedWorkspaceMode();
@@ -824,6 +831,20 @@ function AppLayout({ children }: AppLayoutProps) {
                 <Sparkles size={18} />
                 {t('nav.services')}
               </a>
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#administrators'
+                      ? 'sidebar-nav-link active'
+                      : 'sidebar-nav-link'
+                  }
+                  href="#administrators"
+                >
+                  <ShieldCheck size={18} />
+                  {t('nav.administrators')}
+                </a>
+              )}
+
               <a
                 className={
                   currentHash === '#promotion-links'

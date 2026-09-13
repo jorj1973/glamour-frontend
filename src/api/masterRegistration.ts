@@ -154,11 +154,38 @@ export async function completeMasterRegistration(
   identifier: string,
   payload: CompleteMasterRegistrationPayload,
 ): Promise<CompleteMasterRegistrationResponse> {
+  return completeRegistration(
+    identifier,
+    payload,
+    'master-registration',
+  );
+}
+
+/**
+ * Регистрация администратора салона. Поля те же, путь другой: сервер
+ * заводит роль admin и проверяет место по тарифу (ADR-005).
+ */
+export async function completeAdminRegistration(
+  identifier: string,
+  payload: CompleteMasterRegistrationPayload,
+): Promise<CompleteMasterRegistrationResponse> {
+  return completeRegistration(
+    identifier,
+    payload,
+    'admin-registration',
+  );
+}
+
+async function completeRegistration(
+  identifier: string,
+  payload: CompleteMasterRegistrationPayload,
+  route: 'master-registration' | 'admin-registration',
+): Promise<CompleteMasterRegistrationResponse> {
   const normalizedIdentifier = identifier.trim();
 
   if (!normalizedIdentifier) {
     throw new Error(
-      'Master registration identifier is required.',
+      'Registration identifier is required.',
     );
   }
 
@@ -166,7 +193,7 @@ export async function completeMasterRegistration(
     await api.post<CompleteMasterRegistrationResponse>(
       `/public/promotion-links/${encodeURIComponent(
         normalizedIdentifier,
-      )}/master-registration`,
+      )}/${route}`,
       {
         identifier: normalizedIdentifier,
         ...payload,
