@@ -62,7 +62,9 @@
     "chat": "Comunicare",
     "sms": "SMS",
     "administrators": "Administratori",
-    "actionLog": "Jurnal"
+    "actionLog": "Jurnal",
+    "payouts": "Decontare cu maeștrii",
+    "myPayout": "Decontarea mea"
   },
   "auth": {
     "login": "Autentificare",
@@ -1668,5 +1670,32 @@
       "completed": "finalizată",
       "no_show": "nu a venit"
     }
+  },
+  "payouts": {
+    "title": "Decontare cu maeștrii",
+    "subtitle": "Procentul convenit și borderoul săptămânii",
+    "myTitle": "Decontarea mea",
+    "mySubtitle": "Cât s-a încasat în această săptămână și cât îmi revine",
+    "kicker": "Săptămâna",
+    "weekTitle": "De luni până duminică",
+    "date": "Data",
+    "service": "Serviciu",
+    "paid": "Încasat",
+    "toMaster": "maestrului",
+    "toSalon": "salonului",
+    "total": "Total",
+    "download": "Descarcă săptămâna",
+    "downloadMaster": "Descarcă borderoul maestrului",
+    "notAgreed": "nesetat",
+    "noVisits": "nicio vizită",
+    "noStaff": "Nu există maeștri angajați",
+    "noStaffHint": "Procentul se setează doar celor angajați: maestrul independent are banii lui.",
+    "noSalon": "Nu sunteți maestru în salon",
+    "noAccess": "Borderoul nu este disponibil",
+    "noAccessHint": "Îl văd proprietarul salonului și maestrul însuși.",
+    "serviceExceptions": "Excepții pe servicii — gol înseamnă „ca la maestru”",
+    "percentRange": "Procentul trebuie să fie între 0 și 100",
+    "saveError": "Nu s-a putut salva",
+    "withoutPercent": "Vizite fără procent: {{count}}. Nu au intrat în totaluri."
   }
 }

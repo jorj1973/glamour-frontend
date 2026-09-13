@@ -11,6 +11,8 @@ import MasterDashboardPage from './pages/MasterDashboardPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import ClientsPage from './pages/ClientsPage';
 import ActionLogPage from './pages/ActionLogPage';
+import PayoutsPage from './pages/PayoutsPage';
+import MyPayoutPage from './pages/MyPayoutPage';
 import AdministratorsPage from './pages/AdministratorsPage';
 import MastersPage from './pages/MastersPage';
 import ServicesPage from './pages/ServicesPage';
@@ -362,6 +364,12 @@ function App() {
 
     case '#action-log':
       return <ActionLogPage />;
+
+    case '#payouts':
+      return <PayoutsPage />;
+
+    case '#my-payout':
+      return <MyPayoutPage />;
 
     case '#services':
       return <ServicesPage />;

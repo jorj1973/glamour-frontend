@@ -62,7 +62,9 @@
     "chat": "Chat",
     "sms": "SMS",
     "administrators": "Administrators",
-    "actionLog": "Journal"
+    "actionLog": "Journal",
+    "payouts": "Master payouts",
+    "myPayout": "My payout"
   },
   "auth": {
     "login": "Sign In",
@@ -1661,5 +1663,32 @@
       "completed": "completed",
       "no_show": "no show"
     }
+  },
+  "payouts": {
+    "title": "Master payouts",
+    "subtitle": "The agreed percentage, and the week's statement",
+    "myTitle": "My payout",
+    "mySubtitle": "What was taken this week, and how much of it is mine",
+    "kicker": "Week",
+    "weekTitle": "Monday to Sunday",
+    "date": "Date",
+    "service": "Service",
+    "paid": "Paid",
+    "toMaster": "to master",
+    "toSalon": "to salon",
+    "total": "Total",
+    "download": "Download the week",
+    "downloadMaster": "Download this master's statement",
+    "notAgreed": "not set",
+    "noVisits": "no visits",
+    "noStaff": "No staff masters",
+    "noStaffHint": "A percentage is set only for staff: an independent master's money is his own.",
+    "noSalon": "You are not a master of this salon",
+    "noAccess": "The statement is not available",
+    "noAccessHint": "The salon owner and the master himself can see it.",
+    "serviceExceptions": "Per-service exceptions — empty means “same as the master”",
+    "percentRange": "The percentage must be between 0 and 100",
+    "saveError": "Could not save",
+    "withoutPercent": "Visits without a percentage: {{count}}. They are not in the totals."
   }
 }

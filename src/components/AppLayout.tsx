@@ -19,6 +19,7 @@ import {
   Palette,
   Scissors,
   ScrollText,
+  Wallet,
   ShieldCheck,
   Sparkles,
   UserRound,
@@ -726,6 +727,20 @@ function AppLayout({ children }: AppLayoutProps) {
                 <CreditCard size={18} />
                 {t('nav.myFinance')}
               </a>
+
+              {/* Моя ведомость: те же строки, что видит владелец.
+                  Мастеру не нужно верить салону на слово. */}
+              <a
+                className={
+                  currentHash === '#my-payout'
+                    ? 'sidebar-nav-link active'
+                    : 'sidebar-nav-link'
+                }
+                href="#my-payout"
+              >
+                <Wallet size={18} />
+                {t('nav.myPayout')}
+              </a>
               <a
                 className={
                   currentHash === '#schedule-template'
@@ -907,6 +922,22 @@ function AppLayout({ children }: AppLayoutProps) {
                 >
                   <CreditCard size={18} />
                   {t('nav.finance')}
+                </a>
+              )}
+
+              {/* Расчёт с мастерами — деньги салона, значит владельца.
+                  Мастер видит свою ведомость в своём кабинете. */}
+              {isSalonOwner && (
+                <a
+                  className={
+                    currentHash === '#payouts'
+                      ? 'sidebar-nav-link active'
+                      : 'sidebar-nav-link'
+                  }
+                  href="#payouts"
+                >
+                  <Wallet size={18} />
+                  {t('nav.payouts')}
                 </a>
               )}
 
