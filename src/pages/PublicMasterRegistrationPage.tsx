@@ -357,11 +357,11 @@ function PublicMasterRegistrationPage() {
         const email = normalizeEmail(form.email);
 
         if (firstName.length < 2) {
-            nextErrors.firstName = 'Введите имя мастера.';
+            nextErrors.firstName = 'Введите имя.';
         }
 
         if (lastName.length < 2) {
-            nextErrors.lastName = 'Введите фамилию мастера.';
+            nextErrors.lastName = 'Введите фамилию.';
         }
 
         if (!isValidPhone(phone)) {
@@ -669,7 +669,9 @@ function PublicMasterRegistrationPage() {
                         </div>
 
                         <p className="registration-visual-description">
-                            Создавайте красоту вместе с нами.
+                            {isAdminInvite
+                                ? 'Ведите салон вместе с нами.'
+                                : 'Создавайте красоту вместе с нами.'}
                         </p>
 
                         <div className="registration-feature-list">
@@ -680,12 +682,15 @@ function PublicMasterRegistrationPage() {
 
                                 <div>
                                     <strong>
-                                        Профессиональные инструменты
+                                        {isAdminInvite
+                                            ? 'Рабочее место ресепшн'
+                                            : 'Профессиональные инструменты'}
                                     </strong>
 
                                     <p>
-                                        Всё необходимое для работы и развития
-                                        мастера.
+                                        {isAdminInvite
+                                            ? 'Записи, клиенты и платежи салона в одном кабинете.'
+                                            : 'Всё необходимое для работы и развития мастера.'}
                                     </p>
                                 </div>
                             </div>
@@ -696,11 +701,16 @@ function PublicMasterRegistrationPage() {
                                 </span>
 
                                 <div>
-                                    <strong>Клиенты и записи</strong>
+                                    <strong>
+                                        {isAdminInvite
+                                            ? 'Записи всего салона'
+                                            : 'Клиенты и записи'}
+                                    </strong>
 
                                     <p>
-                                        Удобная система записей и работа с
-                                        клиентской базой.
+                                        {isAdminInvite
+                                            ? 'Вы ведёте записи мастеров салона, в том числе независимых.'
+                                            : 'Удобная система записей и работа с клиентской базой.'}
                                     </p>
                                 </div>
                             </div>
@@ -726,11 +736,16 @@ function PublicMasterRegistrationPage() {
                                 </span>
 
                                 <div>
-                                    <strong>Гибкий график</strong>
+                                    <strong>
+                                        {isAdminInvite
+                                            ? 'Границы роли'
+                                            : 'Гибкий график'}
+                                    </strong>
 
                                     <p>
-                                        Управляйте своим временем и записями
-                                        клиентов максимально удобно.
+                                        {isAdminInvite
+                                            ? 'Деньги, клиенты и профиль независимого мастера остаются его — вы их не видите.'
+                                            : 'Управляйте своим временем и записями клиентов максимально удобно.'}
                                     </p>
                                 </div>
                             </div>
@@ -752,11 +767,16 @@ function PublicMasterRegistrationPage() {
                                 СОЗДАНИЕ АККАУНТА
                             </p>
 
-                            <h2>Регистрация мастера</h2>
+                            <h2>
+                                {isAdminInvite
+                                    ? 'Регистрация администратора'
+                                    : 'Регистрация мастера'}
+                            </h2>
 
                             <p>
-                                Заполните данные точно так, как они должны
-                                отображаться в вашем рабочем профиле.
+                                {isAdminInvite
+                                    ? 'Заполните данные так, как они должны отображаться в кабинете салона.'
+                                    : 'Заполните данные точно так, как они должны отображаться в вашем рабочем профиле.'}
                             </p>
                         </header>
 
