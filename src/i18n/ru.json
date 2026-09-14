@@ -1678,7 +1678,12 @@
       "master_service.added": "Услуга добавлена в прайс мастера",
       "master_service.changed": "Прайс мастера изменён",
       "master_service.deactivated": "Услуга мастера выключена",
-      "master_service.removed": "Услуга убрана из прайса мастера"
+      "master_service.removed": "Услуга убрана из прайса мастера",
+      "staff.invited": "Приглашение мастеру выписано",
+      "staff.invite_revoked": "Приглашение отозвано",
+      "staff.joined": "Мастер вошёл в салон",
+      "master.added": "Профиль мастера заведён",
+      "master.cooperation_changed": "Тип сотрудничества изменён"
     },
     "status": {
       "pending": "ожидает",
@@ -1705,6 +1710,10 @@
       "yes": "да",
       "no": "нет",
       "empty": "пусто"
+    },
+    "cooperation": {
+      "staff": "штатный",
+      "independent": "независимый"
     }
   },
   "payouts": {

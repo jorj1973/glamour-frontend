@@ -1666,7 +1666,12 @@
       "master_service.added": "A service was added to a master's list",
       "master_service.changed": "A master's list was changed",
       "master_service.deactivated": "A master's service was switched off",
-      "master_service.removed": "A service was removed from a master's list"
+      "master_service.removed": "A service was removed from a master's list",
+      "staff.invited": "A master was invited",
+      "staff.invite_revoked": "An invitation was revoked",
+      "staff.joined": "A master joined the salon",
+      "master.added": "A master profile was created",
+      "master.cooperation_changed": "The cooperation type was changed"
     },
     "status": {
       "pending": "pending",
@@ -1693,6 +1698,10 @@
       "yes": "yes",
       "no": "no",
       "empty": "empty"
+    },
+    "cooperation": {
+      "staff": "staff",
+      "independent": "independent"
     }
   },
   "payouts": {

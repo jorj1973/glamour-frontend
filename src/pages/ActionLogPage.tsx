@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Scissors,
   ScrollText,
+  UserPlus,
   Wallet,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +31,8 @@ type ActionLogItem = {
     | 'master'
     | 'payout'
     | 'service'
-    | 'master_service';
+    | 'master_service'
+    | 'staff';
   targetId: string | null;
   result: 'allowed' | 'refused';
   reason: string | null;
@@ -71,6 +73,10 @@ function iconFor(item: ActionLogItem) {
 
   if (item.targetType === 'service' || item.targetType === 'master_service') {
     return <Scissors size={16} />;
+  }
+
+  if (item.targetType === 'staff') {
+    return <UserPlus size={16} />;
   }
 
   return <CalendarClock size={16} />;
@@ -148,6 +154,16 @@ function describeDetails(
         : `${String(value)} %`;
 
     return `${asPercent(from)} → ${asPercent(to)}`;
+  }
+
+  // Тип сотрудничества: штатный ↔ независимый. Слово, а не ключ.
+  if (item.action === 'master.cooperation_changed') {
+    const asType = (value: unknown) =>
+      value === null || value === undefined
+        ? t('actionLog.field.empty')
+        : t(`actionLog.cooperation.${String(value)}`);
+
+    return `${asType(from)} → ${asType(to)}`;
   }
 
   // Кто взял деньги: касса или мастер.

@@ -1673,7 +1673,12 @@
       "master_service.added": "Serviciu adăugat în lista maestrului",
       "master_service.changed": "Lista maestrului modificată",
       "master_service.deactivated": "Serviciul maestrului dezactivat",
-      "master_service.removed": "Serviciu scos din lista maestrului"
+      "master_service.removed": "Serviciu scos din lista maestrului",
+      "staff.invited": "Invitație trimisă unui maestru",
+      "staff.invite_revoked": "Invitație anulată",
+      "staff.joined": "Maestrul a intrat în salon",
+      "master.added": "Profil de maestru creat",
+      "master.cooperation_changed": "Tipul de colaborare a fost schimbat"
     },
     "status": {
       "pending": "în așteptare",
@@ -1700,6 +1705,10 @@
       "yes": "da",
       "no": "nu",
       "empty": "gol"
+    },
+    "cooperation": {
+      "staff": "angajat",
+      "independent": "independent"
     }
   },
   "payouts": {
