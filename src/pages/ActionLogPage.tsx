@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Scissors,
   ScrollText,
+  Settings,
   UserPlus,
   Wallet,
 } from 'lucide-react';
@@ -32,7 +33,8 @@ type ActionLogItem = {
     | 'payout'
     | 'service'
     | 'master_service'
-    | 'staff';
+    | 'staff'
+    | 'salon';
   targetId: string | null;
   result: 'allowed' | 'refused';
   reason: string | null;
@@ -77,6 +79,10 @@ function iconFor(item: ActionLogItem) {
 
   if (item.targetType === 'staff') {
     return <UserPlus size={16} />;
+  }
+
+  if (item.targetType === 'salon') {
+    return <Settings size={16} />;
   }
 
   return <CalendarClock size={16} />;
@@ -183,7 +189,8 @@ function describeDetails(
   // человеку, который читает страницу.
   if (
     item.targetType === 'service' ||
-    item.targetType === 'master_service'
+    item.targetType === 'master_service' ||
+    item.targetType === 'salon'
   ) {
     const parts = Object.entries(details)
       .filter(([key]) => key !== 'masterProfileId')

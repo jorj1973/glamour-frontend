@@ -1671,7 +1671,9 @@
       "staff.invite_revoked": "An invitation was revoked",
       "staff.joined": "A master joined the salon",
       "master.added": "A master profile was created",
-      "master.cooperation_changed": "The cooperation type was changed"
+      "master.cooperation_changed": "The cooperation type was changed",
+      "staff.admin_revoked": "An administrator seat was revoked",
+      "salon.settings_changed": "Salon settings were changed"
     },
     "status": {
       "pending": "pending",
@@ -1697,7 +1699,15 @@
       "basePrice": "base price",
       "yes": "yes",
       "no": "no",
-      "empty": "empty"
+      "empty": "empty",
+      "phone": "phone",
+      "email": "e-mail",
+      "city": "city",
+      "address": "address",
+      "workingHours": "working hours",
+      "timezone": "time zone",
+      "currency": "currency",
+      "chatEnabled": "chat"
     },
     "cooperation": {
       "staff": "staff",

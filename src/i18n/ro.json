@@ -1678,7 +1678,9 @@
       "staff.invite_revoked": "Invitație anulată",
       "staff.joined": "Maestrul a intrat în salon",
       "master.added": "Profil de maestru creat",
-      "master.cooperation_changed": "Tipul de colaborare a fost schimbat"
+      "master.cooperation_changed": "Tipul de colaborare a fost schimbat",
+      "staff.admin_revoked": "Locul de administrator a fost retras",
+      "salon.settings_changed": "Setările salonului au fost modificate"
     },
     "status": {
       "pending": "în așteptare",
@@ -1704,7 +1706,15 @@
       "basePrice": "preț de bază",
       "yes": "da",
       "no": "nu",
-      "empty": "gol"
+      "empty": "gol",
+      "phone": "telefon",
+      "email": "e-mail",
+      "city": "oraș",
+      "address": "adresă",
+      "workingHours": "program",
+      "timezone": "fus orar",
+      "currency": "monedă",
+      "chatEnabled": "chat"
     },
     "cooperation": {
       "staff": "angajat",

@@ -1683,7 +1683,9 @@
       "staff.invite_revoked": "Приглашение отозвано",
       "staff.joined": "Мастер вошёл в салон",
       "master.added": "Профиль мастера заведён",
-      "master.cooperation_changed": "Тип сотрудничества изменён"
+      "master.cooperation_changed": "Тип сотрудничества изменён",
+      "staff.admin_revoked": "Место администратора снято",
+      "salon.settings_changed": "Настройки салона изменены"
     },
     "status": {
       "pending": "ожидает",
@@ -1709,7 +1711,15 @@
       "basePrice": "базовая цена",
       "yes": "да",
       "no": "нет",
-      "empty": "пусто"
+      "empty": "пусто",
+      "phone": "телефон",
+      "email": "почта",
+      "city": "город",
+      "address": "адрес",
+      "workingHours": "часы работы",
+      "timezone": "часовой пояс",
+      "currency": "валюта",
+      "chatEnabled": "чат"
     },
     "cooperation": {
       "staff": "штатный",
