@@ -1670,7 +1670,15 @@
       "master.share_changed": "Процент мастера изменён",
       "payment.collector_changed": "Изменено, кто взял деньги",
       "payout.settled": "Неделя закрыта",
-      "payout.settlement_revoked": "Отметка о расчёте снята"
+      "payout.settlement_revoked": "Отметка о расчёте снята",
+      "service.created": "Услуга салона добавлена",
+      "service.changed": "Услуга салона изменена",
+      "service.deactivated": "Услуга салона выключена",
+      "service.deleted": "Услуга салона удалена",
+      "master_service.added": "Услуга добавлена в прайс мастера",
+      "master_service.changed": "Прайс мастера изменён",
+      "master_service.deactivated": "Услуга мастера выключена",
+      "master_service.removed": "Услуга убрана из прайса мастера"
     },
     "status": {
       "pending": "ожидает",
@@ -1682,6 +1690,21 @@
     "collector": {
       "salon": "касса салона",
       "master": "мастер"
+    },
+    "field": {
+      "price": "цена",
+      "minPrice": "цена от",
+      "maxPrice": "цена до",
+      "durationMinutes": "длительность",
+      "customTitle": "название",
+      "isPublic": "видна клиентам",
+      "isActive": "включена",
+      "onlineBookingEnabled": "онлайн-запись",
+      "name": "название",
+      "basePrice": "базовая цена",
+      "yes": "да",
+      "no": "нет",
+      "empty": "пусто"
     }
   },
   "payouts": {

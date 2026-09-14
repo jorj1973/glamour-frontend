@@ -6,6 +6,7 @@ import {
   Gift,
   Percent,
   RefreshCw,
+  Scissors,
   ScrollText,
   Wallet,
 } from 'lucide-react';
@@ -22,7 +23,14 @@ type SalonSummary = {
 type ActionLogItem = {
   id: string;
   action: string;
-  targetType: 'appointment' | 'payment' | 'gift_card' | 'master' | 'payout';
+  targetType:
+    | 'appointment'
+    | 'payment'
+    | 'gift_card'
+    | 'master'
+    | 'payout'
+    | 'service'
+    | 'master_service';
   targetId: string | null;
   result: 'allowed' | 'refused';
   reason: string | null;
@@ -61,6 +69,10 @@ function iconFor(item: ActionLogItem) {
     return <Wallet size={16} />;
   }
 
+  if (item.targetType === 'service' || item.targetType === 'master_service') {
+    return <Scissors size={16} />;
+  }
+
   return <CalendarClock size={16} />;
 }
 
@@ -79,6 +91,38 @@ function formatMoment(value: string, locale: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+/** Пара «было → стало», как её пишет журнал при правке. */
+function isChange(value: unknown): value is { from: unknown; to: unknown } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'from' in value &&
+    'to' in value
+  );
+}
+
+/**
+ * Название поля по-человечески. Незнакомое поле остаётся собой: лучше
+ * английский ключ, чем пропавшая из строки правка.
+ */
+function fieldLabel(key: string, t: (key: string) => string): string {
+  const label = t(`actionLog.field.${key}`);
+
+  return label === `actionLog.field.${key}` ? key : label;
+}
+
+function fieldValue(value: unknown, t: (key: string) => string): string {
+  if (value === null || value === undefined || value === '') {
+    return t('actionLog.field.empty');
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? t('actionLog.field.yes') : t('actionLog.field.no');
+  }
+
+  return String(value);
 }
 
 /**
@@ -116,6 +160,28 @@ function describeDetails(
   // Расчёт за неделю: понятнее всего сама неделя.
   if (typeof details.weekStart === 'string') {
     return details.weekStart;
+  }
+
+  // Услуги и цены. Подробности — набор полей: либо значение, либо пара
+  // «было → стало». Идентификаторы пропускаются: они нужны данным, а не
+  // человеку, который читает страницу.
+  if (
+    item.targetType === 'service' ||
+    item.targetType === 'master_service'
+  ) {
+    const parts = Object.entries(details)
+      .filter(([key]) => key !== 'masterProfileId')
+      .map(([key, value]) => {
+        const label = fieldLabel(key, t);
+
+        if (isChange(value)) {
+          return `${label}: ${fieldValue(value.from, t)} → ${fieldValue(value.to, t)}`;
+        }
+
+        return `${label}: ${fieldValue(value, t)}`;
+      });
+
+    return parts.join(' · ');
   }
 
   if (typeof from === 'string' && typeof to === 'string') {

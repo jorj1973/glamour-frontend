@@ -1665,7 +1665,15 @@
       "master.share_changed": "Procentul maestrului a fost schimbat",
       "payment.collector_changed": "S-a schimbat cine a luat banii",
       "payout.settled": "Săptămâna a fost închisă",
-      "payout.settlement_revoked": "Decontarea a fost anulată"
+      "payout.settlement_revoked": "Decontarea a fost anulată",
+      "service.created": "Serviciu adăugat în salon",
+      "service.changed": "Serviciu al salonului modificat",
+      "service.deactivated": "Serviciu al salonului dezactivat",
+      "service.deleted": "Serviciu al salonului șters",
+      "master_service.added": "Serviciu adăugat în lista maestrului",
+      "master_service.changed": "Lista maestrului modificată",
+      "master_service.deactivated": "Serviciul maestrului dezactivat",
+      "master_service.removed": "Serviciu scos din lista maestrului"
     },
     "status": {
       "pending": "în așteptare",
@@ -1677,6 +1685,21 @@
     "collector": {
       "salon": "casa salonului",
       "master": "maestrul"
+    },
+    "field": {
+      "price": "preț",
+      "minPrice": "preț de la",
+      "maxPrice": "preț până la",
+      "durationMinutes": "durată",
+      "customTitle": "denumire",
+      "isPublic": "vizibil clienților",
+      "isActive": "activ",
+      "onlineBookingEnabled": "programare online",
+      "name": "denumire",
+      "basePrice": "preț de bază",
+      "yes": "da",
+      "no": "nu",
+      "empty": "gol"
     }
   },
   "payouts": {

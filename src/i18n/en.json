@@ -1658,7 +1658,15 @@
       "master.share_changed": "The master's percentage was changed",
       "payment.collector_changed": "Who took the money was changed",
       "payout.settled": "The week was closed",
-      "payout.settlement_revoked": "The settlement was undone"
+      "payout.settlement_revoked": "The settlement was undone",
+      "service.created": "A salon service was added",
+      "service.changed": "A salon service was changed",
+      "service.deactivated": "A salon service was switched off",
+      "service.deleted": "A salon service was deleted",
+      "master_service.added": "A service was added to a master's list",
+      "master_service.changed": "A master's list was changed",
+      "master_service.deactivated": "A master's service was switched off",
+      "master_service.removed": "A service was removed from a master's list"
     },
     "status": {
       "pending": "pending",
@@ -1670,6 +1678,21 @@
     "collector": {
       "salon": "the salon's till",
       "master": "the master"
+    },
+    "field": {
+      "price": "price",
+      "minPrice": "price from",
+      "maxPrice": "price to",
+      "durationMinutes": "duration",
+      "customTitle": "title",
+      "isPublic": "visible to clients",
+      "isActive": "active",
+      "onlineBookingEnabled": "online booking",
+      "name": "name",
+      "basePrice": "base price",
+      "yes": "yes",
+      "no": "no",
+      "empty": "empty"
     }
   },
   "payouts": {
