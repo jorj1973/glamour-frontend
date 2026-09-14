@@ -1661,7 +1661,11 @@
       "payment.refunded": "Plată returnată",
       "payment.failed": "Plată anulată",
       "gift_card.issued": "Card cadou vândut",
-      "gift_card.redeemed": "Plată cu card cadou"
+      "gift_card.redeemed": "Plată cu card cadou",
+      "master.share_changed": "Procentul maestrului a fost schimbat",
+      "payment.collector_changed": "S-a schimbat cine a luat banii",
+      "payout.settled": "Săptămâna a fost închisă",
+      "payout.settlement_revoked": "Decontarea a fost anulată"
     },
     "status": {
       "pending": "în așteptare",
@@ -1669,6 +1673,10 @@
       "cancelled": "anulată",
       "completed": "finalizată",
       "no_show": "nu a venit"
+    },
+    "collector": {
+      "salon": "casa salonului",
+      "master": "maestrul"
     }
   },
   "payouts": {
@@ -1705,6 +1713,18 @@
     "termsStaff": "Sunteți maestru angajat. Cota dumneavoastră — {{percent}}% din suma plătită de client.",
     "termsIndependent": "Sunteți maestru independent: banii clientului sunt ai dumneavoastră, salonului îi plătiți pentru loc.",
     "termsNotSet": "Procentul nu este încă setat — întrebați proprietarul salonului.",
-    "termsExceptions": "Pentru anumite servicii"
+    "termsExceptions": "Pentru anumite servicii",
+    "collectedBy": "Banii i-a luat",
+    "collectedByHint": "Apăsați ca să schimbați: casa salonului sau maestrul",
+    "bySalon": "casa",
+    "byMaster": "maestrul",
+    "salonPays": "Salonul îi datorează maestrului {{amount}}",
+    "masterPays": "Maestrul îi datorează salonului {{amount}}",
+    "even": "Nimeni nu datorează nimic",
+    "settle": "Închide săptămâna",
+    "undoSettle": "Anulează decontarea",
+    "settledOn": "Decontat la {{date}}, suma {{amount}}",
+    "notSettled": "Săptămâna nu este închisă",
+    "settleError": "Nu s-a putut marca decontarea"
   }
 }

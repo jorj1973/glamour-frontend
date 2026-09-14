@@ -4,8 +4,10 @@ import {
   CalendarClock,
   CreditCard,
   Gift,
+  Percent,
   RefreshCw,
   ScrollText,
+  Wallet,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -20,7 +22,7 @@ type SalonSummary = {
 type ActionLogItem = {
   id: string;
   action: string;
-  targetType: 'appointment' | 'payment' | 'gift_card';
+  targetType: 'appointment' | 'payment' | 'gift_card' | 'master' | 'payout';
   targetId: string | null;
   result: 'allowed' | 'refused';
   reason: string | null;
@@ -49,6 +51,14 @@ function iconFor(item: ActionLogItem) {
 
   if (item.targetType === 'gift_card') {
     return <Gift size={16} />;
+  }
+
+  if (item.targetType === 'master') {
+    return <Percent size={16} />;
+  }
+
+  if (item.targetType === 'payout') {
+    return <Wallet size={16} />;
   }
 
   return <CalendarClock size={16} />;
@@ -84,6 +94,29 @@ function describeDetails(
   const details = item.details ?? {};
   const from = details.from;
   const to = details.to;
+
+  // Процент: числа и «не задан». Сравнение состояний ниже рассчитано на
+  // строки-состояния записи и превратило бы 40 → 45 в ключи перевода.
+  if (item.action === 'master.share_changed') {
+    const asPercent = (value: unknown) =>
+      value === null || value === undefined
+        ? t('payouts.notAgreed')
+        : `${String(value)} %`;
+
+    return `${asPercent(from)} → ${asPercent(to)}`;
+  }
+
+  // Кто взял деньги: касса или мастер.
+  if (item.action === 'payment.collector_changed') {
+    return `${t(`actionLog.collector.${String(from)}`)} → ${t(
+      `actionLog.collector.${String(to)}`,
+    )}`;
+  }
+
+  // Расчёт за неделю: понятнее всего сама неделя.
+  if (typeof details.weekStart === 'string') {
+    return details.weekStart;
+  }
 
   if (typeof from === 'string' && typeof to === 'string') {
     const isTime = !Number.isNaN(new Date(from).getTime()) && from.includes('-');

@@ -1666,7 +1666,11 @@
       "payment.refunded": "Платёж возвращён",
       "payment.failed": "Платёж отменён",
       "gift_card.issued": "Подарочная карта продана",
-      "gift_card.redeemed": "Оплата подарочной картой"
+      "gift_card.redeemed": "Оплата подарочной картой",
+      "master.share_changed": "Процент мастера изменён",
+      "payment.collector_changed": "Изменено, кто взял деньги",
+      "payout.settled": "Неделя закрыта",
+      "payout.settlement_revoked": "Отметка о расчёте снята"
     },
     "status": {
       "pending": "ожидает",
@@ -1674,6 +1678,10 @@
       "cancelled": "отменена",
       "completed": "завершена",
       "no_show": "не пришёл"
+    },
+    "collector": {
+      "salon": "касса салона",
+      "master": "мастер"
     }
   },
   "payouts": {
@@ -1710,6 +1718,18 @@
     "termsStaff": "Вы штатный мастер. Ваша доля — {{percent}}% от суммы, которую заплатил клиент.",
     "termsIndependent": "Вы независимый мастер: деньги клиента ваши, салону вы платите за место.",
     "termsNotSet": "Процент пока не задан — уточните у владельца салона.",
-    "termsExceptions": "По отдельным услугам"
+    "termsExceptions": "По отдельным услугам",
+    "collectedBy": "Деньги взял",
+    "collectedByHint": "Нажмите, чтобы переключить: касса салона или мастер",
+    "bySalon": "касса",
+    "byMaster": "мастер",
+    "salonPays": "Салон должен мастеру {{amount}}",
+    "masterPays": "Мастер должен салону {{amount}}",
+    "even": "Никто никому не должен",
+    "settle": "Закрыть неделю",
+    "undoSettle": "Отменить расчёт",
+    "settledOn": "Рассчитано {{date}}, сумма {{amount}}",
+    "notSettled": "Неделя не закрыта",
+    "settleError": "Не удалось отметить расчёт"
   }
 }

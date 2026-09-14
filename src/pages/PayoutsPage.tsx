@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Check,
   ChevronDown,
   ChevronRight,
   Download,
@@ -12,8 +13,20 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
 import StatementTable from '../components/StatementTable';
-import { downloadStatement, mondayOf, shiftWeek } from '../api/payouts';
-import type { MasterStatement } from '../api/payouts';
+import {
+  downloadStatement,
+  mondayOf,
+  revokeSettlement,
+  setCollectedBy,
+  settleWeek,
+  shiftWeek,
+} from '../api/payouts';
+import type {
+  MasterStatement,
+  SettlementMark,
+  StatementRow,
+  StatementTotals,
+} from '../api/payouts';
 
 type SalonSummary = { id: string; name: string };
 
@@ -33,20 +46,15 @@ type ServicePercentRow = {
 type SalonStatementLine = {
   masterProfileId: string;
   masterName: string;
-  totals: {
-    count: number;
-    amount: number;
-    masterShare: number;
-    salonShare: number;
-    withoutPercent: number;
-  };
+  totals: StatementTotals;
+  settlement: SettlementMark | null;
 };
 
 type SalonStatement = {
   weekStart: string;
   weekEnd: string;
   lines: SalonStatementLine[];
-  totals: SalonStatementLine['totals'];
+  totals: StatementTotals;
 };
 
 const money = (value: number) => value.toFixed(2);
@@ -184,6 +192,62 @@ function PayoutsPage() {
     }
   }
 
+  /**
+   * Закрыть или открыть неделю с мастером.
+   *
+   * Сумму сюда не передаём — её считает сервер по своей же ведомости.
+   * Кнопка утверждает факт расчёта, а не назначает число.
+   */
+  async function toggleSettlement(line: SalonStatementLine) {
+    if (!salon) {
+      return;
+    }
+
+    setSavingId(line.masterProfileId);
+    setMessage('');
+
+    try {
+      if (line.settlement) {
+        await revokeSettlement(salon.id, line.masterProfileId, weekStart);
+      } else {
+        await settleWeek(salon.id, line.masterProfileId, weekStart);
+      }
+
+      await loadAll(salon.id, weekStart);
+
+      if (openMaster === line.masterProfileId) {
+        await openMasterDetails(line.masterProfileId, true);
+      }
+    } catch {
+      setMessage(t('payouts.settleError'));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function toggleCollector(row: StatementRow) {
+    if (!salon || !openMaster) {
+      return;
+    }
+
+    setSavingId(row.paymentId);
+
+    try {
+      await setCollectedBy(
+        salon.id,
+        row.paymentId,
+        row.collectedBy === 'master' ? 'salon' : 'master',
+      );
+
+      await loadAll(salon.id, weekStart);
+      await openMasterDetails(openMaster, true);
+    } catch {
+      setMessage(t('payouts.saveError'));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
   async function openMasterDetails(masterProfileId: string, keepOpen = false) {
     if (!salon) {
       return;
@@ -218,6 +282,22 @@ function PayoutsPage() {
   const percentByMaster = new Map(
     percents.map((row) => [row.masterProfileId, row]),
   );
+
+  /**
+   * Итог недели словами. Знак числа читается не всеми — «платит салон»
+   * читается всеми, и спорить об этом уже нечем.
+   */
+  function balanceLine(balance: number): string {
+    if (balance > 0) {
+      return t('payouts.salonPays', { amount: balance.toFixed(2) });
+    }
+
+    if (balance < 0) {
+      return t('payouts.masterPays', { amount: Math.abs(balance).toFixed(2) });
+    }
+
+    return t('payouts.even');
+  }
 
   return (
     <AppLayout>
@@ -423,17 +503,76 @@ function PayoutsPage() {
 
                     <div
                       style={{
-                        minWidth: 190,
+                        minWidth: 200,
                         textAlign: 'right',
                         color: 'var(--app-text-muted)',
                         fontSize: 12,
                       }}
                     >
-                      {line
-                        ? `${t('payouts.toMaster')} ${money(line.totals.masterShare)} · ${t('payouts.toSalon')} ${money(line.totals.salonShare)}`
-                        : t('payouts.noVisits')}
+                      {line ? (
+                        <>
+                          <div>
+                            {t('payouts.toMaster')}{' '}
+                            {money(line.totals.masterShare)} ·{' '}
+                            {t('payouts.toSalon')}{' '}
+                            {money(line.totals.salonShare)}
+                          </div>
+                          <div
+                            style={{
+                              color: 'var(--app-text)',
+                              fontSize: 13,
+                              fontWeight: 700,
+                              marginTop: 2,
+                            }}
+                          >
+                            {balanceLine(line.totals.balance)}
+                          </div>
+                        </>
+                      ) : (
+                        t('payouts.noVisits')
+                      )}
                     </div>
+
+                    {/* Закрыть неделю можно только там, где есть что
+                        закрывать: у штатного мастера и при визитах. */}
+                    {line && row.cooperationType === 'staff' && (
+                      <button
+                        type="button"
+                        className="week-button"
+                        disabled={savingId === row.masterProfileId}
+                        onClick={() => void toggleSettlement(line)}
+                        style={
+                          line.settlement
+                            ? {}
+                            : {
+                                borderColor: 'rgba(var(--app-ink-rgb),0.26)',
+                              }
+                        }
+                      >
+                        <Check size={14} />
+                        {line.settlement
+                          ? t('payouts.undoSettle')
+                          : t('payouts.settle')}
+                      </button>
+                    )}
                   </div>
+
+                  {line?.settlement && (
+                    <p
+                      style={{
+                        margin: '8px 0 0',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                      }}
+                    >
+                      {t('payouts.settledOn', {
+                        date: new Date(
+                          line.settlement.settledAt,
+                        ).toLocaleDateString(),
+                        amount: Math.abs(line.settlement.balance).toFixed(2),
+                      })}
+                    </p>
+                  )}
 
                   {isOpen && (
                     <div style={{ paddingTop: 14 }}>
@@ -506,7 +645,13 @@ function PayoutsPage() {
 
                       {masterStatement && (
                         <>
-                          <StatementTable statement={masterStatement} />
+                          <StatementTable
+                            statement={masterStatement}
+                            onToggleCollector={(statementRow) =>
+                              void toggleCollector(statementRow)
+                            }
+                            busyPaymentId={savingId}
+                          />
                           <button
                             type="button"
                             className="week-button"
@@ -544,9 +689,21 @@ function PayoutsPage() {
               }}
             >
               <span>{t('payouts.total')}</span>
-              <span>
-                {t('payouts.toMaster')} {money(statement.totals.masterShare)} ·{' '}
-                {t('payouts.toSalon')} {money(statement.totals.salonShare)}
+              <span style={{ textAlign: 'right' }}>
+                <span style={{ display: 'block' }}>
+                  {t('payouts.toMaster')} {money(statement.totals.masterShare)}{' '}
+                  · {t('payouts.toSalon')}{' '}
+                  {money(statement.totals.salonShare)}
+                </span>
+                <span
+                  style={{
+                    display: 'block',
+                    color: 'var(--app-text-muted)',
+                    fontSize: 12,
+                  }}
+                >
+                  {balanceLine(statement.totals.balance)}
+                </span>
               </span>
             </div>
           )}

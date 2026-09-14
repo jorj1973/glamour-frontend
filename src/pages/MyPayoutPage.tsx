@@ -5,8 +5,13 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
 import StatementTable from '../components/StatementTable';
-import { downloadStatement, mondayOf, shiftWeek } from '../api/payouts';
-import type { MasterStatement } from '../api/payouts';
+import {
+    downloadStatement,
+    mondayOf,
+    setCollectedBy,
+    shiftWeek,
+} from '../api/payouts';
+import type { MasterStatement, StatementRow } from '../api/payouts';
 
 type SalonSummary = { id: string; name: string };
 type MyProfile = { id: string };
@@ -34,6 +39,7 @@ function MyPayoutPage() {
     const [terms, setTerms] = useState<MyTerms | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const [busyPaymentId, setBusyPaymentId] = useState<string | null>(null);
 
     async function load(week = weekStart) {
         setIsLoading(true);
@@ -81,6 +87,33 @@ function MyPayoutPage() {
     useEffect(() => {
         void load();
     }, []);
+
+    /**
+     * Мастер сам отмечает, что деньги по визиту взял он: это меняет
+     * направление долга за неделю. Владелец видит ту же строку и ту же
+     * отметку в журнале салона.
+     */
+    async function toggleCollector(row: StatementRow) {
+        if (!salon) {
+            return;
+        }
+
+        setBusyPaymentId(row.paymentId);
+
+        try {
+            await setCollectedBy(
+                salon.id,
+                row.paymentId,
+                row.collectedBy === 'master' ? 'salon' : 'master',
+            );
+
+            await load(weekStart);
+        } catch {
+            setMessage(t('payouts.saveError'));
+        } finally {
+            setBusyPaymentId(null);
+        }
+    }
 
     function changeWeek(direction: -1 | 1) {
         const next = shiftWeek(weekStart, direction);
@@ -218,7 +251,13 @@ function MyPayoutPage() {
                     )}
 
                     {!isLoading && !message && statement && (
-                        <StatementTable statement={statement} />
+                        <StatementTable
+                            statement={statement}
+                            onToggleCollector={(row) =>
+                                void toggleCollector(row)
+                            }
+                            busyPaymentId={busyPaymentId}
+                        />
                     )}
                 </section>
             </main>

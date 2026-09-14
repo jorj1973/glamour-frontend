@@ -1,9 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
-import type { MasterStatement } from '../api/payouts';
+import type { MasterStatement, StatementRow } from '../api/payouts';
 
 type Props = {
   statement: MasterStatement;
+
+  /** Дан — колонка «деньги взял» становится переключателем. */
+  onToggleCollector?: (row: StatementRow) => void;
+  busyPaymentId?: string | null;
 };
 
 const money = (value: number | null) =>
@@ -30,7 +34,11 @@ function formatDay(value: string): string {
  * Владелец и мастер обязаны видеть буквально одно и то же: в этом весь
  * смысл ведомости. Два разных вида — два разных повода для спора.
  */
-function StatementTable({ statement }: Props) {
+function StatementTable({
+  statement,
+  onToggleCollector,
+  busyPaymentId,
+}: Props) {
   const { t } = useTranslation();
 
   if (statement.rows.length === 0) {
@@ -59,6 +67,7 @@ function StatementTable({ statement }: Props) {
             <th style={cellStyle('right')}>%</th>
             <th style={cellStyle('right')}>{t('payouts.toMaster')}</th>
             <th style={cellStyle('right')}>{t('payouts.toSalon')}</th>
+            <th style={cellStyle('left')}>{t('payouts.collectedBy')}</th>
           </tr>
         </thead>
 
@@ -79,6 +88,27 @@ function StatementTable({ statement }: Props) {
               </td>
               <td style={cellStyle('right')}>{money(row.masterShare)}</td>
               <td style={cellStyle('right')}>{money(row.salonShare)}</td>
+              <td style={cellStyle('left')}>
+                {onToggleCollector ? (
+                  <button
+                    type="button"
+                    className="collector-chip"
+                    disabled={busyPaymentId === row.paymentId}
+                    onClick={() => onToggleCollector(row)}
+                    title={t('payouts.collectedByHint')}
+                  >
+                    {row.collectedBy === 'master'
+                      ? t('payouts.byMaster')
+                      : t('payouts.bySalon')}
+                  </button>
+                ) : (
+                  <span style={{ color: 'var(--app-text-muted)' }}>
+                    {row.collectedBy === 'master'
+                      ? t('payouts.byMaster')
+                      : t('payouts.bySalon')}
+                  </span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -102,6 +132,7 @@ function StatementTable({ statement }: Props) {
             <td style={cellStyle('right')}>
               {money(statement.totals.salonShare)}
             </td>
+            <td style={cellStyle('left')} />
           </tr>
         </tfoot>
       </table>
@@ -113,6 +144,87 @@ function StatementTable({ statement }: Props) {
           })}
         </p>
       )}
+
+      <SettlementSummary statement={statement} />
+
+      <style>{`
+        .collector-chip {
+          padding: 3px 9px;
+          border: 1px solid rgba(var(--app-ink-rgb),0.14);
+          border-radius: 8px;
+          background: rgba(var(--app-ink-rgb),0.05);
+          color: var(--app-text);
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .collector-chip:disabled { opacity: 0.5; cursor: default; }
+      `}</style>
+    </div>
+  );
+}
+
+/**
+ * Итог недели одной строкой.
+ *
+ * Всё, что выше, объясняет, откуда взялось число. Здесь само число — и
+ * ради него ведомость открывают в конце недели. Оба кабинета показывают
+ * его одинаково: разный вид — это второй повод для спора.
+ */
+function SettlementSummary({ statement }: { statement: MasterStatement }) {
+  const { t } = useTranslation();
+
+  const { totals, settlement } = statement;
+  const balance = totals.balance;
+
+  const line =
+    balance > 0
+      ? t('payouts.salonPays', { amount: balance.toFixed(2) })
+      : balance < 0
+        ? t('payouts.masterPays', { amount: Math.abs(balance).toFixed(2) })
+        : t('payouts.even');
+
+  return (
+    <div
+      style={{
+        marginTop: 14,
+        padding: '12px 14px',
+        borderRadius: 13,
+        border: '1px solid rgba(var(--app-ink-rgb),0.1)',
+        background: 'rgba(var(--app-ink-rgb),0.04)',
+      }}
+    >
+      <div
+        style={{
+          color: 'var(--app-text-muted)',
+          fontSize: 12,
+          marginBottom: 6,
+        }}
+      >
+        {t('payouts.bySalon')}: {totals.collectedBySalon.toFixed(2)} ·{' '}
+        {t('payouts.byMaster')}: {totals.collectedByMaster.toFixed(2)}
+      </div>
+
+      <div
+        style={{ color: 'var(--app-text)', fontSize: 15, fontWeight: 700 }}
+      >
+        {line}
+      </div>
+
+      <div
+        style={{
+          marginTop: 6,
+          color: settlement ? 'var(--app-text-muted)' : 'var(--app-danger)',
+          fontSize: 12,
+        }}
+      >
+        {settlement
+          ? t('payouts.settledOn', {
+              date: new Date(settlement.settledAt).toLocaleDateString(),
+              amount: Math.abs(settlement.balance).toFixed(2),
+            })
+          : t('payouts.notSettled')}
+      </div>
     </div>
   );
 }
