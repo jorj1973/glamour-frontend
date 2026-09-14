@@ -1685,7 +1685,9 @@
       "master.added": "Профиль мастера заведён",
       "master.cooperation_changed": "Тип сотрудничества изменён",
       "staff.admin_revoked": "Место администратора снято",
-      "salon.settings_changed": "Настройки салона изменены"
+      "salon.settings_changed": "Настройки салона изменены",
+      "loyalty.settings_changed": "Правила лояльности изменены",
+      "sms.settings_changed": "Настройки SMS изменены"
     },
     "status": {
       "pending": "ожидает",
@@ -1719,7 +1721,16 @@
       "workingHours": "часы работы",
       "timezone": "часовой пояс",
       "currency": "валюта",
-      "chatEnabled": "чат"
+      "chatEnabled": "чат",
+      "pointsPerCurrencyUnit": "баллов за единицу",
+      "earnPercent": "процент начисления",
+      "referralBonusPoints": "бонус за приглашение",
+      "referralWelcomePoints": "бонус новичку",
+      "enabled": "включено",
+      "duplicateToRegistered": "дублировать зарегистрированным",
+      "autoTopUp": "автопополнение",
+      "autoThreshold": "порог автопополнения",
+      "autoPacketId": "пакет автопополнения"
     },
     "cooperation": {
       "staff": "штатный",

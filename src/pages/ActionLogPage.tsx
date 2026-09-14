@@ -4,11 +4,13 @@ import {
   CalendarClock,
   CreditCard,
   Gift,
+  MessageSquare,
   Percent,
   RefreshCw,
   Scissors,
   ScrollText,
   Settings,
+  Star,
   UserPlus,
   Wallet,
 } from 'lucide-react';
@@ -34,7 +36,9 @@ type ActionLogItem = {
     | 'service'
     | 'master_service'
     | 'staff'
-    | 'salon';
+    | 'salon'
+    | 'loyalty'
+    | 'sms';
   targetId: string | null;
   result: 'allowed' | 'refused';
   reason: string | null;
@@ -83,6 +87,14 @@ function iconFor(item: ActionLogItem) {
 
   if (item.targetType === 'salon') {
     return <Settings size={16} />;
+  }
+
+  if (item.targetType === 'loyalty') {
+    return <Star size={16} />;
+  }
+
+  if (item.targetType === 'sms') {
+    return <MessageSquare size={16} />;
   }
 
   return <CalendarClock size={16} />;
@@ -190,7 +202,9 @@ function describeDetails(
   if (
     item.targetType === 'service' ||
     item.targetType === 'master_service' ||
-    item.targetType === 'salon'
+    item.targetType === 'salon' ||
+    item.targetType === 'loyalty' ||
+    item.targetType === 'sms'
   ) {
     const parts = Object.entries(details)
       .filter(([key]) => key !== 'masterProfileId')

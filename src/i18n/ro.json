@@ -1680,7 +1680,9 @@
       "master.added": "Profil de maestru creat",
       "master.cooperation_changed": "Tipul de colaborare a fost schimbat",
       "staff.admin_revoked": "Locul de administrator a fost retras",
-      "salon.settings_changed": "Setările salonului au fost modificate"
+      "salon.settings_changed": "Setările salonului au fost modificate",
+      "loyalty.settings_changed": "Regulile de fidelitate au fost modificate",
+      "sms.settings_changed": "Setările SMS au fost modificate"
     },
     "status": {
       "pending": "în așteptare",
@@ -1714,7 +1716,16 @@
       "workingHours": "program",
       "timezone": "fus orar",
       "currency": "monedă",
-      "chatEnabled": "chat"
+      "chatEnabled": "chat",
+      "pointsPerCurrencyUnit": "puncte pe unitate",
+      "earnPercent": "procent de acumulare",
+      "referralBonusPoints": "bonus pentru recomandare",
+      "referralWelcomePoints": "bonus de bun venit",
+      "enabled": "activat",
+      "duplicateToRegistered": "duplicare către cei înregistrați",
+      "autoTopUp": "realimentare automată",
+      "autoThreshold": "prag de realimentare",
+      "autoPacketId": "pachet de realimentare"
     },
     "cooperation": {
       "staff": "angajat",
