@@ -340,6 +340,54 @@ input {
   color: #fff7fc;
 }
 
+/* Группы разделов в кабинете мастера: пять входов вместо тринадцати. */
+.sidebar-group {
+  display: grid;
+  gap: 6px;
+}
+
+.sidebar-group > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #b9b0bb;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-group > button:hover,
+.sidebar-group.open > button {
+  background: rgba(214, 130, 184, 0.16);
+  color: #fff7fc;
+}
+
+.sidebar-group-chevron {
+  margin-left: auto;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-group.open .sidebar-group-chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-group-items {
+  display: grid;
+  gap: 4px;
+  padding-left: 14px;
+}
+
+.sidebar-group-items a {
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
 .app-content {
   flex: 1;
 }
@@ -952,6 +1000,16 @@ input {
 
 :root[data-theme="light"] .sidebar-nav a.active,
 :root[data-theme="light"] .sidebar-nav a:hover {
+  background: rgba(214, 130, 184, 0.14);
+  color: var(--app-text);
+}
+
+:root[data-theme="light"] .sidebar-group > button {
+  color: var(--app-text-muted);
+}
+
+:root[data-theme="light"] .sidebar-group > button:hover,
+:root[data-theme="light"] .sidebar-group.open > button {
   background: rgba(214, 130, 184, 0.14);
   color: var(--app-text);
 }

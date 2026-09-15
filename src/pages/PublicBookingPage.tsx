@@ -318,6 +318,16 @@ function PublicBookingPage() {
     const [targetId, setTargetId] = useState<string | null>(null);
 
     const [services, setServices] = useState<ServiceItem[]>([]);
+
+    // Весь каталог салона и услуги мастера, по чьей ссылке пришли.
+    // По ссылке мастера сначала показываем его услуги — ссылка обещает
+    // запись именно к нему. Каталог салона остаётся в одном нажатии:
+    // клиентку, которой нужно другое, терять незачем.
+    const [salonServices, setSalonServices] = useState<ServiceItem[]>([]);
+    const [masterServices, setMasterServices] = useState<ServiceItem[] | null>(
+        null,
+    );
+    const [showAllServices, setShowAllServices] = useState(false);
     const [masters, setMasters] = useState<MasterItem[]>([]);
     const [slots, setSlots] = useState<AvailableSlot[]>([]);
     const [nextDays, setNextDays] = useState<NextDay[]>([]);
@@ -445,18 +455,55 @@ function PublicBookingPage() {
                     return;
                 }
 
-                const salonServices = servicesResponse.data.filter(
+                const catalogue = servicesResponse.data.filter(
                     (service) =>
                         service.salonId === resolved.salonId &&
                         service.isActive !== false,
                 );
 
-                let initialServices = salonServices;
+                let initialServices = catalogue;
 
                 if (targetKind === 'service' && targetWhat) {
-                    initialServices = salonServices.filter(
+                    initialServices = catalogue.filter(
                         (service) => service.id === targetWhat,
                     );
+                }
+
+                setSalonServices(catalogue);
+
+                // Ссылка мастера: показываем то, что делает он.
+                if (targetKind === 'master' && targetWhat) {
+                    try {
+                        const ownResponse = await api.get<
+                            { serviceId: string }[]
+                        >(
+                            `/masters/services/${encodeURIComponent(targetWhat)}`,
+                            { params: { salonId: resolved.salonId } },
+                        );
+
+                        const ownIds = new Set(
+                            ownResponse.data
+                                .map((row) => row.serviceId)
+                                .filter(Boolean),
+                        );
+
+                        const own = catalogue.filter((service) =>
+                            ownIds.has(service.id),
+                        );
+
+                        // Если у мастера нет ни одной услуги для онлайн-записи,
+                        // оставляем каталог салона: пустой экран хуже лишнего.
+                        if (own.length > 0) {
+                            setMasterServices(own);
+                            initialServices = own;
+                        }
+                    } catch {
+                        // Не вышло — остаёмся на каталоге салона.
+                    }
+                }
+
+                if (cancelled) {
+                    return;
                 }
 
                 setServices(initialServices);
@@ -1125,6 +1172,18 @@ function PublicBookingPage() {
 
                             <h2>{t('booking.chooseService')}</h2>
 
+                            {masterServices && !showAllServices && (
+                                <p
+                                    style={{
+                                        color: 'var(--app-text-dim3)',
+                                        fontSize: 13,
+                                        margin: '0 0 12px',
+                                    }}
+                                >
+                                    {t('booking.masterServicesNote')}
+                                </p>
+                            )}
+
                             {services.length === 0 ? (
                                 <p style={{ color: 'var(--app-text-dim3)' }}>
                                     {t('booking.noServices')}
@@ -1211,7 +1270,39 @@ function PublicBookingPage() {
                                 </div>
                             )}
 
+                            {masterServices && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const showAll = !showAllServices;
 
+                                        setShowAllServices(showAll);
+                                        setServices(
+                                            showAll
+                                                ? salonServices
+                                                : masterServices,
+                                        );
+                                    }}
+                                    style={{
+                                        marginTop: 16,
+                                        minHeight: 44,
+                                        padding: '0 18px',
+                                        borderRadius: 12,
+                                        border:
+                                            '1px solid rgba(var(--app-ink-rgb),0.12)',
+                                        background:
+                                            'rgba(var(--app-ink-rgb),0.04)',
+                                        color: 'var(--app-text)',
+                                        fontSize: 14,
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {showAllServices
+                                        ? t('booking.showMasterServices')
+                                        : t('booking.showAllServices')}
+                                </button>
+                            )}
                         </>
                     )}
 

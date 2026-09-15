@@ -12,9 +12,7 @@ import {
   BarChart3,
   Building2,
   CalendarDays,
-  CalendarRange,
   CreditCard,
-  Gift,
   Info,
   Palette,
   Scissors,
@@ -28,12 +26,87 @@ import {
   Link2,
   Menu,
   Star,
+  ChevronDown,
 } from 'lucide-react';
 
 import api from '../api/api';
 import LanguageSwitcher from './LanguageSwitcher';
 import NotificationBell from './NotificationBell';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+
+/**
+ * Разделы кабинета мастера, собранные в группы.
+ *
+ * Их было тринадцать в один список. Мастер, которая всю жизнь считала в
+ * тетради, открывала стену из тринадцати пунктов и закрывала приложение.
+ * Возможности не урезаны — сгруппированы: пять входов, внутри всё то же.
+ *
+ * Группа «Связь» сегодня почти пустая. Так и задумано: в неё лягут
+ * каналы уведомлений и поддержка, и место для них уже есть.
+ */
+const MASTER_GROUPS: {
+  key: string;
+  label: string;
+  items: { hash: string; label: string }[];
+}[] = [
+  {
+    key: 'work',
+    label: 'nav.groupWork',
+    items: [
+      { hash: '#appointments', label: 'nav.myAppointments' },
+      { hash: '#schedule', label: 'nav.mySchedule' },
+      { hash: '#schedule-template', label: 'nav.scheduleTemplate' },
+    ],
+  },
+  {
+    key: 'clients',
+    label: 'nav.groupClients',
+    items: [
+      { hash: '#clients', label: 'nav.myClients' },
+      { hash: '#loyalty', label: 'nav.loyalty' },
+      { hash: '#reviews', label: 'nav.reviews' },
+    ],
+  },
+  {
+    key: 'money',
+    label: 'nav.groupMoney',
+    items: [
+      { hash: '#finance', label: 'nav.myFinance' },
+      { hash: '#my-payout', label: 'nav.myPayout' },
+      { hash: '#payment-settings', label: 'nav.myPayment' },
+    ],
+  },
+  {
+    key: 'profile',
+    label: 'nav.groupProfile',
+    items: [
+      { hash: '#my-profile', label: 'nav.myProfile' },
+      { hash: '#services', label: 'nav.myServices' },
+    ],
+  },
+  {
+    key: 'comms',
+    label: 'nav.groupComms',
+    items: [{ hash: '#sms', label: 'nav.sms' }],
+  },
+];
+
+const MASTER_GROUP_ICON: Record<string, React.ReactNode> = {
+  work: <CalendarDays size={18} />,
+  clients: <Users size={18} />,
+  money: <CreditCard size={18} />,
+  profile: <UserRound size={18} />,
+  comms: <Smartphone size={18} />,
+};
+
+/** Группа, в которой лежит открытый раздел: она и раскрыта при заходе. */
+function groupOfHash(hash: string): string {
+  const group = MASTER_GROUPS.find((item) =>
+    item.items.some((link) => link.hash === hash),
+  );
+
+  return group ? group.key : '';
+}
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -121,6 +194,9 @@ function AppLayout({ children }: AppLayoutProps) {
   const [currentHash, setCurrentHash] = useState(
     window.location.hash,
   );
+
+  /** Какую группу меню мастер раскрыл руками; 'none' — закрыл все. */
+  const [openGroup, setOpenGroup] = useState('');
 
   const [workspaceMode, setWorkspaceMode] =
     useState<WorkspaceMode>(getSavedWorkspaceMode);
@@ -680,147 +756,56 @@ function AppLayout({ children }: AppLayoutProps) {
 
           {isMasterWorkspace ? (
             <>
-              <a
-                className={
-                  currentHash === '#appointments'
-                    ? 'active'
-                    : ''
-                }
-                href="#appointments"
-              >
-                <CalendarDays size={18} />
-                {t('nav.myAppointments')}
-              </a>
+              {MASTER_GROUPS.map((group) => {
+                const opened =
+                  (openGroup || groupOfHash(currentHash)) === group.key;
 
-              <a
-                className={
-                  currentHash === '#clients'
-                    ? 'active'
-                    : ''
-                }
-                href="#clients"
-              >
-                <Users size={18} />
-                {t('nav.myClients')}
-              </a>
+                return (
+                  <div
+                    key={group.key}
+                    className={
+                      opened
+                        ? 'sidebar-group open'
+                        : 'sidebar-group'
+                    }
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={opened}
+                      onClick={() =>
+                        setOpenGroup(
+                          opened ? 'none' : group.key,
+                        )
+                      }
+                    >
+                      {MASTER_GROUP_ICON[group.key]}
+                      {t(group.label)}
+                      <ChevronDown
+                        size={16}
+                        className="sidebar-group-chevron"
+                      />
+                    </button>
 
-              <a
-                className={
-                  currentHash === '#services'
-                    ? 'active'
-                    : ''
-                }
-                href="#services"
-              >
-                <Sparkles size={18} />
-                {t('nav.myServices')}
-              </a>
-
-              <a
-                className={
-                  currentHash === '#finance'
-                    ? 'active'
-                    : ''
-                }
-                href="#finance"
-              >
-                <CreditCard size={18} />
-                {t('nav.myFinance')}
-              </a>
-
-              {/* Моя ведомость: те же строки, что видит владелец.
-                  Мастеру не нужно верить салону на слово. */}
-              <a
-                className={
-                  currentHash === '#my-payout'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#my-payout"
-              >
-                <Wallet size={18} />
-                {t('nav.myPayout')}
-              </a>
-              <a
-                className={
-                  currentHash === '#schedule-template'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#schedule-template"
-              >
-                <CalendarRange size={18} />
-                {t('nav.scheduleTemplate')}
-              </a>
-              <a
-                className={
-                  currentHash === '#schedule'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#schedule"
-              >
-                <CalendarDays size={18} />
-                {t('nav.mySchedule')}
-              </a>
-              <a
-                className={
-                  currentHash === '#my-profile'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#my-profile"
-              >
-                <UserRound size={18} />
-                {t('nav.myProfile')}
-              </a>
-              <a
-                className={
-                  currentHash === '#loyalty'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#loyalty"
-              >
-                <Gift size={18} />
-                {t('nav.loyalty')}
-              </a>
-              <a
-                className={
-                  currentHash === '#payment-settings'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#payment-settings"
-              >
-                <CreditCard size={18} />
-                {t('nav.myPayment')}
-              </a>
-              <a
-                className={
-                  currentHash === '#reviews'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#reviews"
-              >
-                <Star size={18} />
-                {t('nav.reviews')}
-              </a>
-              {/* У независимого мастера свой счёт: он платит
-                  за свои напоминания сам. Наёмному экран
-                  честно скажет, что за него платит салон. */}
-              <a
-                className={
-                  currentHash === '#sms'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#sms"
-              >
-                <Smartphone size={18} />
-                {t('nav.sms')}
-              </a>
+                    {opened ? (
+                      <div className="sidebar-group-items">
+                        {group.items.map((item) => (
+                          <a
+                            key={item.hash}
+                            className={
+                              currentHash === item.hash
+                                ? 'active'
+                                : ''
+                            }
+                            href={item.hash}
+                          >
+                            {t(item.label)}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
             </>
           ) : (
             <>
