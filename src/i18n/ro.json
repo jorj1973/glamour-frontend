@@ -171,7 +171,14 @@
     "delete": "Șterge",
     "confirmDelete": "Elimini programarea din calendar și rapoarte? Datele rămân în bază.",
     "busy": "Ocupat",
-    "busyHint": "Programare a unui maestru independent. Detaliile sunt vizibile administratorului salonului."
+    "busyHint": "Programare a unui maestru independent. Detaliile sunt vizibile administratorului salonului.",
+    "clientLabel": "Client",
+    "selectClient": "Alegeți clientul",
+    "fromBase": "Din bază",
+    "newGuest": "Client nou",
+    "guestName": "Numele",
+    "guestPhone": "Telefon",
+    "needClient": "Alegeți clientul din bază sau scrieți numele"
   },
   "clients": {
     "title": "Clienții salonului",

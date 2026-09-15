@@ -170,7 +170,14 @@
     "delete": "Delete",
     "confirmDelete": "Remove this appointment from the calendar and reports? Data stays in the database.",
     "busy": "Busy",
-    "busyHint": "Appointment of an independent master. Details are visible to the salon administrator."
+    "busyHint": "Appointment of an independent master. Details are visible to the salon administrator.",
+    "clientLabel": "Client",
+    "selectClient": "Choose a client",
+    "fromBase": "From the base",
+    "newGuest": "New client",
+    "guestName": "Name",
+    "guestPhone": "Phone",
+    "needClient": "Choose a client from the base or write a name"
   },
   "clients": {
     "title": "Salon Clients",

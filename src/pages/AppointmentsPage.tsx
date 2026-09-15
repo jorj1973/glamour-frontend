@@ -68,7 +68,41 @@ type NewAppointmentForm = {
   masterServiceId: string;
   startTime: string;
   clientComment: string;
+  /** Клиент из базы салона или мастера. */
+  clientUserId: string;
+  /** Гость: тот, кто позвонил и в базе ещё не значится. */
+  guestName: string;
+  guestPhone: string;
 };
+
+/** Клиент в списке выбора: больше формы ничего не нужно. */
+type ClientRow = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+};
+
+/**
+ * Что ответил сервер.
+ *
+ * До 2026-09-15 здесь стояло общее «не удалось загрузить», и из-за него
+ * никто не знал, что форма новой записи вообще никогда не работала: она
+ * не спрашивала клиента, сервер отвечал «клиент обязателен», а человек
+ * видел слово про загрузку и уходил.
+ */
+function serverMessage(error: unknown, fallback: string): string {
+  const data = (error as { response?: { data?: { message?: unknown } } })
+    ?.response?.data;
+
+  const message = data?.message;
+
+  if (Array.isArray(message)) {
+    return message.join(', ');
+  }
+
+  return typeof message === 'string' && message.trim() ? message : fallback;
+}
 
 type Master = {
   id: string;
@@ -146,13 +180,28 @@ function AppointmentsPage() {
   // Форма новой записи
   const [masters, setMasters] = useState<Master[]>([]);
   const [masterServices, setMasterServices] = useState<MasterService[]>([]);
+  const [clients, setClients] = useState<ClientRow[]>([]);
+  const [isGuest, setIsGuest] = useState(false);
   const [form, setForm] = useState<NewAppointmentForm>({
     masterProfileId: '',
     masterServiceId: '',
     startTime: '',
     clientComment: '',
+    clientUserId: '',
+    guestName: '',
+    guestPhone: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /**
+   * Кому вообще можно завести запись руками.
+   *
+   * Салону — да. Независимому мастеру — да: он ведёт своё дело, и его
+   * книга его. Штатному — нет: его записи идут через салон, и выручка
+   * с них салонная (ADR-005).
+   */
+  const canCreate =
+    !isMasterWorkspace || salon?.cooperationType === 'independent';
 
   async function loadSalon(): Promise<SalonSummary | null> {
     const res = await api.get<SalonSummary[]>('/salons/my');
@@ -192,6 +241,45 @@ function AppointmentsPage() {
     }
   }
 
+  /**
+   * Кого можно записать.
+   *
+   * Мастеру — её собственных клиентов: список салона ей закрыт, и это
+   * правильно (ADR-005). Салону — всех своих. Кто в базе не значится,
+   * записывается гостем: имя и телефон.
+   */
+  async function loadClients(salonId: string) {
+    try {
+      const endpoint = isMasterWorkspace
+        ? '/client-history/my-clients'
+        : '/client-history/salon-clients';
+
+      const res = await api.get<ClientRow[]>(endpoint, {
+        params: { salonId },
+      });
+
+      setClients(res.data);
+    } catch {
+      // Список не обязателен: гостя можно записать и без него.
+      setClients([]);
+    }
+  }
+
+  /** Свой профиль мастера — чтобы не выбирать себя из списка. */
+  async function loadOwnMaster(salonId: string) {
+    try {
+      const res = await api.get<{ id: string }>('/masters/me');
+
+      if (res.data?.id) {
+        setForm((prev) => ({ ...prev, masterProfileId: res.data.id }));
+
+        await loadMasterServices(res.data.id, salonId);
+      }
+    } catch {
+      // Без профиля форма просто не откроется.
+    }
+  }
+
   async function loadMasterServices(masterProfileId: string, salonId: string) {
     try {
       const res = await api.get<MasterService[]>(`/masters/${masterProfileId}/services`, { params: { salonId } });
@@ -212,6 +300,8 @@ function AppointmentsPage() {
         await Promise.all([
           loadAppointments(s.id),
           loadMasters(s.id),
+          loadClients(s.id),
+          isMasterWorkspace ? loadOwnMaster(s.id) : Promise.resolve(),
         ]);
       } catch {
         if (!cancelled) setMessage(t('common.loadError'));
@@ -283,6 +373,17 @@ function AppointmentsPage() {
       showError(t('appointments.fillRequired'));
       return;
     }
+
+    /**
+     * Кого записываем — половина, которой в этой форме не было вовсе.
+     * Сервер требует либо клиента из базы, либо гостя с именем, и без
+     * этого запись не создавалась никогда.
+     */
+    if (isGuest ? !form.guestName.trim() : !form.clientUserId) {
+      showError(t('appointments.needClient'));
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.post('/appointments', {
@@ -290,13 +391,28 @@ function AppointmentsPage() {
         masterServiceId: form.masterServiceId,
         startTime: new Date(form.startTime).toISOString(),
         clientComment: form.clientComment || undefined,
+        ...(isGuest
+          ? {
+              isGuest: true,
+              guestName: form.guestName.trim(),
+              guestPhone: form.guestPhone.trim() || undefined,
+            }
+          : { clientUserId: form.clientUserId }),
       }, { params: { salonId: salon.id } });
       await loadAppointments(salon.id);
       setShowForm(false);
-      setForm({ masterProfileId: '', masterServiceId: '', startTime: '', clientComment: '' });
+      setForm({
+        masterProfileId: isMasterWorkspace ? form.masterProfileId : '',
+        masterServiceId: '',
+        startTime: '',
+        clientComment: '',
+        clientUserId: '',
+        guestName: '',
+        guestPhone: '',
+      });
       showSuccess(t('appointments.created'));
-    } catch {
-      showError(t('common.loadError'));
+    } catch (error) {
+      showError(serverMessage(error, t('common.loadError')));
     } finally {
       setIsSubmitting(false);
     }
@@ -375,7 +491,7 @@ function AppointmentsPage() {
 
         {/* Кнопки действий */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
-          {!isMasterWorkspace && (
+          {canCreate && (
             <button type="button" style={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
               <Plus size={16} /> {t('appointments.newAppointment')}
             </button>
@@ -392,7 +508,7 @@ function AppointmentsPage() {
         </div>
 
         {/* Форма новой записи */}
-        {showForm && !isMasterWorkspace && (
+        {showForm && canCreate && (
           <article className="dashboard-panel" style={{ marginBottom: 24 }}>
             <div className="panel-heading">
               <div>
@@ -404,7 +520,70 @@ function AppointmentsPage() {
               </button>
             </div>
             <form className="service-form" onSubmit={handleCreateAppointment}>
+              {/* Кого записываем. Этой половины в форме не было вовсе —
+                  и поэтому она никогда не срабатывала. */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  style={styles.actionBtn(isGuest ? 'cancel' : 'confirm')}
+                  onClick={() => setIsGuest(false)}
+                >
+                  {t('appointments.fromBase')}
+                </button>
+                <button
+                  type="button"
+                  style={styles.actionBtn(isGuest ? 'confirm' : 'cancel')}
+                  onClick={() => setIsGuest(true)}
+                >
+                  {t('appointments.newGuest')}
+                </button>
+              </div>
+
               <div className="service-form-grid">
+                {isGuest ? (
+                  <>
+                    <label>
+                      {t('appointments.guestName')} *
+                      <input
+                        type="text"
+                        style={styles.input}
+                        value={form.guestName}
+                        onChange={(e) => setForm({ ...form, guestName: e.target.value })}
+                      />
+                    </label>
+                    <label>
+                      {t('appointments.guestPhone')}
+                      <input
+                        type="tel"
+                        style={styles.input}
+                        value={form.guestPhone}
+                        onChange={(e) => setForm({ ...form, guestPhone: e.target.value })}
+                        placeholder={t('common.optional')}
+                      />
+                    </label>
+                  </>
+                ) : (
+                  <label>
+                    {t('appointments.clientLabel')} *
+                    <select
+                      style={styles.select}
+                      value={form.clientUserId}
+                      onChange={(e) => setForm({ ...form, clientUserId: e.target.value })}
+                    >
+                      <option value="">{t('appointments.selectClient')}</option>
+                      {clients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.firstName} {c.lastName}
+                          {c.phone ? ' · ' + c.phone : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+
+                {/* Мастер выбирается только в кабинете салона: у себя
+                    мастер записывает к себе, выбирать не из чего. */}
+                {!isMasterWorkspace && (
                 <label>
                   {t('appointments.master')} *
                   <select
@@ -421,6 +600,7 @@ function AppointmentsPage() {
                     ))}
                   </select>
                 </label>
+                )}
                 <label>
                   {t('appointments.serviceLabel')} *
                   <select
