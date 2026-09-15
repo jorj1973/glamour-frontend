@@ -180,6 +180,20 @@ function AppointmentsPage() {
   // Форма новой записи
   const [masters, setMasters] = useState<Master[]>([]);
   const [masterServices, setMasterServices] = useState<MasterService[]>([]);
+  /**
+   * Готовая запись, ждущая подтверждения.
+   *
+   * Между «заполнил» и «записал» ставится один шаг нарочно: в кресло
+   * садится живой человек, и ошибка во времени или в мастере стоит
+   * телефонного звонка с извинениями.
+   */
+  const [pending, setPending] = useState<{
+    body: Record<string, unknown>;
+    clientText: string;
+    masterText: string;
+    serviceText: string;
+    whenText: string;
+  } | null>(null);
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [isGuest, setIsGuest] = useState(false);
   const [form, setForm] = useState<NewAppointmentForm>({
@@ -404,17 +418,11 @@ function AppointmentsPage() {
       startsAt.getTime() + (chosen.durationMinutes ?? 60) * 60 * 1000,
     );
 
-    setIsSubmitting(true);
-    try {
-      await api.post('/appointments', {
-        /**
-         * Салон идёт в теле, а не в адресе.
-         *
-         * Маршрут объявлен как `@SalonScoped({ from: 'body' })`: guard
-         * берёт салон оттуда, и DTO требует его там же. Форма клала его
-         * в параметры запроса, сервер отвечал «salonId must be a UUID»,
-         * а человек видел «не удалось загрузить».
-         */
+    const client = clients.find((c) => c.id === form.clientUserId);
+    const master = masters.find((m) => m.id === form.masterProfileId);
+
+    setPending({
+      body: {
         salonId: salon.id,
         masterProfileId: form.masterProfileId,
         masterServiceId: form.masterServiceId,
@@ -428,8 +436,52 @@ function AppointmentsPage() {
               guestPhone: form.guestPhone.trim() || undefined,
             }
           : { clientUserId: form.clientUserId }),
-      });
+      },
+      clientText: isGuest
+        ? form.guestName.trim() +
+          (form.guestPhone.trim() ? ' · ' + form.guestPhone.trim() : '')
+        : client
+          ? client.firstName + ' ' + client.lastName
+          : '—',
+      masterText: master
+        ? master.firstName + ' ' + master.lastName
+        : t('appointments.master'),
+      serviceText:
+        (chosen.customTitle ?? t('appointments.service')) +
+        ' · ' +
+        String(chosen.durationMinutes) +
+        ' ' +
+        t('services.min') +
+        ' · ' +
+        String(chosen.price) +
+        ' MDL',
+      whenText:
+        startsAt.toLocaleString(dateLocale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }) +
+        ' — ' +
+        endsAt.toLocaleTimeString(dateLocale, {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    });
+  }
+
+  /** Подтверждённая запись: только теперь она уходит на сервер. */
+  async function submitPending() {
+    if (!salon || !pending) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await api.post('/appointments', pending.body);
       await loadAppointments(salon.id);
+      setPending(null);
       setShowForm(false);
       setForm({
         masterProfileId: isMasterWorkspace ? form.masterProfileId : '',
@@ -671,13 +723,71 @@ function AppointmentsPage() {
               </div>
               <div style={{ display: 'flex', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
                 <button type="submit" className="primary-action" style={{ flex: '1 1 160px', minHeight: 48 }} disabled={isSubmitting}>
-                  {isSubmitting ? t('common.creating') : t('appointments.newAppointment')}
+                  {t('appointments.check')}
                 </button>
-                <button type="button" className="danger-action" onClick={() => setShowForm(false)}>
+                <button type="button" className="danger-action" onClick={() => { setPending(null); setShowForm(false); }}>
                   {t('common.cancel')}
                 </button>
               </div>
             </form>
+
+            {/* Сводка перед записью: последняя возможность заметить,
+                что время не то или мастер не тот. */}
+            {pending && (
+              <div
+                style={{
+                  marginTop: 18,
+                  padding: '16px 16px 18px',
+                  border: '1px solid var(--app-border)',
+                  borderRadius: 14,
+                  background: 'rgba(var(--app-ink-rgb),0.04)',
+                }}
+              >
+                <p
+                  style={{
+                    margin: '0 0 12px',
+                    color: 'var(--app-text-muted)',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {t('appointments.confirmTitle')}
+                </p>
+
+                <div style={{ display: 'grid', gap: 6, marginBottom: 14 }}>
+                  <span style={{ fontSize: 15 }}>
+                    <strong>{pending.clientText}</strong>
+                  </span>
+                  <span style={{ fontSize: 14, color: 'var(--app-text-muted)' }}>
+                    {pending.masterText}
+                  </span>
+                  <span style={{ fontSize: 14, color: 'var(--app-text-muted)' }}>
+                    {pending.serviceText}
+                  </span>
+                  <span style={{ fontSize: 15 }}>{pending.whenText}</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    className="primary-action"
+                    style={{ flex: '1 1 160px', minHeight: 48 }}
+                    disabled={isSubmitting}
+                    onClick={() => void submitPending()}
+                  >
+                    {isSubmitting ? t('common.creating') : t('appointments.confirmCreate')}
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-action"
+                    onClick={() => setPending(null)}
+                  >
+                    {t('appointments.changeBack')}
+                  </button>
+                </div>
+              </div>
+            )}
           </article>
         )}
 

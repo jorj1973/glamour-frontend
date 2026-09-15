@@ -177,7 +177,11 @@
     "newGuest": "New client",
     "guestName": "Name",
     "guestPhone": "Phone",
-    "needClient": "Choose a client from the base or write a name"
+    "needClient": "Choose a client from the base or write a name",
+    "check": "Check",
+    "confirmTitle": "CHECK THE APPOINTMENT",
+    "confirmCreate": "Confirm the appointment",
+    "changeBack": "Change"
   },
   "clients": {
     "title": "Salon Clients",

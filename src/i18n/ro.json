@@ -178,7 +178,11 @@
     "newGuest": "Client nou",
     "guestName": "Numele",
     "guestPhone": "Telefon",
-    "needClient": "Alegeți clientul din bază sau scrieți numele"
+    "needClient": "Alegeți clientul din bază sau scrieți numele",
+    "check": "Verifică",
+    "confirmTitle": "VERIFICAȚI PROGRAMAREA",
+    "confirmCreate": "Confirmă programarea",
+    "changeBack": "Modifică"
   },
   "clients": {
     "title": "Clienții salonului",
