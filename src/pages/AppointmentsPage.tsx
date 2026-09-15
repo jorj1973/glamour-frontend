@@ -384,6 +384,26 @@ function AppointmentsPage() {
       return;
     }
 
+    /**
+     * Конец визита считает форма, а не сервер.
+     *
+     * DTO требует `endTime` наравне с началом, и это разумно: длительность
+     * услуги может быть переопределена мастером, и сервер не должен
+     * догадываться. Но форма его не считала вовсе — ещё одна причина, по
+     * которой запись не создавалась никогда.
+     */
+    const chosen = masterServices.find((s) => s.id === form.masterServiceId);
+
+    if (!chosen) {
+      showError(t('appointments.fillRequired'));
+      return;
+    }
+
+    const startsAt = new Date(form.startTime);
+    const endsAt = new Date(
+      startsAt.getTime() + (chosen.durationMinutes ?? 60) * 60 * 1000,
+    );
+
     setIsSubmitting(true);
     try {
       await api.post('/appointments', {
@@ -398,7 +418,8 @@ function AppointmentsPage() {
         salonId: salon.id,
         masterProfileId: form.masterProfileId,
         masterServiceId: form.masterServiceId,
-        startTime: new Date(form.startTime).toISOString(),
+        startTime: startsAt.toISOString(),
+        endTime: endsAt.toISOString(),
         clientComment: form.clientComment || undefined,
         ...(isGuest
           ? {
