@@ -65,29 +65,20 @@ function SupportPage() {
   return (
     <AppLayout>
       <main className="dashboard-page">
-        {/* Заголовок здесь скромнее, чем на других страницах: под ним
-            сразу переписка, и крупная шапка её придавливала. */}
-        <header
+        {/* Своего заголовка нет: название несёт шапка самой беседы,
+            иначе «Поддержка» стоит на экране дважды. Здесь только одна
+            строка о том, кто на той стороне. */}
+        <p
           style={{
+            color: 'var(--app-text-muted)',
+            fontSize: 14,
             textAlign: 'center',
             margin: '0 auto 18px',
             maxWidth: 520,
           }}
         >
-          <h1 style={{ fontSize: 24, margin: '0 0 6px' }}>
-            {t('support.title')}
-          </h1>
-
-          <p
-            style={{
-              color: 'var(--app-text-muted)',
-              fontSize: 14,
-              margin: 0,
-            }}
-          >
-            {t('support.subtitle')}
-          </p>
-        </header>
+          {t('support.subtitle')}
+        </p>
 
         {isLoading ? (
           <p className="dashboard-status">{t('common.loading')}</p>
@@ -96,8 +87,8 @@ function SupportPage() {
         ) : room ? (
           <ChatConversation
             room={room}
-            /* Выходить некуда: это единственная беседа на странице. */
-            onBack={() => undefined}
+            /* Стрелки «назад» нет: это единственная беседа на странице,
+               возвращаться некуда. */
             onChanged={() => {
               void load();
             }}

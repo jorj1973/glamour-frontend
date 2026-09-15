@@ -91,7 +91,13 @@ type PendingVoice = {
 
 type Props = {
   room: ChatRoomSummary;
-  onBack: () => void;
+  /**
+   * Вернуться к списку бесед.
+   *
+   * Необязателен: там, где беседа на странице одна — поддержка, —
+   * возвращаться некуда, и стрелка только сбивала бы с толку.
+   */
+  onBack?: () => void;
   /** Обновить список бесед: счётчики непрочитанного изменились. */
   onChanged: () => void;
   /** Выйти из темы — только у комнат, у диалога выходить некуда. */
@@ -1045,6 +1051,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
           marginBottom: 12,
         }}
       >
+        {onBack ? (
         <button
           type="button"
           onClick={onBack}
@@ -1065,6 +1072,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
         >
           <ArrowLeft size={18} />
         </button>
+        ) : null}
 
         <strong
           style={{
