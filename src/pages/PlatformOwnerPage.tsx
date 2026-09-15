@@ -35,6 +35,7 @@ import AppReviewsModeration from "../components/platform/AppReviewsModeration";
 import ChatAccessPanel from "../components/platform/ChatAccessPanel";
 import PlanTextsPanel from '../components/platform/PlanTextsPanel';
 import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
+import BillingPanel from '../components/platform/BillingPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
@@ -767,15 +768,15 @@ function PlatformOwnerPage() {
                   <CircleDollarSign size={21} aria-hidden="true" />
                 </div>
 
-                <p>Биллинг</p>
+                <p>Оплаты</p>
 
                 <strong>
-                  {overview?.billing.available ? "Активен" : "Не подключён"}
+                  {overview?.billing.available ? "Ведутся" : "Не подключены"}
                 </strong>
 
                 <span>
                   {overview?.billing.available
-                    ? "Данные доступны"
+                    ? "Журнал и сроки ниже"
                     : "Ожидает настройки"}
                 </span>
               </article>
@@ -1405,17 +1406,13 @@ function PlatformOwnerPage() {
               ) : null}
             </section>
 
-            {!overview?.billing.available && overview?.billing.reason ? (
-              <section className="platform-billing-notice">
-                <CircleDollarSign size={20} aria-hidden="true" />
-
-                <div>
-                  <strong>Подписки и платежи ещё не подключены</strong>
-
-                  <p>{overview.billing.reason}</p>
-                </div>
-              </section>
-            ) : null}
+            {/* Здесь стояла полоса «Подписки и платежи ещё не
+                подключены». Она была правдой: подписка умела только
+                родиться, оплата нигде не оставляла следа. Теперь на
+                этом месте сами деньги. */}
+            <section id="platform-billing">
+              <BillingPanel />
+            </section>
           </>
         ) : null}
       </main>
