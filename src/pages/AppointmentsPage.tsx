@@ -387,6 +387,15 @@ function AppointmentsPage() {
     setIsSubmitting(true);
     try {
       await api.post('/appointments', {
+        /**
+         * Салон идёт в теле, а не в адресе.
+         *
+         * Маршрут объявлен как `@SalonScoped({ from: 'body' })`: guard
+         * берёт салон оттуда, и DTO требует его там же. Форма клала его
+         * в параметры запроса, сервер отвечал «salonId must be a UUID»,
+         * а человек видел «не удалось загрузить».
+         */
+        salonId: salon.id,
         masterProfileId: form.masterProfileId,
         masterServiceId: form.masterServiceId,
         startTime: new Date(form.startTime).toISOString(),
@@ -398,7 +407,7 @@ function AppointmentsPage() {
               guestPhone: form.guestPhone.trim() || undefined,
             }
           : { clientUserId: form.clientUserId }),
-      }, { params: { salonId: salon.id } });
+      });
       await loadAppointments(salon.id);
       setShowForm(false);
       setForm({
