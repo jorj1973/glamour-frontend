@@ -349,7 +349,7 @@ input {
 .sidebar-group > button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
   padding: 12px 14px;
   border: 0;
@@ -368,6 +368,11 @@ input {
   color: #fff7fc;
 }
 
+.sidebar-group > button svg:first-child {
+  flex: 0 0 auto;
+  stroke-width: 1.8;
+}
+
 .sidebar-group-chevron {
   margin-left: auto;
   transition: transform 0.15s ease;
@@ -384,8 +389,19 @@ input {
 }
 
 .sidebar-group-items a {
+  gap: 9px;
   padding: 10px 14px;
   font-size: 14px;
+}
+
+.sidebar-group-items a svg {
+  flex: 0 0 auto;
+  opacity: 0.8;
+  stroke-width: 1.7;
+}
+
+.sidebar-group-items a.active svg {
+  opacity: 1;
 }
 
 .app-content {

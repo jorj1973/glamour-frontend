@@ -26,7 +26,14 @@ import {
   Link2,
   Menu,
   Star,
+  CalendarRange,
+  CalendarCheck,
+  Gift,
   ChevronDown,
+  Briefcase,
+  HeartHandshake,
+  BadgeCheck,
+  MessagesSquare,
 } from 'lucide-react';
 
 import api from '../api/api';
@@ -47,56 +54,87 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 const MASTER_GROUPS: {
   key: string;
   label: string;
-  items: { hash: string; label: string }[];
+  items: { hash: string; label: string; icon: React.ReactNode }[];
 }[] = [
   {
     key: 'work',
     label: 'nav.groupWork',
     items: [
-      { hash: '#appointments', label: 'nav.myAppointments' },
-      { hash: '#schedule', label: 'nav.mySchedule' },
-      { hash: '#schedule-template', label: 'nav.scheduleTemplate' },
+      {
+        hash: '#appointments',
+        label: 'nav.myAppointments',
+        icon: <CalendarDays size={19} />,
+      },
+      {
+        hash: '#schedule',
+        label: 'nav.mySchedule',
+        icon: <CalendarRange size={19} />,
+      },
+      {
+        hash: '#schedule-template',
+        label: 'nav.scheduleTemplate',
+        icon: <CalendarCheck size={19} />,
+      },
     ],
   },
   {
     key: 'clients',
     label: 'nav.groupClients',
     items: [
-      { hash: '#clients', label: 'nav.myClients' },
-      { hash: '#loyalty', label: 'nav.loyalty' },
-      { hash: '#reviews', label: 'nav.reviews' },
+      { hash: '#clients', label: 'nav.myClients', icon: <Users size={19} /> },
+      { hash: '#loyalty', label: 'nav.loyalty', icon: <Gift size={19} /> },
+      { hash: '#reviews', label: 'nav.reviews', icon: <Star size={19} /> },
     ],
   },
   {
     key: 'money',
     label: 'nav.groupMoney',
     items: [
-      { hash: '#finance', label: 'nav.myFinance' },
-      { hash: '#my-payout', label: 'nav.myPayout' },
-      { hash: '#payment-settings', label: 'nav.myPayment' },
+      { hash: '#finance', label: 'nav.myFinance', icon: <Wallet size={19} /> },
+      {
+        hash: '#my-payout',
+        label: 'nav.myPayout',
+        icon: <ScrollText size={19} />,
+      },
+      {
+        hash: '#payment-settings',
+        label: 'nav.myPayment',
+        icon: <CreditCard size={19} />,
+      },
     ],
   },
   {
     key: 'profile',
     label: 'nav.groupProfile',
     items: [
-      { hash: '#my-profile', label: 'nav.myProfile' },
-      { hash: '#services', label: 'nav.myServices' },
+      {
+        hash: '#my-profile',
+        label: 'nav.myProfile',
+        icon: <UserRound size={19} />,
+      },
+      {
+        hash: '#services',
+        label: 'nav.myServices',
+        icon: <Sparkles size={19} />,
+      },
     ],
   },
   {
     key: 'comms',
     label: 'nav.groupComms',
-    items: [{ hash: '#sms', label: 'nav.sms' }],
+    items: [
+      { hash: '#chat', label: 'nav.chat', icon: <MessageCircle size={19} /> },
+      { hash: '#sms', label: 'nav.sms', icon: <Smartphone size={19} /> },
+    ],
   },
 ];
 
 const MASTER_GROUP_ICON: Record<string, React.ReactNode> = {
-  work: <CalendarDays size={18} />,
-  clients: <Users size={18} />,
-  money: <CreditCard size={18} />,
-  profile: <UserRound size={18} />,
-  comms: <Smartphone size={18} />,
+  work: <Briefcase size={20} />,
+  clients: <HeartHandshake size={20} />,
+  money: <Wallet size={20} />,
+  profile: <BadgeCheck size={20} />,
+  comms: <MessagesSquare size={20} />,
 };
 
 /** Группа, в которой лежит открытый раздел: она и раскрыта при заходе. */
@@ -798,7 +836,12 @@ function AppLayout({ children }: AppLayoutProps) {
                             }
                             href={item.hash}
                           >
+                            {item.icon}
                             {t(item.label)}
+
+                            {item.hash === '#chat' ? (
+                              <ChatUnreadBadge />
+                            ) : null}
                           </a>
                         ))}
                       </div>
@@ -1004,23 +1047,25 @@ function AppLayout({ children }: AppLayoutProps) {
             </>
           )}
 
-          {/* Общение есть и у салона, и у мастера, поэтому пункт
-              стоит вне ветки: она только для салона. */}
-          <a
-            className={
-              currentHash === '#chat'
-                ? 'sidebar-nav-link active'
-                : 'sidebar-nav-link'
-            }
-            href="#chat"
-          >
-            <MessageCircle size={18} />
-            {t('nav.chat')}
+          {/* У мастера «Общение» живёт в группе «Каналы связи»; здесь
+              пункт остаётся для салона, где меню пока плоское. */}
+          {isMasterWorkspace ? null : (
+            <a
+              className={
+                currentHash === '#chat'
+                  ? 'sidebar-nav-link active'
+                  : 'sidebar-nav-link'
+              }
+              href="#chat"
+            >
+              <MessageCircle size={18} />
+              {t('nav.chat')}
 
-            {/* Пункт меню без числа не отличается от
-                прочитанного — и его перестают открывать. */}
-            <ChatUnreadBadge />
-          </a>
+              {/* Пункт меню без числа не отличается от
+                  прочитанного — и его перестают открывать. */}
+              <ChatUnreadBadge />
+            </a>
+          )}
         </nav>
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(var(--app-ink-rgb),0.07)', marginTop: 'auto' }}>
           <LanguageSwitcher />
