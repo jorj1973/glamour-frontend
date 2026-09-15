@@ -46,7 +46,7 @@ function healthColor(percent: number): string {
 type MasterStats = {
   masterProfileId: string;
   todayAppointments: number;
-  upcomingAppointments: Appointment[];
+  upcomingAppointments: unknown[];
   todayRevenue: number;
   monthRevenue: number;
   clientsCount: number;
@@ -99,6 +99,7 @@ function MasterDashboardPage() {
   const dateLocale = i18n.language?.startsWith('ro') ? 'ro-RO' : i18n.language?.startsWith('en') ? 'en-GB' : 'ru-RU';
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [stats, setStats] = useState<MasterStats | null>(null);
+  const [upcoming, setUpcoming] = useState<Appointment[]>([]);
   const [promoUrl, setPromoUrl] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
@@ -110,12 +111,7 @@ function MasterDashboardPage() {
   const [slugError, setSlugError] = useState('');
   const [slugSuccess, setSlugSuccess] = useState('');
   const [currentSlug, setCurrentSlug] = useState('');
-
-  // Ближайшие записи приходят в той же выдаче, что и остальная
-  // статистика: GET /dashboard/master/me возвращает записи этого мастера
-  // в этом салоне. Отдельный запрос за ними был к календарю салона —
-  // мастеру туда нельзя, и панель у всех, кроме владельца, была пустой.
-  const upcoming = (stats?.upcomingAppointments ?? []).slice(0, 5);
+  const [promoLinkId, setPromoLinkId] = useState('');
 
   const baseUrl = window.location.origin;
 
@@ -134,6 +130,7 @@ function MasterDashboardPage() {
       if (!currentSalon) return;
       await Promise.allSettled([
         loadStats(currentSalon.id),
+        loadUpcoming(currentSalon.id),
         loadPromoLink(currentSalon.id),
       ]);
     } catch {
@@ -150,6 +147,15 @@ function MasterDashboardPage() {
     } catch { /* недоступно */ }
   }
 
+  async function loadUpcoming(salonId: string) {
+    try {
+      const res = await api.get<Appointment[]>('/appointments', {
+        params: { salonId, status: 'confirmed,pending', limit: 5 },
+      });
+      setUpcoming(res.data.slice(0, 5));
+    } catch { setUpcoming([]); }
+  }
+
   async function loadPromoLink(salonId: string) {
     setPromoLoading(true);
     try {
@@ -159,7 +165,12 @@ function MasterDashboardPage() {
       if (masterLink) {
         const url = getPromoUrl(masterLink, baseUrl);
         setPromoUrl(url);
-        if (masterLink.slug) {
+        setPromoLinkId(masterLink.id ?? '');
+        // slug приходит с сервера как публичный адрес ссылки: своё слово
+        // мастера, а если его нет — случайный код. В поле показываем
+        // только своё слово, иначе мастер увидит там код и решит, что
+        // это и есть её адрес.
+        if (masterLink.slug && masterLink.slug !== masterLink.code) {
           setCurrentSlug(masterLink.slug);
           setSlugInput(masterLink.slug);
         }
@@ -197,21 +208,33 @@ function MasterDashboardPage() {
       const mastersRes = await api.get<any[]>('/masters', { params: { salonId: salon.id } });
       const myProfile = mastersRes.data.find((m: any) => m.userId === currentUserId) ?? mastersRes.data[0];
 
-      await api.post('/promotion-links', {
-        salonId: salon.id,
-        ownerType: 'master',
-        targetType: 'master',
-        masterProfileId: myProfile?.id,
-        targetId: myProfile?.id,
-        title: `Запись к мастеру`,
-        customSlug: slug,
-        isActive: true,
-      });
+      if (promoLinkId) {
+        // Ссылка уже есть — меняем адрес у неё. Раньше здесь каждый раз
+        // создавалась новая, и вторая попытка упиралась в «адрес занят»,
+        // занятый самой же мастером.
+        await api.patch(`/promotion-links/${promoLinkId}/slug`, {
+          customSlug: slug,
+        });
+      } else {
+        await api.post('/promotion-links', {
+          salonId: salon.id,
+          ownerType: 'master',
+          targetType: 'master',
+          masterProfileId: myProfile?.id,
+          targetId: myProfile?.id,
+          title: `Запись к мастеру`,
+          customSlug: slug,
+          isActive: true,
+        });
+      }
 
-      setCurrentSlug(slug);
-      setPromoUrl(`${baseUrl}/#salon/${encodeURIComponent(slug)}`);
       setSlugSuccess(t('promotion.linkSaved'));
       setTimeout(() => setSlugSuccess(''), 3000);
+
+      // Перечитываем с сервера, а не верим себе: именно это
+      // самообольщение и скрывало дефект — ссылка выглядела правильной
+      // до первой перезагрузки.
+      await loadPromoLink(salon.id);
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? '';
       if (msg.includes('already in use') || msg.includes('slug')) {
