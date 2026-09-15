@@ -75,10 +75,23 @@ function NewPlanPanel({ onCreated }: Props) {
   }
 
   async function submit() {
-    const price = Number(form.price.replace(',', '.'));
+    /**
+     * Пустое поле цены — не ноль.
+     *
+     * `Number('')` даёт ноль, и первый же заведённый тариф вышел
+     * бесплатным, потому что цену забыли вписать, а форма промолчала.
+     * Пустоту здесь надо ловить до счёта, а не после.
+     */
+    const typedPrice = form.price.trim().replace(',', '.');
+    const price = Number(typedPrice);
 
     if (!form.code.trim() || !form.planGroupCode.trim() || !form.name.trim()) {
       setErrorMsg('Код, группа и название обязательны');
+      return;
+    }
+
+    if (!typedPrice) {
+      setErrorMsg('Впишите цену. Бесплатный тариф — это цена 0, набранная руками');
       return;
     }
 
