@@ -375,6 +375,10 @@ function App() {
     case '#action-log':
       return <ActionLogPage />;
 
+    // Поддержка доступна и салону, и мастеру.
+    case '#support':
+      return <SupportPage />;
+
     case '#payouts':
       return <PayoutsPage />;
 

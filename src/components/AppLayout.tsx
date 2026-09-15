@@ -135,6 +135,121 @@ const MASTER_GROUPS: {
   },
 ];
 
+/**
+ * Разделы кабинета салона, собранные в группы — тем же способом, что и у
+ * мастера.
+ *
+ * `ownerOnly` повторяет прежние условия: администратор не видит деньги,
+ * оформление, SMS, состав администраторов и данные салона. Группа, в
+ * которой ему не осталось ни одного пункта, не показывается вовсе.
+ */
+const SALON_GROUPS: {
+  key: string;
+  label: string;
+  items: {
+    hash: string;
+    label: string;
+    icon: React.ReactNode;
+    ownerOnly?: true;
+  }[];
+}[] = [
+  {
+    key: 'work',
+    label: 'nav.groupWork',
+    items: [
+      {
+        hash: '#appointments',
+        label: 'nav.appointments',
+        icon: <CalendarDays size={19} />,
+      },
+      { hash: '#masters', label: 'nav.masters', icon: <Scissors size={19} /> },
+      {
+        hash: '#services',
+        label: 'nav.services',
+        icon: <Sparkles size={19} />,
+      },
+    ],
+  },
+  {
+    key: 'clients',
+    label: 'nav.groupClients',
+    items: [
+      { hash: '#clients', label: 'nav.clients', icon: <Users size={19} /> },
+      { hash: '#reviews', label: 'nav.reviews', icon: <Star size={19} /> },
+    ],
+  },
+  {
+    key: 'money',
+    label: 'nav.groupMoney',
+    items: [
+      {
+        hash: '#finance',
+        label: 'nav.finance',
+        icon: <CreditCard size={19} />,
+        ownerOnly: true,
+      },
+      {
+        hash: '#payouts',
+        label: 'nav.payouts',
+        icon: <Wallet size={19} />,
+        ownerOnly: true,
+      },
+    ],
+  },
+  {
+    key: 'salon',
+    label: 'nav.groupSalon',
+    items: [
+      {
+        hash: '#salon-info',
+        label: 'nav.salonInfo',
+        icon: <Info size={19} />,
+        ownerOnly: true,
+      },
+      {
+        hash: '#branding',
+        label: 'nav.branding',
+        icon: <Palette size={19} />,
+        ownerOnly: true,
+      },
+      {
+        hash: '#administrators',
+        label: 'nav.administrators',
+        icon: <ShieldCheck size={19} />,
+        ownerOnly: true,
+      },
+      {
+        hash: '#action-log',
+        label: 'nav.actionLog',
+        icon: <ScrollText size={19} />,
+      },
+    ],
+  },
+  {
+    key: 'comms',
+    label: 'nav.groupComms',
+    items: [
+      { hash: '#chat', label: 'nav.chat', icon: <MessageCircle size={19} /> },
+      { hash: '#promotion-links', label: 'nav.links', icon: <Link2 size={19} /> },
+      {
+        hash: '#sms',
+        label: 'nav.sms',
+        icon: <Smartphone size={19} />,
+        ownerOnly: true,
+      },
+      { hash: '#support', label: 'nav.support', icon: <LifeBuoy size={19} /> },
+    ],
+  },
+];
+
+const SALON_GROUP_ICON: Record<string, React.ReactNode> = {
+  work: <Briefcase size={20} />,
+  clients: <HeartHandshake size={20} />,
+  money: <Wallet size={20} />,
+  salon: <Building2 size={20} />,
+  comms: <MessagesSquare size={20} />,
+};
+
 const MASTER_GROUP_ICON: Record<string, React.ReactNode> = {
   work: <Briefcase size={20} />,
   clients: <HeartHandshake size={20} />,
@@ -144,8 +259,11 @@ const MASTER_GROUP_ICON: Record<string, React.ReactNode> = {
 };
 
 /** Группа, в которой лежит открытый раздел: она и раскрыта при заходе. */
-function groupOfHash(hash: string): string {
-  const group = MASTER_GROUPS.find((item) =>
+function groupOfHash(
+  hash: string,
+  groups: { key: string; items: { hash: string }[] }[],
+): string {
+  const group = groups.find((item) =>
     item.items.some((link) => link.hash === hash),
   );
 
@@ -802,7 +920,8 @@ function AppLayout({ children }: AppLayoutProps) {
             <>
               {MASTER_GROUPS.map((group) => {
                 const opened =
-                  (openGroup || groupOfHash(currentHash)) === group.key;
+                  (openGroup || groupOfHash(currentHash, MASTER_GROUPS)) ===
+                  group.key;
 
                 return (
                   <div
@@ -858,220 +977,106 @@ function AppLayout({ children }: AppLayoutProps) {
             </>
           ) : (
             <>
-              <a
-                className={
-                  currentHash === '#appointments'
-                    ? 'active'
-                    : ''
+              {SALON_GROUPS.map((group) => {
+                const items = group.items.filter(
+                  (item) => !item.ownerOnly || isSalonOwner,
+                );
+
+                if (items.length === 0) {
+                  return null;
                 }
-                href="#appointments"
-              >
-                <CalendarDays size={18} />
-                {t('nav.appointments')}
-              </a>
 
-              <a
-                className={
-                  currentHash === '#clients'
-                    ? 'active'
-                    : ''
-                }
-                href="#clients"
-              >
-                <Users size={18} />
-                {t('nav.clients')}
-              </a>
+                const opened =
+                  (openGroup ||
+                    groupOfHash(currentHash, SALON_GROUPS)) === group.key;
 
-              <a
-                className={
-                  currentHash === '#masters'
-                    ? 'active'
-                    : ''
-                }
-                href="#masters"
-              >
-                <Scissors size={18} />
-                {t('nav.masters')}
-              </a>
+                return (
+                  <div
+                    key={group.key}
+                    className={
+                      opened
+                        ? 'sidebar-group open'
+                        : 'sidebar-group'
+                    }
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={opened}
+                      onClick={() =>
+                        setOpenGroup(
+                          opened ? 'none' : group.key,
+                        )
+                      }
+                    >
+                      {SALON_GROUP_ICON[group.key]}
+                      {t(group.label)}
+                      <ChevronDown
+                        size={16}
+                        className="sidebar-group-chevron"
+                      />
+                    </button>
 
-              <a
-                className={
-                  currentHash === '#services'
-                    ? 'active'
-                    : ''
-                }
-                href="#services"
-              >
-                <Sparkles size={18} />
-                {t('nav.services')}
-              </a>
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#administrators'
-                      ? 'sidebar-nav-link active'
-                      : 'sidebar-nav-link'
-                  }
-                  href="#administrators"
-                >
-                  <ShieldCheck size={18} />
-                  {t('nav.administrators')}
-                </a>
-              )}
+                    {opened ? (
+                      <div className="sidebar-group-items">
+                        {items.map((item) => (
+                          <a
+                            key={item.hash}
+                            className={
+                              currentHash === item.hash
+                                ? 'active'
+                                : ''
+                            }
+                            href={item.hash}
+                            style={
+                              item.hash === '#salon-info' &&
+                              salonPercent < 70
+                                ? {
+                                    color:
+                                      salonPercent < 40
+                                        ? '#ff6b8a'
+                                        : '#ffb020',
+                                    fontWeight: 700,
+                                  }
+                                : undefined
+                            }
+                          >
+                            {item.icon}
+                            {t(item.label)}
 
-              <a
-                className={
-                  currentHash === '#promotion-links'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#promotion-links"
-              >
-                <Link2 size={18} />
-                {t('nav.links')}
-              </a>
+                            {item.hash === '#chat' ? (
+                              <ChatUnreadBadge />
+                            ) : null}
 
-              {/* Журнал читают оба: владелец — весь, администратор — без
-                  денег салона. Отбор делает сервер, не меню. */}
-              <a
-                className={
-                  currentHash === '#action-log'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#action-log"
-              >
-                <ScrollText size={18} />
-                {t('nav.actionLog')}
-              </a>
-
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#finance'
-                      ? 'active'
-                      : ''
-                  }
-                  href="#finance"
-                >
-                  <CreditCard size={18} />
-                  {t('nav.finance')}
-                </a>
-              )}
-
-              {/* Расчёт с мастерами — деньги салона, значит владельца.
-                  Мастер видит свою ведомость в своём кабинете. */}
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#payouts'
-                      ? 'sidebar-nav-link active'
-                      : 'sidebar-nav-link'
-                  }
-                  href="#payouts"
-                >
-                  <Wallet size={18} />
-                  {t('nav.payouts')}
-                </a>
-              )}
-
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#salon-info'
-                      ? 'sidebar-nav-link active'
-                      : 'sidebar-nav-link'
-                  }
-                  href="#salon-info"
-                  style={
-                    salonPercent < 70
-                      ? {
-                          color: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
-                          fontWeight: 700,
-                        }
-                      : undefined
-                  }
-                >
-                  <Info size={18} />
-                  {t('nav.salonInfo')}
-
-                  {/* Точка заметнее цвета текста: пункт меню мелкий,
-                      один оттенок легко пропустить. */}
-                  {salonPercent < 70 && (
-                    <span
-                      style={{
-                        width: 7,
-                        height: 7,
-                        borderRadius: '50%',
-                        background: salonPercent < 40 ? '#ff6b8a' : '#ffb020',
-                        marginLeft: 'auto',
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
-                </a>
-              )}
-              <a
-                className={
-                  currentHash === '#reviews'
-                    ? 'sidebar-nav-link active'
-                    : 'sidebar-nav-link'
-                }
-                href="#reviews"
-              >
-                <Star size={18} />
-                {t('nav.reviews')}
-              </a>
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#branding'
-                      ? 'active'
-                      : ''
-                  }
-                  href="#branding"
-                >
-                  <Palette size={18} />
-                  {t('nav.branding')}
-                </a>
-              )}
-              {/* Раздел про деньги: мастера его не видят,
-                  поэтому он внутри ветки владельца. */}
-              {isSalonOwner && (
-                <a
-                  className={
-                    currentHash === '#sms'
-                      ? 'sidebar-nav-link active'
-                      : 'sidebar-nav-link'
-                  }
-                  href="#sms"
-                >
-                  <Smartphone size={18} />
-                  {t('nav.sms')}
-                </a>
-              )}
+                            {/* Точка заметнее цвета текста: пункт меню
+                                мелкий, один оттенок легко пропустить. */}
+                            {item.hash === '#salon-info' &&
+                            salonPercent < 70 ? (
+                              <span
+                                style={{
+                                  width: 7,
+                                  height: 7,
+                                  borderRadius: '50%',
+                                  background:
+                                    salonPercent < 40
+                                      ? '#ff6b8a'
+                                      : '#ffb020',
+                                  marginLeft: 'auto',
+                                  flexShrink: 0,
+                                }}
+                              />
+                            ) : null}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
             </>
           )}
 
-          {/* У мастера «Общение» живёт в группе «Каналы связи»; здесь
-              пункт остаётся для салона, где меню пока плоское. */}
-          {isMasterWorkspace ? null : (
-            <a
-              className={
-                currentHash === '#chat'
-                  ? 'sidebar-nav-link active'
-                  : 'sidebar-nav-link'
-              }
-              href="#chat"
-            >
-              <MessageCircle size={18} />
-              {t('nav.chat')}
-
-              {/* Пункт меню без числа не отличается от
-                  прочитанного — и его перестают открывать. */}
-              <ChatUnreadBadge />
-            </a>
-          )}
+          {/* «Общение» теперь внутри группы «Связь» — и у мастера, и у
+              салона, вместе со счётчиком непрочитанного. */}
         </nav>
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(var(--app-ink-rgb),0.07)', marginTop: 'auto' }}>
           <LanguageSwitcher />
