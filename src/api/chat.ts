@@ -1,7 +1,7 @@
 import api from './api';
 
 /** Личный диалог или тематическая комната. */
-export type ChatRoomKind = 'direct' | 'topic';
+export type ChatRoomKind = 'direct' | 'topic' | 'support';
 
 /** Строка списка бесед. */
 export type ChatRoomSummary = {
@@ -110,6 +110,19 @@ export async function openDirectRoom(payload: {
     '/chat/rooms/direct',
     payload,
   );
+
+  return res.data.roomId;
+}
+
+/**
+ * Открыть обращение в поддержку — или вернуть уже открытое.
+ *
+ * Собеседника выбирать не надо: на той стороне тот, кто делает
+ * программу. Комната одна на человека и салон, поэтому повторное
+ * открытие возвращает ту же переписку.
+ */
+export async function openSupportRoom(salonId: string): Promise<string> {
+  const res = await api.post<{ roomId: string }>('/chat/support', { salonId });
 
   return res.data.roomId;
 }

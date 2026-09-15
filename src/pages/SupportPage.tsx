@@ -1,119 +1,66 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, MessageCircle, Phone, Send } from 'lucide-react';
 
 import api from '../api/api';
+import {
+  fetchChatRooms,
+  openSupportRoom,
+  type ChatRoomSummary,
+} from '../api/chat';
 import AppLayout from '../components/AppLayout';
+import ChatConversation from '../components/ChatConversation';
 
 /**
- * Поддержка: связь с тем, кто делает программу.
+ * Поддержка: переписка с тем, кто делает программу.
  *
- * Сделано без собственного чата и без нового хранилища, и это
- * осознанно. Чат внутри продукта привязан к салону — комнаты без салона
- * сегодня не существует, а заводить её ради поддержки значит открывать
- * дыру в разграничении арендаторов. Письмо в никуда не лучше: пока
- * почтовый ящик не проверен, человек напишет и не получит ответа.
+ * Это обычная беседа внутри продукта, а не письмо и не мессенджер.
+ * Человеку не надо выбирать собеседника, выходить из приложения и
+ * объяснять, кто он: на той стороне владелец платформы, а салон и имя
+ * видны из самой комнаты.
  *
- * Поэтому здесь то, что работает наверняка: кнопки, которые открывают
- * уже установленный мессенджер и подставляют в сообщение то, чего
- * человек сам не напишет, — кто он, какой салон и с какого экрана
- * пришёл. Без этого сообщение «у меня не работает» бесполезно обоим.
+ * Своего чата страница не пишет — берёт тот, что уже есть
+ * (`ChatConversation`). Значит здесь сразу и вложения, и голосовые, и
+ * счётчик непрочитанного, и уведомление с push на телефон, потому что
+ * всё это уже работает для остальных бесед.
  */
-
-/**
- * Куда писать в поддержку.
- *
- * Пока это личные контакты владельца продукта: поддержка — он сам.
- * Когда появится служба, значения переедут в настройки платформы и
- * будут приходить с сервера; здесь останется одно место для правки.
- */
-const SUPPORT = {
-  phone: '+37369713700',
-  telegram: 'jorj73',
-  email: 'salonglamoursor@gmail.com',
-};
-
-type Who = {
-  name: string;
-  email: string;
-  salon: string;
-};
-
-function buildMessage(who: Who, problem: string, t: (key: string) => string) {
-  const lines = [
-    t('support.messageHead'),
-    '',
-    `${t('support.fieldName')}: ${who.name || '—'}`,
-    `${t('support.fieldEmail')}: ${who.email || '—'}`,
-    `${t('support.fieldSalon')}: ${who.salon || '—'}`,
-    '',
-    problem.trim() || t('support.messageTail'),
-  ];
-
-  return lines.join('\n');
-}
-
 function SupportPage() {
   const { t } = useTranslation();
 
-  const [who, setWho] = useState<Who>({ name: '', email: '', salon: '' });
-  const [problem, setProblem] = useState('');
+  const [room, setRoom] = useState<ChatRoomSummary | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const load = useCallback(async () => {
+    try {
+      const salons = await api.get<{ id: string }[]>('/salons/my');
+      const salonId = salons.data?.[0]?.id;
+
+      if (!salonId) {
+        setErrorMsg(t('support.noSalon'));
+        return;
+      }
+
+      const roomId = await openSupportRoom(salonId);
+      const rooms = await fetchChatRooms();
+      const mine = rooms.find((item) => item.id === roomId);
+
+      if (!mine) {
+        setErrorMsg(t('support.failed'));
+        return;
+      }
+
+      setRoom(mine);
+      setErrorMsg('');
+    } catch {
+      setErrorMsg(t('support.failed'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [t]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const session = await api.get<Record<string, unknown>>('/auth/session');
-        const user = (session.data?.user ?? {}) as Record<string, string>;
-
-        let salon = '';
-
-        try {
-          const salons = await api.get<{ name: string }[]>('/salons/my');
-          salon = salons.data?.[0]?.name ?? '';
-        } catch {
-          // Салон не обязателен: без него сообщение просто короче.
-        }
-
-        if (cancelled) {
-          return;
-        }
-
-        setWho({
-          name: [user.firstName, user.lastName].filter(Boolean).join(' ').trim(),
-          email: user.email ?? '',
-          salon,
-        });
-      } catch {
-        // Не вышло — человек допишет сам.
-      }
-    }
-
     void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const text = buildMessage(who, problem, t);
-  const encoded = encodeURIComponent(text);
-
-  const cardStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    minHeight: 56,
-    padding: '0 18px',
-    borderRadius: 14,
-    border: '1px solid rgba(var(--app-ink-rgb),0.12)',
-    background: 'rgba(var(--app-ink-rgb),0.04)',
-    color: 'var(--app-text)',
-    fontSize: 15,
-    fontWeight: 700,
-    textDecoration: 'none',
-  } as const;
+  }, [load]);
 
   return (
     <AppLayout>
@@ -125,101 +72,20 @@ function SupportPage() {
           </div>
         </header>
 
-        <div style={{ maxWidth: 620 }}>
-          <label
-            style={{
-              display: 'block',
-              marginBottom: 8,
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.07em',
-              color: 'var(--app-text-muted)',
-            }}
-          >
-            {t('support.problemLabel')}
-          </label>
-
-          <textarea
-            value={problem}
-            onChange={(event) => setProblem(event.target.value)}
-            placeholder={t('support.problemPlaceholder')}
-            rows={4}
-            style={{
-              width: '100%',
-              padding: 14,
-              borderRadius: 14,
-              border: '1px solid rgba(var(--app-ink-rgb),0.12)',
-              background: 'var(--app-input)',
-              color: 'var(--app-text)',
-              fontSize: 15,
-              fontFamily: 'inherit',
-              resize: 'vertical',
+        {isLoading ? (
+          <p className="dashboard-status">{t('common.loading')}</p>
+        ) : errorMsg ? (
+          <p className="dashboard-status">{errorMsg}</p>
+        ) : room ? (
+          <ChatConversation
+            room={room}
+            /* Выходить некуда: это единственная беседа на странице. */
+            onBack={() => undefined}
+            onChanged={() => {
+              void load();
             }}
           />
-
-          <p
-            style={{
-              color: 'var(--app-text-muted)',
-              fontSize: 13,
-              margin: '10px 0 18px',
-            }}
-          >
-            {t('support.contextNote')}
-          </p>
-
-          <div style={{ display: 'grid', gap: 10 }}>
-            <a
-              style={cardStyle}
-              href={`https://wa.me/${SUPPORT.phone.replace(
-                /\D/g,
-                '',
-              )}?text=${encoded}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle size={20} color="var(--app-accent)" />
-              WhatsApp
-            </a>
-
-            <a
-              style={cardStyle}
-              href={`viber://chat?number=${encodeURIComponent(SUPPORT.phone)}`}
-            >
-              <Phone size={20} color="var(--app-accent)" />
-              Viber
-            </a>
-
-            <a
-              style={cardStyle}
-              href={`https://t.me/${SUPPORT.telegram}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Send size={20} color="var(--app-accent)" />
-              Telegram
-            </a>
-
-            <a
-              style={cardStyle}
-              href={`mailto:${SUPPORT.email}?subject=${encodeURIComponent(
-                t('support.mailSubject'),
-              )}&body=${encoded}`}
-            >
-              <Mail size={20} color="var(--app-accent)" />
-              {t('support.byMail')}
-            </a>
-          </div>
-
-          <p
-            style={{
-              color: 'var(--app-text-muted)',
-              fontSize: 13,
-              marginTop: 20,
-            }}
-          >
-            {t('support.hours')}
-          </p>
-        </div>
+        ) : null}
       </main>
     </AppLayout>
   );

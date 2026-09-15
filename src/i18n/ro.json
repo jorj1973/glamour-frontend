@@ -1792,7 +1792,9 @@
   },
   "support": {
     "title": "Suport",
-    "subtitle": "Ceva nu funcționează sau nu e clar — scrieți-mi. Răspunde cel care face programul.",
+    "failed": "Nu s-a reușit deschiderea conversației. Încercați din nou sau scrieți pe salonglamoursor@gmail.com.",
+    "noSalon": "Suportul se deschide din cabinetul salonului sau al maestrului. Se pare că încă nu sunteți adăugat nicăieri.",
+    "subtitle": "Ceva nu funcționează sau nu e clar — scrieți aici. Răspunde cel care face programul.",
     "problemLabel": "CE S-A ÎNTÂMPLAT",
     "problemPlaceholder": "Descrieți cu cuvintele dumneavoastră: ce făceați și ce a mers prost.",
     "contextNote": "La mesaj se adaugă numele, e-mailul și salonul — ca să nu fie nevoie să explicați cine sunteți.",

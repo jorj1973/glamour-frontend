@@ -1785,7 +1785,9 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Something is broken or unclear — write to us. The person who builds the app answers.",
+    "failed": "Could not open the conversation. Try again or write to salonglamoursor@gmail.com.",
+    "noSalon": "Support opens from a salon or master cabinet. It looks like you have not been added anywhere yet.",
+    "subtitle": "Something is broken or unclear — write here. The person who builds the app answers.",
     "problemLabel": "WHAT HAPPENED",
     "problemPlaceholder": "Describe in your own words: what you were doing and what went wrong.",
     "contextNote": "Your name, email and salon are added to the message, so you do not have to explain who you are.",
