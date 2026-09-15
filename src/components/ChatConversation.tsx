@@ -102,9 +102,25 @@ type Props = {
   onChanged: () => void;
   /** Выйти из темы — только у комнат, у диалога выходить некуда. */
   onLeave?: () => void;
+  /**
+   * Показывать ли шапку беседы.
+   *
+   * В шапке живут три вещи: стрелка «назад», название комнаты и выход
+   * из темы. На странице поддержки нет ни одной из них — беседа там
+   * одна, возвращаться некуда, выходить нельзя, а название страница
+   * пишет сама, крупно и по центру. Шапка в этом случае оставляла на
+   * экране второе «Поддержка» ниже первого.
+   */
+  showHeader?: boolean;
 };
 
-function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
+function ChatConversation({
+  room,
+  onBack,
+  onChanged,
+  onLeave,
+  showHeader = true,
+}: Props) {
   const { t } = useTranslation();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -1041,6 +1057,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
       }}
     >
       {/* Шапка беседы */}
+      {showHeader ? (
       <div
         style={{
           display: 'flex',
@@ -1122,6 +1139,7 @@ function ChatConversation({ room, onBack, onChanged, onLeave }: Props) {
           </button>
         )}
       </div>
+      ) : null}
 
       {/* Лента сообщений */}
       <div

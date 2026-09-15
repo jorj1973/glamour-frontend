@@ -22,6 +22,10 @@ import ChatConversation from '../components/ChatConversation';
  * (`ChatConversation`). Значит здесь сразу и вложения, и голосовые, и
  * счётчик непрочитанного, и уведомление с push на телефон, потому что
  * всё это уже работает для остальных бесед.
+ *
+ * Заголовок страница пишет сама и ставит его первым, а объяснение —
+ * под ним: сначала куда человек попал, потом что здесь делают. Шапку
+ * беседы поэтому выключаем — иначе «Поддержка» стояла бы дважды.
  */
 function SupportPage() {
   const { t } = useTranslation();
@@ -65,20 +69,37 @@ function SupportPage() {
   return (
     <AppLayout>
       <main className="dashboard-page">
-        {/* Своего заголовка нет: название несёт шапка самой беседы,
-            иначе «Поддержка» стоит на экране дважды. Здесь только одна
-            строка о том, кто на той стороне. */}
-        <p
+        <header
           style={{
-            color: 'var(--app-text-muted)',
-            fontSize: 14,
             textAlign: 'center',
-            margin: '0 auto 18px',
-            maxWidth: 520,
+            margin: '0 auto 22px',
+            maxWidth: 560,
           }}
         >
-          {t('support.subtitle')}
-        </p>
+          {/* Размер не от `.dashboard-header`: там заголовок до 56px,
+              и над перепиской он выглядел вывеской, а не названием. */}
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 28,
+              lineHeight: 1.15,
+              letterSpacing: '-0.03em',
+            }}
+          >
+            {t('support.title')}
+          </h1>
+
+          <p
+            style={{
+              margin: '10px 0 0',
+              color: 'var(--app-text-muted)',
+              fontSize: 14,
+              lineHeight: 1.55,
+            }}
+          >
+            {t('support.subtitle')}
+          </p>
+        </header>
 
         {isLoading ? (
           <p className="dashboard-status">{t('common.loading')}</p>
@@ -88,7 +109,8 @@ function SupportPage() {
           <ChatConversation
             room={room}
             /* Стрелки «назад» нет: это единственная беседа на странице,
-               возвращаться некуда. */
+               возвращаться некуда. Шапки тоже — название уже выше. */
+            showHeader={false}
             onChanged={() => {
               void load();
             }}
