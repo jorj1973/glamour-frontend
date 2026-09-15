@@ -608,6 +608,10 @@ function PromotionLinksPage() {
           <p className="dashboard-status">{message}</p>
         ) : (
           <>
+            {/* Ссылки салона — не дело кабинета мастера. Мастер видит
+                здесь только свои, даже если он же владелец салона:
+                кабинет определяется рабочим местом, а не ролью. */}
+            {!isMasterWorkspace && (
               <section
                 className="dashboard-panel"
                 style={{ marginBottom: 24 }}
@@ -944,9 +948,10 @@ function PromotionLinksPage() {
                   ))}
                 </div>
               )}
-            </section>
+              </section>
+            )}
 
-            {registrationLinks.length > 0 && (
+            {!isMasterWorkspace && registrationLinks.length > 0 && (
                 <section
                   className="dashboard-panel"
                   style={{ marginBottom: 24 }}
@@ -1056,6 +1061,14 @@ function PromotionLinksPage() {
                     </div>
                   ))}
                 </div>
+              </section>
+            )}
+
+            {/* В кабинете мастера это единственный раздел. Пусто —
+                значит личной ссылки ещё нет: её задают на главной. */}
+            {isMasterWorkspace && masterLinks.length === 0 && (
+              <section className="dashboard-panel">
+                <p className="empty-state">{t('links.masterEmpty')}</p>
               </section>
             )}
 

@@ -65,11 +65,28 @@ function SupportPage() {
   return (
     <AppLayout>
       <main className="dashboard-page">
-        <header className="dashboard-header">
-          <div>
-            <h1>{t('support.title')}</h1>
-            <p className="dashboard-subtitle">{t('support.subtitle')}</p>
-          </div>
+        {/* Заголовок здесь скромнее, чем на других страницах: под ним
+            сразу переписка, и крупная шапка её придавливала. */}
+        <header
+          style={{
+            textAlign: 'center',
+            margin: '0 auto 18px',
+            maxWidth: 520,
+          }}
+        >
+          <h1 style={{ fontSize: 24, margin: '0 0 6px' }}>
+            {t('support.title')}
+          </h1>
+
+          <p
+            style={{
+              color: 'var(--app-text-muted)',
+              fontSize: 14,
+              margin: 0,
+            }}
+          >
+            {t('support.subtitle')}
+          </p>
         </header>
 
         {isLoading ? (

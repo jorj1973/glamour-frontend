@@ -430,6 +430,7 @@
     "newLink": "New Link",
     "forClients": "FOR CLIENTS",
     "forMasterReg": "MASTER REGISTRATION",
+    "masterEmpty": "You do not have a personal link yet. Pick a short address on the home page — the link and the QR code appear there.",
     "forMasters": "MASTER LINKS",
     "copy": "Copy",
     "copied": "Copied",
