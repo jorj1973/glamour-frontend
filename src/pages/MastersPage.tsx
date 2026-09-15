@@ -137,6 +137,18 @@ function MastersPage() {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
   const [savingCoopId, setSavingCoopId] = useState<string | null>(null);
 
+  /**
+   * Публичный адрес ссылки на запись, по профилю мастера.
+   *
+   * Нужен администратору: клиентка звонит и просит «к Ане» — он
+   * отправляет прямую ссылку. Раньше для этого был отдельный раздел со
+   * списком безымянных ссылок, где нельзя было понять, чья какая.
+   */
+  const [masterLinkSlug, setMasterLinkSlug] = useState<
+    Record<string, string>
+  >({});
+  const [copiedMasterId, setCopiedMasterId] = useState('');
+
   async function loadData() {
     setIsLoading(true);
     try {
@@ -146,6 +158,40 @@ function MastersPage() {
       if (!currentSalon) { setMessage(t('masters.salonNotFound')); return; }
       const mastersResponse = await api.get<Master[]>('/masters', { params: { salonId: currentSalon.id } });
       setMasters(mastersResponse.data);
+
+      try {
+        const links = await api.get<
+          {
+            ownerType?: string;
+            targetType?: string;
+            masterProfileId?: string | null;
+            slug?: string;
+          }[]
+        >(`/promotion-links/salon/${currentSalon.id}`);
+
+        const byMaster: Record<string, string> = {};
+
+        for (const link of links.data) {
+          if (link.ownerType !== 'master' || !link.masterProfileId) {
+            continue;
+          }
+
+          if (link.targetType !== 'master' && link.targetType !== 'booking') {
+            continue;
+          }
+
+          // Первая по списку — самая свежая: сервер отдаёт по убыванию
+          // даты создания.
+          if (!byMaster[link.masterProfileId] && link.slug) {
+            byMaster[link.masterProfileId] = link.slug;
+          }
+        }
+
+        setMasterLinkSlug(byMaster);
+      } catch {
+        // Без ссылок карточка просто не покажет кнопку.
+      }
+
       setMessage('');
     } catch {
       setMessage(t('masters.loadError'));
@@ -157,6 +203,37 @@ function MastersPage() {
   useEffect(() => {
     void loadData();
   }, []);
+
+  /** Скопировать ссылку на запись к этому мастеру. */
+  async function copyMasterLink(masterId: string) {
+    const slug = masterLinkSlug[masterId];
+
+    if (!slug) {
+      return;
+    }
+
+    const url = `${window.location.origin}/#salon/${encodeURIComponent(slug)}`;
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const field = document.createElement('textarea');
+
+        field.value = url;
+        field.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(field);
+        field.select();
+        document.execCommand('copy');
+        document.body.removeChild(field);
+      }
+
+      setCopiedMasterId(masterId);
+      setTimeout(() => setCopiedMasterId(''), 2000);
+    } catch {
+      // Молча: кнопка просто не подтвердится.
+    }
+  }
 
   async function loadPermanentRegistrationLink() {
     if (!salon || isLinkLoading) return;
@@ -466,6 +543,25 @@ function MastersPage() {
                                 <strong>{master.cooperationType?.toLowerCase() === 'independent' ? t('masters.independent') : t('masters.staff')}</strong>
                               )}
                             </div>
+
+                            {/* Прямая ссылка на запись к этому мастеру:
+                                администратору её отправлять клиентке, и
+                                здесь видно, чья она. */}
+                            {masterLinkSlug[master.id] && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                <span>{t('masters.bookingLink')}</span>
+
+                                <button
+                                  type="button"
+                                  onClick={() => void copyMasterLink(master.id)}
+                                  style={{ marginTop: 2, padding: '6px 8px', border: '1px solid rgba(var(--app-ink-rgb),0.14)', borderRadius: 8, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'left' }}
+                                >
+                                  {copiedMasterId === master.id
+                                    ? t('masters.linkCopied')
+                                    : t('masters.copyLink')}
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}

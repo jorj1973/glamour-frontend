@@ -1072,7 +1072,13 @@ function PromotionLinksPage() {
               </section>
             )}
 
-            {masterLinks.length > 0 && (
+            {/* Ссылки мастеров салону не показываются. Продвижение
+                мастера — его дело, а у салона другая задача: продвигать
+                салон. Администратору, которому нужно отправить клиентке
+                прямую ссылку, кнопка стоит на карточке мастера — там,
+                где видно имя. Со ссылками независимого мастера это ещё
+                и последовательно с ADR-005. */}
+            {isMasterWorkspace && masterLinks.length > 0 && (
               <section className="dashboard-panel">
                 <div className="panel-heading">
                     <div>

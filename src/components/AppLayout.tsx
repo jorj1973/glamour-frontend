@@ -76,6 +76,11 @@ const MASTER_GROUPS: {
         label: 'nav.scheduleTemplate',
         icon: <CalendarCheck size={19} />,
       },
+      {
+        hash: '#services',
+        label: 'nav.myServices',
+        icon: <Sparkles size={19} />,
+      },
     ],
   },
   {
@@ -112,11 +117,6 @@ const MASTER_GROUPS: {
         hash: '#my-profile',
         label: 'nav.myProfile',
         icon: <UserRound size={19} />,
-      },
-      {
-        hash: '#services',
-        label: 'nav.myServices',
-        icon: <Sparkles size={19} />,
       },
     ],
   },
@@ -924,6 +924,25 @@ function AppLayout({ children }: AppLayoutProps) {
           {isMasterWorkspace ? (
             <>
               {MASTER_GROUPS.map((group) => {
+                // Группа из одного пункта — лишний щелчок и лишний
+                // уровень: показываем сам пункт.
+                if (group.items.length === 1) {
+                  const only = group.items[0];
+
+                  return (
+                    <a
+                      key={group.key}
+                      className={
+                        currentHash === only.hash ? 'active' : ''
+                      }
+                      href={only.hash}
+                    >
+                      {only.icon}
+                      {t(only.label)}
+                    </a>
+                  );
+                }
+
                 const opened =
                   (openGroup || groupOfHash(currentHash, MASTER_GROUPS)) ===
                   group.key;
@@ -989,6 +1008,26 @@ function AppLayout({ children }: AppLayoutProps) {
 
                 if (items.length === 0) {
                   return null;
+                }
+
+                // То же правило, что у мастера: один пункт — не группа.
+                // У администратора так схлопывается «Салон», где ему
+                // остаётся только журнал действий.
+                if (items.length === 1) {
+                  const only = items[0];
+
+                  return (
+                    <a
+                      key={group.key}
+                      className={
+                        currentHash === only.hash ? 'active' : ''
+                      }
+                      href={only.hash}
+                    >
+                      {only.icon}
+                      {t(only.label)}
+                    </a>
+                  );
                 }
 
                 const opened =
