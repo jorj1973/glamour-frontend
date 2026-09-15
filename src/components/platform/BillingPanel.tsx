@@ -23,8 +23,12 @@ import api from '../../api/api';
  */
 
 type SubscriptionRow = {
-  salonId: string;
-  salonName: string;
+  kind: 'salon' | 'master';
+  salonId: string | null;
+  masterProfileId: string | null;
+  name: string;
+  /** Где работает мастер. У салона пусто. */
+  place: string | null;
   planName: string | null;
   planPrice: string | null;
   billingPeriod: string | null;
@@ -40,7 +44,8 @@ type SubscriptionRow = {
 
 type PaymentRow = {
   id: string;
-  salonId: string;
+  salonId: string | null;
+  masterProfileId: string | null;
   amount: string;
   currency: string;
   kind: string;
@@ -58,7 +63,10 @@ type Income = {
   total: string;
 };
 
+const NO_SUBSCRIPTION = 'no_subscription';
+
 const STATUS_LABEL: Record<string, string> = {
+  [NO_SUBSCRIPTION]: 'Без подписки',
   pending_approval: 'Ждёт одобрения',
   trial: 'Пробный период',
   active: 'Оплачено',
@@ -108,6 +116,15 @@ function dueText(row: SubscriptionRow): string {
   return 'осталось ' + String(row.daysLeft) + ' дн.';
 }
 
+/** Ключ строки: у салона это салон, у мастера — мастер. */
+function subscriberKey(row: {
+  salonId: string | null;
+  masterProfileId: string | null;
+  name: string;
+}): string {
+  return row.salonId ?? row.masterProfileId ?? row.name;
+}
+
 function today(): string {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -130,6 +147,7 @@ function BillingPanel() {
   const [paidAt, setPaidAt] = useState(today());
   const [note, setNote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
@@ -153,6 +171,27 @@ function BillingPanel() {
       setErrorMsg('Не удалось загрузить деньги площадки');
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function startTrial(row: SubscriptionRow) {
+    setBusyId(subscriberKey(row));
+    setErrorMsg('');
+    setDoneMsg('');
+
+    try {
+      await api.post('/platform-admin/billing/trial', {
+        salonId: row.salonId ?? undefined,
+        masterProfileId: row.masterProfileId ?? undefined,
+      });
+
+      setDoneMsg('Пробный период запущен: ' + row.name);
+
+      await load();
+    } catch {
+      setErrorMsg('Не удалось запустить пробный период');
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -182,7 +221,8 @@ function BillingPanel() {
 
     try {
       await api.post('/platform-admin/billing/payments', {
-        salonId: openFor.salonId,
+        salonId: openFor.salonId ?? undefined,
+        masterProfileId: openFor.masterProfileId ?? undefined,
         amount: value,
         method,
         // Дата без времени — значит полдень: так отметка не уедет на
@@ -191,7 +231,7 @@ function BillingPanel() {
         note: note.trim() ? note.trim() : undefined,
       });
 
-      setDoneMsg('Оплата отмечена: ' + openFor.salonName);
+      setDoneMsg('Оплата отмечена: ' + openFor.name);
       setOpenFor(null);
       setErrorMsg('');
 
@@ -351,8 +391,22 @@ function BillingPanel() {
 
             <tbody>
               {rows.map((row) => (
-                <tr key={row.salonId}>
-                  <td style={cellStyle}>{row.salonName}</td>
+                <tr key={row.salonId ?? row.masterProfileId ?? row.name}>
+                  <td style={cellStyle}>
+                    {row.name}
+
+                    {row.kind === 'master' ? (
+                      <span
+                        style={{
+                          display: 'block',
+                          color: 'var(--app-text-muted)',
+                          fontSize: 12,
+                        }}
+                      >
+                        {'мастер' + (row.place ? ' · ' + row.place : '')}
+                      </span>
+                    ) : null}
+                  </td>
 
                   <td style={cellStyle}>
                     {row.planName ?? '—'}
@@ -403,9 +457,17 @@ function BillingPanel() {
                   </td>
 
                   <td style={cellStyle}>
+                    {/* У строки без подписки отмечать нечего: сначала
+                        её надо завести. Кнопка «отметить оплату» здесь
+                        просто не сработала бы. */}
                     <button
                       type="button"
-                      onClick={() => openForm(row)}
+                      onClick={() =>
+                        row.status === NO_SUBSCRIPTION
+                          ? void startTrial(row)
+                          : openForm(row)
+                      }
+                      disabled={busyId === subscriberKey(row)}
                       style={{
                         minHeight: 34,
                         padding: '0 12px',
@@ -419,7 +481,9 @@ function BillingPanel() {
                         cursor: 'pointer',
                       }}
                     >
-                      Отметить оплату
+                      {row.status === NO_SUBSCRIPTION
+                        ? 'Запустить пробный период'
+                        : 'Отметить оплату'}
                     </button>
                   </td>
                 </tr>
@@ -447,7 +511,7 @@ function BillingPanel() {
             }}
           >
             <strong style={{ color: 'var(--app-text)', fontSize: 14 }}>
-              {'Оплата: ' + openFor.salonName}
+              {'Оплата: ' + openFor.name}
             </strong>
 
             <button
