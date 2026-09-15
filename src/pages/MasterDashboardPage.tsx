@@ -46,7 +46,7 @@ function healthColor(percent: number): string {
 type MasterStats = {
   masterProfileId: string;
   todayAppointments: number;
-  upcomingAppointments: unknown[];
+  upcomingAppointments: Appointment[];
   todayRevenue: number;
   monthRevenue: number;
   clientsCount: number;
@@ -99,7 +99,6 @@ function MasterDashboardPage() {
   const dateLocale = i18n.language?.startsWith('ro') ? 'ro-RO' : i18n.language?.startsWith('en') ? 'en-GB' : 'ru-RU';
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [stats, setStats] = useState<MasterStats | null>(null);
-  const [upcoming, setUpcoming] = useState<Appointment[]>([]);
   const [promoUrl, setPromoUrl] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
@@ -111,6 +110,12 @@ function MasterDashboardPage() {
   const [slugError, setSlugError] = useState('');
   const [slugSuccess, setSlugSuccess] = useState('');
   const [currentSlug, setCurrentSlug] = useState('');
+
+  // Ближайшие записи приходят в той же выдаче, что и остальная
+  // статистика: GET /dashboard/master/me возвращает записи этого мастера
+  // в этом салоне. Отдельный запрос за ними был к календарю салона —
+  // мастеру туда нельзя, и панель у всех, кроме владельца, была пустой.
+  const upcoming = (stats?.upcomingAppointments ?? []).slice(0, 5);
 
   const baseUrl = window.location.origin;
 
@@ -129,7 +134,6 @@ function MasterDashboardPage() {
       if (!currentSalon) return;
       await Promise.allSettled([
         loadStats(currentSalon.id),
-        loadUpcoming(currentSalon.id),
         loadPromoLink(currentSalon.id),
       ]);
     } catch {
@@ -144,15 +148,6 @@ function MasterDashboardPage() {
       const res = await api.get<MasterStats>('/dashboard/master/me', { params: { salonId } });
       setStats(res.data);
     } catch { /* недоступно */ }
-  }
-
-  async function loadUpcoming(salonId: string) {
-    try {
-      const res = await api.get<Appointment[]>('/appointments', {
-        params: { salonId, status: 'confirmed,pending', limit: 5 },
-      });
-      setUpcoming(res.data.slice(0, 5));
-    } catch { setUpcoming([]); }
   }
 
   async function loadPromoLink(salonId: string) {
