@@ -37,6 +37,7 @@ import PlanTextsPanel from '../components/platform/PlanTextsPanel';
 import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
 import BillingPanel from '../components/platform/BillingPanel';
 import LeadsPanel from '../components/platform/LeadsPanel';
+import NewPlanPanel from '../components/platform/NewPlanPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
@@ -1252,6 +1253,8 @@ function PlatformOwnerPage() {
                 ) : null
               }
             />
+
+            <NewPlanPanel onCreated={() => void loadPlatformData()} />
 
             {selectedPlanGroup ? (
               <SubscriptionPlanEditor
