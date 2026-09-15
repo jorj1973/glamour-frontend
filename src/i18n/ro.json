@@ -65,6 +65,7 @@
     },
     "scheduleTemplate": "Programul meu",
     "chat": "Comunicare",
+    "support": "Suport",
     "sms": "SMS",
     "administrators": "Administratori",
     "actionLog": "Jurnal",
@@ -1787,5 +1788,20 @@
     "settledOn": "Decontat la {{date}}, suma {{amount}}",
     "notSettled": "Săptămâna nu este închisă",
     "settleError": "Nu s-a putut marca decontarea"
+  },
+  "support": {
+    "title": "Suport",
+    "subtitle": "Ceva nu funcționează sau nu e clar — scrieți-mi. Răspunde cel care face programul.",
+    "problemLabel": "CE S-A ÎNTÂMPLAT",
+    "problemPlaceholder": "Descrieți cu cuvintele dumneavoastră: ce făceați și ce a mers prost.",
+    "contextNote": "La mesaj se adaugă numele, e-mailul și salonul — ca să nu fie nevoie să explicați cine sunteți.",
+    "messageHead": "GLAMOUR, suport.",
+    "messageTail": "Descrieți ce nu funcționează.",
+    "fieldName": "Nume",
+    "fieldEmail": "E-mail",
+    "fieldSalon": "Salon",
+    "mailSubject": "GLAMOUR — suport",
+    "byMail": "Scrieți pe e-mail",
+    "hours": "De obicei răspund în aceeași zi. Dacă e urgent — sunați, același număr."
   }
 }

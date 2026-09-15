@@ -65,6 +65,7 @@
     },
     "scheduleTemplate": "My schedule",
     "chat": "Chat",
+    "support": "Support",
     "sms": "SMS",
     "administrators": "Administrators",
     "actionLog": "Journal",
@@ -1780,5 +1781,20 @@
     "settledOn": "Settled on {{date}}, {{amount}}",
     "notSettled": "The week is not closed",
     "settleError": "Could not record the settlement"
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Something is broken or unclear — write to us. The person who builds the app answers.",
+    "problemLabel": "WHAT HAPPENED",
+    "problemPlaceholder": "Describe in your own words: what you were doing and what went wrong.",
+    "contextNote": "Your name, email and salon are added to the message, so you do not have to explain who you are.",
+    "messageHead": "GLAMOUR, support.",
+    "messageTail": "Describe what is not working.",
+    "fieldName": "Name",
+    "fieldEmail": "Email",
+    "fieldSalon": "Salon",
+    "mailSubject": "GLAMOUR — support",
+    "byMail": "Write by email",
+    "hours": "Usually answered the same day. If it is urgent, call the same number."
   }
 }

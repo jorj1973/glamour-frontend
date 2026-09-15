@@ -31,6 +31,7 @@ import {
   Gift,
   ChevronDown,
   Briefcase,
+  LifeBuoy,
   HeartHandshake,
   BadgeCheck,
   MessagesSquare,
@@ -125,6 +126,11 @@ const MASTER_GROUPS: {
     items: [
       { hash: '#chat', label: 'nav.chat', icon: <MessageCircle size={19} /> },
       { hash: '#sms', label: 'nav.sms', icon: <Smartphone size={19} /> },
+      {
+        hash: '#support',
+        label: 'nav.support',
+        icon: <LifeBuoy size={19} />,
+      },
     ],
   },
 ];

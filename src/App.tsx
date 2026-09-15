@@ -29,6 +29,7 @@ import LoyaltyPage from './pages/LoyaltyPage';
 import SalonInfoPage from './pages/SalonInfoPage';
 import SalonReviewsPage from './pages/SalonReviewsPage';
 import MasterReviewsPage from './pages/MasterReviewsPage';
+import SupportPage from './pages/SupportPage';
 import ChatPage from './pages/ChatPage';
 import SmsPage from './pages/SmsPage';
 
@@ -331,6 +332,10 @@ function App() {
         return <MasterSchedulePage />;
       case '#reviews':
         return <MasterReviewsPage />;
+
+      // Поддержка: связь с тем, кто делает программу.
+      case '#support':
+        return <SupportPage />;
 
       default:
         return <MasterDashboardPage />;
