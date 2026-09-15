@@ -1805,6 +1805,7 @@
     "hours": "Usually answered the same day. If it is urgent, call the same number."
   },
   "invite": {
+    "title": "Your salon stops running on memory",
     "hello": "Hello. I am Ivan, I run a salon in Soroca.",
     "invitedBy": "{{name}} invites you",
     "feeling": "You know the feeling: the day went well, your hands ache, and in the evening you still have to remember who came, who still owes you and whom to call back tomorrow. And the notebook you are afraid to lose.",

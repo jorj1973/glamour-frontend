@@ -1812,6 +1812,7 @@
     "hours": "De obicei răspund în aceeași zi. Dacă e urgent — sunați, același număr."
   },
   "invite": {
+    "title": "Salonul nu mai depinde de memoria dumneavoastră",
     "hello": "Bună ziua. Sunt Ivan, am un salon în Soroca.",
     "invitedBy": "Vă invită {{name}}",
     "feeling": "Știți senzația: ziua a mers bine, mâinile vă dor, iar seara mai trebuie să vă amintiți cine a venit, cine a rămas dator și cui să sunați mâine. Și caietul pe care vă e frică să-l pierdeți.",

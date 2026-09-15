@@ -193,16 +193,23 @@ function PartnerInvitePage() {
           </p>
         ) : null}
 
+        {/* Заголовок — обещание, а не приветствие. Знакомство идёт
+            следующей строкой, обычным размером: крупно поставленное
+            «здравствуйте» занимает место обещания и ничего не обещает. */}
         <h1
           style={{
-            margin: '0 0 18px',
+            margin: '0 0 16px',
             fontSize: 'clamp(24px, 4.6vw, 34px)',
             lineHeight: 1.2,
             letterSpacing: '-0.03em',
           }}
         >
-          {t('invite.hello')}
+          {t('invite.title')}
         </h1>
+
+        <p style={{ ...paragraph, color: 'var(--app-text)' }}>
+          {t('invite.hello')}
+        </p>
 
         <p style={paragraph}>{t('invite.feeling')}</p>
 
