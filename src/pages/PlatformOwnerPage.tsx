@@ -36,6 +36,7 @@ import ChatAccessPanel from "../components/platform/ChatAccessPanel";
 import PlanTextsPanel from '../components/platform/PlanTextsPanel';
 import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
 import BillingPanel from '../components/platform/BillingPanel';
+import LeadsPanel from '../components/platform/LeadsPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
 
@@ -1412,6 +1413,10 @@ function PlatformOwnerPage() {
                 этом месте сами деньги. */}
             <section id="platform-billing">
               <BillingPanel />
+            </section>
+
+            <section id="platform-leads">
+              <LeadsPanel />
             </section>
           </>
         ) : null}

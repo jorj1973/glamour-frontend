@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
+import PartnerInvitePage from './pages/PartnerInvitePage';
 import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
 import PublicBookingPage from './pages/PublicBookingPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -237,6 +238,13 @@ function App() {
 
   if (currentPage.startsWith('#register?')) {
     return <SalonRegistrationPage />;
+  }
+
+  // Страница по ссылке приглашения. Открывается и без кода: тогда на ней
+  // нет ни имени пригласившего, ни обещания подарка — только рассказ и
+  // форма. Ссылку присылают в переписке, где она легко теряет хвост.
+  if (currentPage === '#try' || currentPage.startsWith('#try?')) {
+    return <PartnerInvitePage />;
   }
 
   // Две формы одного адреса. Короткая — #salon/glamour — не ломается

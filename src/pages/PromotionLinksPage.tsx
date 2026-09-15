@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Check,
   ClipboardCopy,
+  Gift,
   ExternalLink,
   Link2,
   Plus,
@@ -132,6 +133,18 @@ const SOURCES = [
   { value: 'other', label: 'Other' },
 ];
 
+type ReferSummary = {
+  code: string;
+  enabled: boolean;
+  welcomeMessages: number;
+  total: number;
+  joined: number;
+  paid: number;
+  awarded: number;
+  messagesEarned: number;
+  nextBonus: number;
+};
+
 function PromotionLinksPage() {
   const workspaceMode = getWorkspaceMode();
   const { t } = useTranslation();
@@ -147,6 +160,18 @@ function PromotionLinksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  /**
+   * Свой код приглашения и что по нему получилось.
+   *
+   * Это не ссылка на запись к мастеру, а рекомендация самого
+   * приложения. Мастер не зовёт к себе другого мастера — это был бы
+   * салон, и там всё устроено иначе. Она рассказывает про программу, и
+   * если по её рассказу кто-то подключился и заплатил, ей достаётся
+   * пакет сообщений.
+   */
+  const [refer, setRefer] = useState<ReferSummary | null>(null);
+  const [isReferCopied, setIsReferCopied] = useState(false);
 
   const [formTitle, setFormTitle] = useState('');
   const [formSlug, setFormSlug] = useState('');
@@ -233,6 +258,71 @@ function PromotionLinksPage() {
       cancelled = true;
     };
   }, [isMasterWorkspace]);
+
+  useEffect(() => {
+    if (!isMasterWorkspace) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadRefer() {
+      try {
+        const res = await api.get<ReferSummary>('/referrals/my');
+
+        if (!cancelled) {
+          setRefer(res.data);
+        }
+      } catch {
+        // Раздел просто не появится: рекомендация — не то, ради чего
+        // стоит показывать человеку ошибку на весь экран.
+      }
+    }
+
+    void loadRefer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isMasterWorkspace]);
+
+  async function copyReferLink() {
+    if (!refer) {
+      return;
+    }
+
+    const url =
+      window.location.origin +
+      '/#try?ref=' +
+      encodeURIComponent(refer.code);
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const ta = document.createElement('textarea');
+
+        ta.value = url;
+        ta.style.cssText = 'position:fixed;opacity:0';
+
+        document.body.appendChild(ta);
+
+        ta.select();
+
+        document.execCommand('copy');
+
+        document.body.removeChild(ta);
+      }
+
+      setIsReferCopied(true);
+
+      setTimeout(() => {
+        setIsReferCopied(false);
+      }, 2500);
+    } catch {
+      // Буфер обмена доступен не везде; ссылку видно на экране.
+    }
+  }
 
   async function copyLink(link: PromotionLink) {
     const url = getLinkUrl(link);
@@ -1063,6 +1153,148 @@ function PromotionLinksPage() {
                 </div>
               </section>
             )}
+
+            {/* Рекомендация приложения — не ссылка на запись.
+                Мастер зовёт не к себе, а в программу, и за это ей
+                достаётся пакет сообщений, когда приведённый заплатит. */}
+            {isMasterWorkspace && refer ? (
+              <section className="dashboard-panel" style={{ marginBottom: 24 }}>
+                <div className="panel-heading">
+                  <div>
+                    <p className="panel-kicker">{t('refer.title')}</p>
+
+                    <h2>{t('refer.next', { count: refer.nextBonus })}</h2>
+                  </div>
+
+                  <Gift size={22} />
+                </div>
+
+                <p
+                  style={{
+                    margin: '0 0 16px',
+                    maxWidth: 620,
+                    color: 'var(--app-text-muted)',
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {t('refer.hint')}
+                </p>
+
+                {refer.enabled ? (
+                  <>
+                    <p
+                      style={{
+                        margin: '0 0 6px',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {t('refer.yourLink')}
+                    </p>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        flexWrap: 'wrap',
+                        marginBottom: 16,
+                      }}
+                    >
+                      <code
+                        style={{
+                          flex: '1 1 260px',
+                          minWidth: 0,
+                          padding: '11px 13px',
+                          borderRadius: 12,
+                          background: 'rgba(var(--app-ink-rgb),0.05)',
+                          color: 'var(--app-text)',
+                          fontSize: 14,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {window.location.origin + '/#try?ref=' + refer.code}
+                      </code>
+
+                      <button
+                        type="button"
+                        onClick={() => void copyReferLink()}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          minHeight: 40,
+                          padding: '0 14px',
+                          border: '1px solid rgba(var(--app-ink-rgb),0.1)',
+                          borderRadius: 11,
+                          background: isReferCopied
+                            ? 'rgba(77,208,139,0.1)'
+                            : 'rgba(var(--app-ink-rgb),0.05)',
+                          color: isReferCopied ? '#8ee5b5' : 'var(--app-text)',
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {isReferCopied ? (
+                          <>
+                            <Check size={16} />
+                            {t('refer.copied')}
+                          </>
+                        ) : (
+                          <>
+                            <ClipboardCopy size={16} />
+                            {t('refer.copy')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 22,
+                        flexWrap: 'wrap',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 13,
+                      }}
+                    >
+                      <span>
+                        {t('refer.leads') + ': '}
+                        <strong style={{ color: 'var(--app-text)' }}>
+                          {refer.total}
+                        </strong>
+                      </span>
+
+                      <span>
+                        {t('refer.joined') + ': '}
+                        <strong style={{ color: 'var(--app-text)' }}>
+                          {refer.joined}
+                        </strong>
+                      </span>
+
+                      <span>
+                        {t('refer.earned') + ': '}
+                        <strong style={{ color: 'var(--app-text)' }}>
+                          {refer.messagesEarned}
+                        </strong>
+                      </span>
+
+                      <span>
+                        {t('refer.welcome', { count: refer.welcomeMessages })}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="empty-state">{t('refer.off')}</p>
+                )}
+              </section>
+            ) : null}
 
             {/* В кабинете мастера это единственный раздел. Пусто —
                 значит личной ссылки ещё нет: её задают на главной. */}
