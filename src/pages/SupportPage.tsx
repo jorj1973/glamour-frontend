@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LifeBuoy, Mail, MessageCircle, Phone, Send } from 'lucide-react';
+import { Mail, MessageCircle, Phone, Send } from 'lucide-react';
 
 import api from '../api/api';
 import AppLayout from '../components/AppLayout';
@@ -117,115 +117,110 @@ function SupportPage() {
 
   return (
     <AppLayout>
-      <div style={{ maxWidth: 640 }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            marginBottom: 6,
-          }}
-        >
-          <LifeBuoy size={26} color="var(--app-accent)" />
-          <h1 style={{ margin: 0 }}>{t('support.title')}</h1>
+      <main className="dashboard-page">
+        <header className="dashboard-header">
+          <div>
+            <h1>{t('support.title')}</h1>
+            <p className="dashboard-subtitle">{t('support.subtitle')}</p>
+          </div>
+        </header>
+
+        <div style={{ maxWidth: 620 }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.07em',
+              color: 'var(--app-text-muted)',
+            }}
+          >
+            {t('support.problemLabel')}
+          </label>
+
+          <textarea
+            value={problem}
+            onChange={(event) => setProblem(event.target.value)}
+            placeholder={t('support.problemPlaceholder')}
+            rows={4}
+            style={{
+              width: '100%',
+              padding: 14,
+              borderRadius: 14,
+              border: '1px solid rgba(var(--app-ink-rgb),0.12)',
+              background: 'var(--app-input)',
+              color: 'var(--app-text)',
+              fontSize: 15,
+              fontFamily: 'inherit',
+              resize: 'vertical',
+            }}
+          />
+
+          <p
+            style={{
+              color: 'var(--app-text-muted)',
+              fontSize: 13,
+              margin: '10px 0 18px',
+            }}
+          >
+            {t('support.contextNote')}
+          </p>
+
+          <div style={{ display: 'grid', gap: 10 }}>
+            <a
+              style={cardStyle}
+              href={`https://wa.me/${SUPPORT.phone.replace(
+                /\D/g,
+                '',
+              )}?text=${encoded}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle size={20} color="var(--app-accent)" />
+              WhatsApp
+            </a>
+
+            <a
+              style={cardStyle}
+              href={`viber://chat?number=${encodeURIComponent(SUPPORT.phone)}`}
+            >
+              <Phone size={20} color="var(--app-accent)" />
+              Viber
+            </a>
+
+            <a
+              style={cardStyle}
+              href={`https://t.me/${SUPPORT.telegram}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Send size={20} color="var(--app-accent)" />
+              Telegram
+            </a>
+
+            <a
+              style={cardStyle}
+              href={`mailto:${SUPPORT.email}?subject=${encodeURIComponent(
+                t('support.mailSubject'),
+              )}&body=${encoded}`}
+            >
+              <Mail size={20} color="var(--app-accent)" />
+              {t('support.byMail')}
+            </a>
+          </div>
+
+          <p
+            style={{
+              color: 'var(--app-text-muted)',
+              fontSize: 13,
+              marginTop: 20,
+            }}
+          >
+            {t('support.hours')}
+          </p>
         </div>
-
-        <p style={{ color: 'var(--app-text-muted)', marginTop: 0 }}>
-          {t('support.subtitle')}
-        </p>
-
-        <label
-          style={{
-            display: 'block',
-            marginTop: 20,
-            marginBottom: 8,
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: '0.06em',
-            color: 'var(--app-text-muted)',
-          }}
-        >
-          {t('support.problemLabel')}
-        </label>
-
-        <textarea
-          value={problem}
-          onChange={(event) => setProblem(event.target.value)}
-          placeholder={t('support.problemPlaceholder')}
-          rows={4}
-          style={{
-            width: '100%',
-            padding: 14,
-            borderRadius: 14,
-            border: '1px solid rgba(var(--app-ink-rgb),0.12)',
-            background: 'var(--app-input)',
-            color: 'var(--app-text)',
-            fontSize: 15,
-            fontFamily: 'inherit',
-            resize: 'vertical',
-          }}
-        />
-
-        <p
-          style={{
-            color: 'var(--app-text-muted)',
-            fontSize: 13,
-            margin: '10px 0 18px',
-          }}
-        >
-          {t('support.contextNote')}
-        </p>
-
-        <div style={{ display: 'grid', gap: 10 }}>
-          <a
-            style={cardStyle}
-            href={`https://wa.me/${SUPPORT.phone.replace(/\D/g, '')}?text=${encoded}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageCircle size={20} color="var(--app-accent)" />
-            WhatsApp
-          </a>
-
-          <a
-            style={cardStyle}
-            href={`viber://chat?number=${encodeURIComponent(SUPPORT.phone)}`}
-          >
-            <Phone size={20} color="var(--app-accent)" />
-            Viber
-          </a>
-
-          <a
-            style={cardStyle}
-            href={`https://t.me/${SUPPORT.telegram}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Send size={20} color="var(--app-accent)" />
-            Telegram
-          </a>
-
-          <a
-            style={cardStyle}
-            href={`mailto:${SUPPORT.email}?subject=${encodeURIComponent(
-              t('support.mailSubject'),
-            )}&body=${encoded}`}
-          >
-            <Mail size={20} color="var(--app-accent)" />
-            {t('support.byMail')}
-          </a>
-        </div>
-
-        <p
-          style={{
-            color: 'var(--app-text-muted)',
-            fontSize: 13,
-            marginTop: 20,
-          }}
-        >
-          {t('support.hours')}
-        </p>
-      </div>
+      </main>
     </AppLayout>
   );
 }

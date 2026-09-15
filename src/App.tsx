@@ -333,6 +333,11 @@ function App() {
       case '#reviews':
         return <MasterReviewsPage />;
 
+      // Свои ссылки мастера. Страница уже умеет режим мастера —
+      // не хватало только маршрута, и пункт меню вёл на главную.
+      case '#promotion-links':
+        return <PromotionLinksPage />;
+
       // Поддержка: связь с тем, кто делает программу.
       case '#support':
         return <SupportPage />;

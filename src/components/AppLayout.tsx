@@ -125,6 +125,11 @@ const MASTER_GROUPS: {
     label: 'nav.groupComms',
     items: [
       { hash: '#chat', label: 'nav.chat', icon: <MessageCircle size={19} /> },
+      {
+        hash: '#promotion-links',
+        label: 'nav.links',
+        icon: <Link2 size={19} />,
+      },
       { hash: '#sms', label: 'nav.sms', icon: <Smartphone size={19} /> },
       {
         hash: '#support',
