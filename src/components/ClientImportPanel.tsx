@@ -380,11 +380,28 @@ function ClientImportPanel({ salonId }: Props) {
                     <input
                         ref={fileRef}
                         type="file"
+                        /*
+                          Старый .xls и .ods перечислены нарочно, хотя
+                          прочитать их нельзя.
+
+                          Пока их здесь не было, окно выбора показывало
+                          такой файл серым — и человек не узнавал почему.
+                          Он видел только, что его список «не подходит», и
+                          уходил. Объяснение, до которого нельзя дойти,
+                          всё равно что ненаписанное.
+
+                          Теперь файл выбирается, а сервер отвечает, что
+                          это за формат и куда нажать, чтобы пересохранить.
+                        */
                         accept={[
                             '.xlsx',
+                            '.xls',
+                            '.ods',
                             '.csv',
                             '.txt',
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                            'application/vnd.oasis.opendocument.spreadsheet',
                             'text/csv',
                             'text/plain',
                         ].join(',')}
