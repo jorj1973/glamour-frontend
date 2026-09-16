@@ -369,7 +369,14 @@ function ClientImportPanel({ salonId }: Props) {
                     <input
                         ref={fileRef}
                         type="file"
-                        accept=".csv,.txt,text/csv,text/plain"
+                        accept={[
+                            '.xlsx',
+                            '.csv',
+                            '.txt',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'text/csv',
+                            'text/plain',
+                        ].join(',')}
                         onChange={(e) => {
                             const file = e.target.files?.[0];
 
