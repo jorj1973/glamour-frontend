@@ -71,7 +71,9 @@
     "administrators": "Administrators",
     "actionLog": "Journal",
     "payouts": "Master payouts",
-    "myPayout": "My payout"
+    "myPayout": "My payout",
+    "currentPoint": "Branch",
+    "allPoints": "All branches"
   },
   "auth": {
     "login": "Sign In",
@@ -181,7 +183,8 @@
     "check": "Check",
     "confirmTitle": "CHECK THE APPOINTMENT",
     "confirmCreate": "Confirm the appointment",
-    "changeBack": "Change"
+    "changeBack": "Change",
+    "otherPoint": "Another branch"
   },
   "clients": {
     "title": "Salon Clients",
@@ -267,7 +270,10 @@
     "profileHidden": "Hidden",
     "count_one": "{{count}} master",
     "count_other": "{{count}} masters",
-    "coopError": "Failed to change the cooperation type."
+    "coopError": "Failed to change the cooperation type.",
+    "location": "Branch",
+    "locError": "Could not change the branch",
+    "locationByMaster": "An independent master chooses her own branch"
   },
   "services": {
     "title": "Service Catalog",
@@ -643,7 +649,10 @@
       "friday": "Friday",
       "saturday": "Saturday",
       "sunday": "Sunday"
-    }
+    },
+    "location": "Branch",
+    "locationDefault": "As usual",
+    "myLocation": "Where I work"
   },
   "calendar": {
     "eyebrow": "My schedule",
@@ -1157,7 +1166,28 @@
       "sun": "Sunday"
     },
     "phone": "Phone",
-    "descriptionHint": "Clients see the description in their own language. Fill in all three tabs."
+    "descriptionHint": "Clients see the description in their own language. Fill in all three tabs.",
+    "locations": {
+      "title": "Branches",
+      "used": "{{used}} of {{limit}} used — the salon counts as an address.",
+      "usedUnlimited": "Addresses: {{used}}. The plan does not limit them.",
+      "notYet": "For now a branch is an address and a phone in the cabinet. Choosing a branch when booking comes next.",
+      "mainPoint": "salon",
+      "mainHint": "The main address is edited in the form above.",
+      "noAddress": "No address yet",
+      "name": "Branch name",
+      "add": "Add branch",
+      "added": "Branch added",
+      "saved": "Saved",
+      "disable": "Turn off",
+      "enable": "Turn on",
+      "off": "Turned off — takes no plan seat",
+      "full": "The plan allows {{limit}} address(es), the salon included. Turn a branch off or change the plan.",
+      "needName": "Enter the branch name",
+      "loadFailed": "Could not load the branches",
+      "saveFailed": "Could not save",
+      "addFailed": "Could not add the branch"
+    }
   },
   "clientSalon": {
     "empty": "Salons you have visited will appear here."
@@ -1652,7 +1682,19 @@
     "emptyHint": "Without one, an independent master’s appointments can be moved only by the master.",
     "remove": "Revoke access",
     "linkError": "The link could not be created.",
-    "removeError": "Access could not be revoked."
+    "removeError": "Access could not be revoked.",
+    "ofCabinet": "Administrators of: {{name}}",
+    "addTitle": "Add an administrator",
+    "addDescription": "Fill in the person’s details. Access opens right away, and the temporary password is shown here once.",
+    "addButton": "Add an administrator",
+    "confirmAdd": "Confirm",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "formRequired": "Fill in the first name, last name, email and phone",
+    "createError": "Could not add the administrator",
+    "passwordOnce": "Temporary password. Write it down now — it will not be shown again.",
+    "reusedAccount": "This person already had an account — access was added to it and the password is unchanged."
   },
   "actionLog": {
     "title": "Action journal",

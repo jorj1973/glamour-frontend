@@ -71,7 +71,9 @@
     "administrators": "Administratori",
     "actionLog": "Jurnal",
     "payouts": "Decontare cu maeștrii",
-    "myPayout": "Decontarea mea"
+    "myPayout": "Decontarea mea",
+    "currentPoint": "Filiala",
+    "allPoints": "Toate filialele"
   },
   "auth": {
     "login": "Autentificare",
@@ -182,7 +184,8 @@
     "check": "Verifică",
     "confirmTitle": "VERIFICAȚI PROGRAMAREA",
     "confirmCreate": "Confirmă programarea",
-    "changeBack": "Modifică"
+    "changeBack": "Modifică",
+    "otherPoint": "Altă filială"
   },
   "clients": {
     "title": "Clienții salonului",
@@ -270,7 +273,10 @@
     "count_one": "{{count}} maestru",
     "count_few": "{{count}} maeștri",
     "count_other": "{{count}} de maeștri",
-    "coopError": "Nu s-a putut schimba tipul de colaborare."
+    "coopError": "Nu s-a putut schimba tipul de colaborare.",
+    "location": "Filiala",
+    "locError": "Filiala nu a putut fi schimbată",
+    "locationByMaster": "Maestrul independent își alege singur filiala"
   },
   "services": {
     "title": "Catalogul serviciilor",
@@ -648,7 +654,10 @@
       "friday": "Vineri",
       "saturday": "Sâmbătă",
       "sunday": "Duminică"
-    }
+    },
+    "location": "Filiala",
+    "locationDefault": "Ca de obicei",
+    "myLocation": "Unde lucrez"
   },
   "calendar": {
     "eyebrow": "Programul meu",
@@ -1164,7 +1173,28 @@
       "sun": "Duminică"
     },
     "phone": "Telefon",
-    "descriptionHint": "Clientul vede descrierea în limba lui. Completează toate cele trei file."
+    "descriptionHint": "Clientul vede descrierea în limba lui. Completează toate cele trei file.",
+    "locations": {
+      "title": "Filiale",
+      "used": "Ocupate {{used}} din {{limit}} — salonul se numără ca adresă.",
+      "usedUnlimited": "Adrese: {{used}}. Tariful nu limitează numărul lor.",
+      "notYet": "Deocamdată filiala este o adresă și un telefon în cabinet. Alegerea filialei la programare urmează.",
+      "mainPoint": "salon",
+      "mainHint": "Adresa principală se modifică în formularul de mai sus.",
+      "noAddress": "Adresa nu este completată",
+      "name": "Denumirea filialei",
+      "add": "Adaugă filială",
+      "added": "Filiala a fost adăugată",
+      "saved": "Salvat",
+      "disable": "Dezactivează",
+      "enable": "Activează",
+      "off": "Dezactivată — nu ocupă loc în tarif",
+      "full": "Tariful permite {{limit}} adrese, salonul inclus. Dezactivați o filială sau schimbați tariful.",
+      "needName": "Scrieți denumirea filialei",
+      "loadFailed": "Filialele nu au putut fi încărcate",
+      "saveFailed": "Nu s-a putut salva",
+      "addFailed": "Filiala nu a putut fi adăugată"
+    }
   },
   "clientSalon": {
     "empty": "Aici vor apărea saloanele în care ai fost."
@@ -1659,7 +1689,19 @@
     "emptyHint": "Fără administrator, programările maeștrilor independenți le mută doar ei înșiși.",
     "remove": "Retrage accesul",
     "linkError": "Linkul nu a putut fi creat.",
-    "removeError": "Accesul nu a putut fi retras."
+    "removeError": "Accesul nu a putut fi retras.",
+    "ofCabinet": "Administratorii cabinetului: {{name}}",
+    "addTitle": "Adaugă un administrator",
+    "addDescription": "Completați datele persoanei. Accesul se deschide imediat, iar parola temporară apare aici o singură dată.",
+    "addButton": "Adaugă un administrator",
+    "confirmAdd": "Confirmă",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "phone": "Telefon",
+    "formRequired": "Completați prenumele, numele, emailul și telefonul",
+    "createError": "Administratorul nu a putut fi adăugat",
+    "passwordOnce": "Parolă temporară. Notați-o acum — nu va mai fi arătată a doua oară.",
+    "reusedAccount": "Persoana avea deja un cont — accesul a fost adăugat la el, parola a rămas aceeași."
   },
   "actionLog": {
     "title": "Jurnalul acțiunilor",
