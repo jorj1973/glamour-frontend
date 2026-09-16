@@ -11,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import api from '../api/api';
+import { onPointChanged, readCurrentPoint } from '../current-point';
 import AppLayout from '../components/AppLayout';
 
 type SalonSummary = {
@@ -72,7 +73,19 @@ function AdministratorsPage() {
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [administrators, setAdministrators] = useState<Administrator[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
-  const [savingUserId, setSavingUserId] = useState<string | null>(null);
+  /**
+   * Кабинет, в котором стоит владелец. Он и решает, чьи администраторы
+   * на экране: выпадающего списка «весь салон или филиал» нет — он был
+   * вторым способом отвечать на тот же вопрос.
+   */
+  const [cabinet, setCabinet] = useState(readCurrentPoint);
+
+  useEffect(() => onPointChanged(() => setCabinet(readCurrentPoint())), []);
+
+  useEffect(() => {
+    void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cabinet]);
   const [limit, setLimit] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -113,8 +126,11 @@ function AdministratorsPage() {
         // Филиалов может не быть — тогда и ставить некуда.
       }
 
+      const branchId = cabinet && cabinet !== 'salon' ? cabinet : '';
+
       const response = await api.get<AdministratorsResponse>(
         `/salons/${current.id}/administrators`,
+        { params: branchId ? { locationId: branchId } : {} },
       );
 
       setAdministrators(response.data.items);
@@ -163,29 +179,6 @@ function AdministratorsPage() {
     }
   }
 
-  /**
-   * Поставить администратора на зал.
-   *
-   * Пусто — снова весь салон. Уже созданные записи это не двигает: зал
-   * администратора говорит, что он видит, а не где что произошло.
-   */
-  async function setAdministratorLocation(userId: string, next: string) {
-    if (!salon) return;
-    setSavingUserId(userId);
-    setErrorMsg('');
-    try {
-      await api.patch(
-        `/salons/${salon.id}/administrators/${userId}/location`,
-        next ? { locationId: next } : {},
-      );
-      await loadData();
-    } catch {
-      setErrorMsg(t('administrators.locationError'));
-    } finally {
-      setSavingUserId(null);
-    }
-  }
-
   async function removeAdministrator(userId: string) {
     if (!salon) {
       return;
@@ -211,6 +204,28 @@ function AdministratorsPage() {
           <div>
             <h1>{t('administrators.title')}</h1>
             <p className="dashboard-subtitle">{t('administrators.subtitle')}</p>
+
+            {/* Чей это список. Кабинет решает, кого показывать, поэтому
+                он должен быть назван — иначе владелец сети не поймёт,
+                почему администратор пропал со страницы. */}
+            {points.length > 1 && (
+              <p
+                style={{
+                  marginTop: 6,
+                  color: 'var(--app-text-muted)',
+                  fontSize: 13,
+                }}
+              >
+                {t('administrators.ofCabinet', {
+                  name:
+                    points.find((point) =>
+                      cabinet && cabinet !== 'salon'
+                        ? point.id === cabinet
+                        : point.isSalon,
+                    )?.name ?? '—',
+                })}
+              </p>
+            )}
           </div>
         </header>
 
@@ -400,55 +415,6 @@ function AdministratorsPage() {
                       {administrator.email} · {administrator.phone}
                     </div>
                   </div>
-
-                  {/* Зал администратора. Показывается, только когда
-                      у салона есть филиалы: иначе выбор из одного. */}
-                  {points.length > 1 && (
-                    <label
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 4,
-                        fontSize: 12,
-                        color: 'var(--app-text-muted)',
-                      }}
-                    >
-                      {t('administrators.location')}
-
-                      <select
-                        value={administrator.locationId ?? ''}
-                        disabled={savingUserId === administrator.userId}
-                        onChange={(event) =>
-                          void setAdministratorLocation(
-                            administrator.userId,
-                            event.target.value,
-                          )
-                        }
-                        style={{
-                          padding: '7px 10px',
-                          borderRadius: 10,
-                          border: '1px solid rgba(var(--app-ink-rgb),0.14)',
-                          background: 'rgba(var(--app-ink-rgb),0.06)',
-                          color: 'var(--app-text)',
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <option value="">
-                          {t('administrators.wholeSalon')}
-                        </option>
-
-                        {points
-                          .filter((point) => !point.isSalon)
-                          .map((point) => (
-                            <option key={point.id} value={point.id}>
-                              {point.name}
-                            </option>
-                          ))}
-                      </select>
-                    </label>
-                  )}
 
                   <button
                     type="button"

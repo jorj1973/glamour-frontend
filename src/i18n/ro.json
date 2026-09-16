@@ -1685,9 +1685,7 @@
     "remove": "Retrage accesul",
     "linkError": "Linkul nu a putut fi creat.",
     "removeError": "Accesul nu a putut fi retras.",
-    "location": "Sala",
-    "wholeSalon": "Tot salonul",
-    "locationError": "Sala administratorului nu a putut fi schimbată"
+    "ofCabinet": "Administratorii cabinetului: {{name}}"
   },
   "actionLog": {
     "title": "Jurnalul acțiunilor",

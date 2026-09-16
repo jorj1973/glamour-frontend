@@ -1678,9 +1678,7 @@
     "remove": "Revoke access",
     "linkError": "The link could not be created.",
     "removeError": "Access could not be revoked.",
-    "location": "Room",
-    "wholeSalon": "The whole salon",
-    "locationError": "Could not change the administrator’s room"
+    "ofCabinet": "Administrators of: {{name}}"
   },
   "actionLog": {
     "title": "Action journal",
