@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   ClipboardCopy,
   Link2,
-  MapPin,
   RefreshCw,
   Scissors,
   Search,
@@ -14,6 +13,11 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/api';
+import {
+  matchesPoint,
+  onPointChanged,
+  readCurrentPoint,
+} from '../current-point';
 import AppLayout from '../components/AppLayout';
 
 /**
@@ -153,8 +157,10 @@ function MastersPage() {
   const [savingCoopId, setSavingCoopId] = useState<string | null>(null);
   const [points, setPoints] = useState<Point[]>([]);
   const [savingLocId, setSavingLocId] = useState<string | null>(null);
-  /** Какую точку показывать. Пусто — все. 'salon' — главный адрес. */
-  const [pointFilter, setPointFilter] = useState('');
+  /** Точку выбирают наверху кабинета; экран только слушает. */
+  const [pointFilter, setPointFilter] = useState(readCurrentPoint);
+
+  useEffect(() => onPointChanged(() => setPointFilter(readCurrentPoint())), []);
 
   /**
    * Публичный адрес ссылки на запись, по профилю мастера.
@@ -373,11 +379,7 @@ function MastersPage() {
         (m.lastName ?? '').toLowerCase().includes(q) ||
         (m.city ?? '').toLowerCase().includes(q);
 
-      const matchPoint =
-        !pointFilter ||
-        (pointFilter === 'salon' ? !m.locationId : m.locationId === pointFilter);
-
-      return matchSearch && matchPoint;
+      return matchSearch && matchesPoint(pointFilter, m.locationId);
     });
   }, [masters, search, pointFilter]);
 
@@ -487,41 +489,6 @@ function MastersPage() {
               <div><p className="panel-kicker">{t("masters.team").toUpperCase()}</p><h2>{t('masters.count', { count: filtered.length })}</h2></div>
               <Scissors size={22} />
             </div>
-
-            {/* Переключатель точек. У салона с одним адресом его нет. */}
-            {points.length > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '0 16px 14px' }}>
-                <MapPin size={15} style={{ color: 'var(--app-danger)' }} />
-
-                {[{ id: '', name: t('common.all') }, ...points.map((point) => ({
-                  id: point.isSalon ? 'salon' : point.id,
-                  name: point.name,
-                }))].map((option) => (
-                  <button
-                    key={option.id || 'all'}
-                    type="button"
-                    onClick={() => setPointFilter(option.id)}
-                    style={{
-                      minHeight: 32,
-                      padding: '0 12px',
-                      borderRadius: 10,
-                      border: pointFilter === option.id
-                        ? '1px solid var(--app-accent)'
-                        : '1px solid rgba(var(--app-ink-rgb),0.14)',
-                      background: pointFilter === option.id
-                        ? 'rgba(var(--app-ink-rgb),0.07)'
-                        : 'transparent',
-                      color: 'var(--app-text)',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {option.name}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {filtered.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
@@ -644,7 +611,13 @@ function MastersPage() {
                             {points.length > 1 && (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
                                 <span>{t('masters.location')}</span>
-                                {canManage ? (
+                                {/* Независимая мастерица ставит точку
+                                    себе сама: салон сдаёт ей место и её
+                                    работой не распоряжается (ADR-005).
+                                    Сервер это тоже не разрешит. */}
+                                {canManage &&
+                                master.cooperationType?.toLowerCase() !==
+                                  'independent' ? (
                                   <select
                                     value={master.locationId ?? ''}
                                     disabled={savingLocId === master.id}
@@ -658,13 +631,22 @@ function MastersPage() {
                                     ))}
                                   </select>
                                 ) : (
-                                  <strong>
-                                    {points.find((point) =>
-                                      master.locationId
-                                        ? point.id === master.locationId
-                                        : point.isSalon,
-                                    )?.name ?? '—'}
-                                  </strong>
+                                  <>
+                                    <strong>
+                                      {points.find((point) =>
+                                        master.locationId
+                                          ? point.id === master.locationId
+                                          : point.isSalon,
+                                      )?.name ?? '—'}
+                                    </strong>
+
+                                    {master.cooperationType?.toLowerCase() ===
+                                    'independent' ? (
+                                      <span style={{ fontSize: 11, lineHeight: 1.4 }}>
+                                        {t('masters.locationByMaster')}
+                                      </span>
+                                    ) : null}
+                                  </>
                                 )}
                               </div>
                             )}

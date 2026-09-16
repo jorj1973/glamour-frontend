@@ -71,7 +71,9 @@
     "administrators": "Администраторы",
     "actionLog": "Журнал",
     "payouts": "Расчёт с мастерами",
-    "myPayout": "Моя ведомость"
+    "myPayout": "Моя ведомость",
+    "currentPoint": "Точка",
+    "allPoints": "Все точки"
   },
   "auth": {
     "login": "Вход в систему",
@@ -394,7 +396,8 @@
     "count_other": "{{count}} мастеров",
     "coopError": "Не удалось изменить тип сотрудничества.",
     "location": "Точка",
-    "locError": "Не удалось сменить точку"
+    "locError": "Не удалось сменить точку",
+    "locationByMaster": "Независимый мастер выбирает точку сам"
   },
   "finance": {
     "statuses": "Статусы",
@@ -658,7 +661,8 @@
       "sunday": "Воскресенье"
     },
     "location": "Точка",
-    "locationDefault": "Как обычно"
+    "locationDefault": "Как обычно",
+    "myLocation": "Где я работаю"
   },
   "calendar": {
     "eyebrow": "Мой график",

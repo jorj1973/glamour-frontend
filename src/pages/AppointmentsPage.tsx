@@ -20,6 +20,11 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/api';
+import {
+  matchesPoint,
+  onPointChanged,
+  readCurrentPoint,
+} from '../current-point';
 import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
 
@@ -185,13 +190,12 @@ function AppointmentsPage() {
 
   const [statusFilter, setStatusFilter] = useState('all');
   /**
-   * Какую точку показывать. Пустая строка — все: салон с одним адресом
-   * никакого выбора не видит вовсе, и список у него прежний.
-   *
-   * Значение 'salon' значит главный адрес — у записи там пусто, и
-   * сравнивать пустое с пустым в фильтре было бы неотличимо от «все».
+   * Точку выбирают наверху кабинета, а не здесь: она держится на всех
+   * экранах. Экран только слушает переключение.
    */
-  const [pointFilter, setPointFilter] = useState('');
+  const [pointFilter, setPointFilter] = useState(readCurrentPoint);
+
+  useEffect(() => onPointChanged(() => setPointFilter(readCurrentPoint())), []);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -544,13 +548,7 @@ function AppointmentsPage() {
         (a.masterName ?? '').toLowerCase().includes(q) ||
         (a.serviceName ?? '').toLowerCase().includes(q) ||
         a.id.toLowerCase().includes(q);
-      const matchPoint =
-        !pointFilter ||
-        (pointFilter === 'salon'
-          ? !a.locationId
-          : a.locationId === pointFilter);
-
-      return matchStatus && matchSearch && matchPoint;
+      return matchStatus && matchSearch && matchesPoint(pointFilter, a.locationId);
     });
   }, [appointments, search, statusFilter, pointFilter]);
 
@@ -860,37 +858,6 @@ function AppointmentsPage() {
               </button>
             )}
           </div>
-
-          {/* Переключатель точек. У салона с одним адресом его нет:
-              выбор из одного — не выбор, а лишняя кнопка. */}
-          {points.length > 1 && (
-            <div style={styles.statusFilters}>
-              <MapPin size={15} style={{ color: 'var(--app-danger)' }} />
-
-              <button
-                type="button"
-                style={styles.filterBtn(pointFilter === '')}
-                onClick={() => setPointFilter('')}
-              >
-                {t('common.all')}
-              </button>
-
-              {points.map((point) => (
-                <button
-                  key={point.id}
-                  type="button"
-                  style={styles.filterBtn(
-                    pointFilter === (point.isSalon ? 'salon' : point.id),
-                  )}
-                  onClick={() =>
-                    setPointFilter(point.isSalon ? 'salon' : point.id)
-                  }
-                >
-                  {point.name}
-                </button>
-              ))}
-            </div>
-          )}
 
           <div style={styles.statusFilters}>
             <Filter size={15} style={{ color: 'var(--app-danger)' }} />

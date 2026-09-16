@@ -75,6 +75,10 @@ function MasterSchedulePage() {
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [masterProfileId, setMasterProfileId] = useState('');
   const [points, setPoints] = useState<Point[]>([]);
+
+  /** Своя точка: где я работаю обычно. Пусто — главный адрес салона. */
+  const [myPoint, setMyPoint] = useState('');
+  const [isSavingMyPoint, setIsSavingMyPoint] = useState(false);
   const [rows, setRows] = useState<DayRow[]>(DAYS.map(emptyRow));
   const [isLoading, setIsLoading] = useState(true);
   const [savingDay, setSavingDay] = useState<string | null>(null);
@@ -114,6 +118,7 @@ function MasterSchedulePage() {
       const myProfile = mastersRes.data.find((m: any) => m.userId === currentUserId) ?? mastersRes.data[0];
       if (!myProfile) { setErrorMsg(t('schedule.profileNotFound')); return; }
       setMasterProfileId(myProfile.id);
+      setMyPoint(myProfile.locationId ?? '');
 
       await loadSchedule(myProfile.id);
     } catch {
@@ -154,6 +159,32 @@ function MasterSchedulePage() {
     setSuccessMsg(msg);
     setErrorMsg('');
     setTimeout(() => setSuccessMsg(''), 3000);
+  }
+
+  /**
+   * Где я работаю обычно.
+   *
+   * Независимая мастерица ставит это себе сама: салон сдаёт ей место и
+   * её работой не распоряжается (ADR-005). Штатному эта же кнопка тоже
+   * открыта — запрещать ему сказать, где он, незачем.
+   */
+  async function saveMyPoint(next: string) {
+    if (!salon) return;
+    setIsSavingMyPoint(true);
+    setErrorMsg('');
+    try {
+      await api.patch(
+        '/masters/me/location',
+        next ? { locationId: next } : {},
+        { params: { salonId: salon.id } },
+      );
+      setMyPoint(next);
+      showSuccess(t('schedule.saved'));
+    } catch {
+      setErrorMsg(t('schedule.saveError'));
+    } finally {
+      setIsSavingMyPoint(false);
+    }
   }
 
   async function saveDay(row: DayRow) {
@@ -242,6 +273,29 @@ function MasterSchedulePage() {
             </div>
             <CalendarDays size={22} />
           </div>
+
+          {/* Где я работаю обычно. Показывается, только когда у салона
+              есть куда выбирать. */}
+          {!isLoading && points.length > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '0 16px 16px' }}>
+              <span style={{ color: 'var(--app-text-muted)', fontSize: 13 }}>
+                {t('schedule.myLocation')}
+              </span>
+
+              <select
+                value={myPoint}
+                disabled={isSavingMyPoint}
+                onChange={(e) => void saveMyPoint(e.target.value)}
+                style={inputStyle}
+              >
+                {points.map((point) => (
+                  <option key={point.id} value={point.isSalon ? '' : point.id}>
+                    {point.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {isLoading ? (
             <p className="dashboard-status">{t('schedule.loading')}</p>

@@ -71,7 +71,9 @@
     "administrators": "Administratori",
     "actionLog": "Jurnal",
     "payouts": "Decontare cu maeștrii",
-    "myPayout": "Decontarea mea"
+    "myPayout": "Decontarea mea",
+    "currentPoint": "Locația",
+    "allPoints": "Toate locațiile"
   },
   "auth": {
     "login": "Autentificare",
@@ -273,7 +275,8 @@
     "count_other": "{{count}} de maeștri",
     "coopError": "Nu s-a putut schimba tipul de colaborare.",
     "location": "Locație",
-    "locError": "Locația nu a putut fi schimbată"
+    "locError": "Locația nu a putut fi schimbată",
+    "locationByMaster": "Maestrul independent își alege singur locația"
   },
   "services": {
     "title": "Catalogul serviciilor",
@@ -653,7 +656,8 @@
       "sunday": "Duminică"
     },
     "location": "Locație",
-    "locationDefault": "Ca de obicei"
+    "locationDefault": "Ca de obicei",
+    "myLocation": "Unde lucrez"
   },
   "calendar": {
     "eyebrow": "Programul meu",

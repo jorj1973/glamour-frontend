@@ -71,7 +71,9 @@
     "administrators": "Administrators",
     "actionLog": "Journal",
     "payouts": "Master payouts",
-    "myPayout": "My payout"
+    "myPayout": "My payout",
+    "currentPoint": "Location",
+    "allPoints": "All locations"
   },
   "auth": {
     "login": "Sign In",
@@ -270,7 +272,8 @@
     "count_other": "{{count}} masters",
     "coopError": "Failed to change the cooperation type.",
     "location": "Location",
-    "locError": "Could not change the location"
+    "locError": "Could not change the location",
+    "locationByMaster": "An independent master chooses her own location"
   },
   "services": {
     "title": "Service Catalog",
@@ -648,7 +651,8 @@
       "sunday": "Sunday"
     },
     "location": "Location",
-    "locationDefault": "As usual"
+    "locationDefault": "As usual",
+    "myLocation": "Where I work"
   },
   "calendar": {
     "eyebrow": "My schedule",

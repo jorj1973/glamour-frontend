@@ -9,6 +9,10 @@ import { MessageCircle,
 } from 'lucide-react';
 import ChatUnreadBadge from './ChatUnreadBadge';
 import {
+  readCurrentPoint,
+  writeCurrentPoint,
+} from '../current-point';
+import {
   BarChart3,
   Building2,
   CalendarDays,
@@ -402,6 +406,16 @@ function AppLayout({ children }: AppLayoutProps) {
         ) ?? '',
     );
 
+  /**
+   * Точки салона и выбранная. Держатся здесь, а не на каждом экране:
+   * точка — это «где я», и она не должна сбрасываться при переходе.
+   */
+  const [points, setPoints] = useState<
+    { id: string; name: string; isActive: boolean; isSalon: boolean }[]
+  >([]);
+
+  const [currentPointId, setCurrentPointId] = useState(readCurrentPoint);
+
   const loadSalonBranding = useCallback(async () => {
     try {
       const salonsResponse =
@@ -451,6 +465,25 @@ function AppLayout({ children }: AppLayoutProps) {
       } catch {
         // Мастер не имеет доступа к сводке владельца — это нормально.
         setSalonPercent(100);
+      }
+
+      try {
+        const pointsResponse = await api.get<{
+          points: {
+            id: string;
+            name: string;
+            isActive: boolean;
+            isSalon: boolean;
+          }[];
+        }>(`/salons/${currentSalon.id}/locations`);
+
+        setPoints(
+          pointsResponse.data.points.filter((point) => point.isActive),
+        );
+      } catch {
+        // Мастеру этот список не нужен, а салон без филиалов и
+        // переключать нечему.
+        setPoints([]);
       }
 
       setLogoUrl(brandingResponse.data.logoUrl);
@@ -874,6 +907,43 @@ function AppLayout({ children }: AppLayoutProps) {
             ) : null}
           </div>
         </section>
+
+        {/* Переход между точками салона.
+            Стоит рядом с выбором салона у мастера и работает так же:
+            выбранное держится на всех экранах кабинета, а не только на
+            том, где нажали. У салона с одним адресом переключателя нет —
+            переходить некуда. */}
+        {!isMasterWorkspace && points.length > 1 ? (
+          <section
+            className="workspace-switcher"
+            aria-label={t('nav.currentPoint')}
+          >
+            <span className="workspace-switcher-label">
+              {t('nav.currentPoint')}
+            </span>
+
+            <select
+              className="workspace-salon-select"
+              value={currentPointId}
+              onChange={(event) => {
+                setCurrentPointId(event.target.value);
+                writeCurrentPoint(event.target.value);
+              }}
+              aria-label={t('nav.currentPoint')}
+            >
+              <option value="">{t('nav.allPoints')}</option>
+
+              {points.map((point) => (
+                <option
+                  key={point.id}
+                  value={point.isSalon ? 'salon' : point.id}
+                >
+                  {point.name}
+                </option>
+              ))}
+            </select>
+          </section>
+        ) : null}
 
         {isMasterWorkspace &&
         masterSalons.length > 0 ? (
