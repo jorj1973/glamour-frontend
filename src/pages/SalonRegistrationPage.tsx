@@ -42,6 +42,7 @@ type PublicPlan = {
   maxMasters: number | null;
   maxAdministrators: number | null;
   maxLocations: number | null;
+  smsAllowance: number;
   features: unknown;
   isFeatured: boolean;
 };
@@ -153,6 +154,94 @@ function formatDate(value: string): string {
 
 function getBillingLabel(period: string): string {
   return period === 'yearly' ? 'в год' : 'в месяц';
+}
+
+/**
+ * Русское число словом: 1 мастер, 2 мастера, 5 мастеров.
+ */
+function plural(
+  count: number,
+  one: string,
+  few: string,
+  many: string,
+): string {
+  const mod100 = count % 100;
+  const mod10 = count % 10;
+
+  if (mod100 >= 11 && mod100 <= 14) {
+    return many;
+  }
+
+  if (mod10 === 1) {
+    return one;
+  }
+
+  if (mod10 >= 2 && mod10 <= 4) {
+    return few;
+  }
+
+  return many;
+}
+
+/**
+ * Состав тарифа одной строкой, собранный из его же чисел.
+ *
+ * Прежде карточка печатала три отдельные строки — «До 5 мастеров»,
+ * «До 1 администраторов», «До 1 филиалов». Тот же состав повторялся
+ * потом словами в списке возможностей: один вопрос отвечали в двух
+ * местах, и второй ответ вдобавок не склонялся.
+ *
+ * Теперь строка одна и растёт из чисел тарифа. Поменяются пределы в
+ * кабинете владельца площадки — поменяется и она, сама, без правки
+ * текстов на трёх языках.
+ */
+function planComposition(plan: PublicPlan): string {
+  const parts: string[] = [];
+
+  parts.push(
+    plan.maxMasters
+      ? plan.maxMasters +
+          ' ' +
+          plural(
+            plan.maxMasters,
+            'мастер',
+            'мастера',
+            'мастеров',
+          )
+      : 'мастеров без счёта',
+  );
+
+  if (plan.maxLocations) {
+    parts.push(
+      plan.maxLocations +
+        ' ' +
+        plural(
+          plan.maxLocations,
+          'адрес',
+          'адреса',
+          'адресов',
+        ),
+    );
+  }
+
+  if (plan.maxAdministrators) {
+    parts.push(
+      plan.maxAdministrators +
+        ' ' +
+        plural(
+          plan.maxAdministrators,
+          'администратор',
+          'администратора',
+          'администраторов',
+        ),
+    );
+  }
+
+  if (plan.smsAllowance) {
+    parts.push(plan.smsAllowance + ' SMS в месяц');
+  }
+
+  return parts.join(' · ');
 }
 
 function getPlanFeatures(plan: PublicPlan): string[] {
@@ -670,26 +759,17 @@ function SalonRegistrationPage() {
                         периода
                       </div>
 
+                      <p
+                        style={{
+                          margin: '12px 0 0',
+                          fontWeight: 600,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {planComposition(plan)}
+                      </p>
+
                       <ul>
-                        {plan.maxMasters ? (
-                          <li>
-                            До {plan.maxMasters} мастеров
-                          </li>
-                        ) : null}
-
-                        {plan.maxAdministrators ? (
-                          <li>
-                            До {plan.maxAdministrators}{' '}
-                            администраторов
-                          </li>
-                        ) : null}
-
-                        {plan.maxLocations ? (
-                          <li>
-                            До {plan.maxLocations} филиалов
-                          </li>
-                        ) : null}
-
                         {features.map((feature) => (
                           <li key={feature}>{feature}</li>
                         ))}
