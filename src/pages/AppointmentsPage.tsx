@@ -184,6 +184,14 @@ function AppointmentsPage() {
   );
 
   const [statusFilter, setStatusFilter] = useState('all');
+  /**
+   * Какую точку показывать. Пустая строка — все: салон с одним адресом
+   * никакого выбора не видит вовсе, и список у него прежний.
+   *
+   * Значение 'salon' значит главный адрес — у записи там пусто, и
+   * сравнивать пустое с пустым в фильтре было бы неотличимо от «все».
+   */
+  const [pointFilter, setPointFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -536,9 +544,15 @@ function AppointmentsPage() {
         (a.masterName ?? '').toLowerCase().includes(q) ||
         (a.serviceName ?? '').toLowerCase().includes(q) ||
         a.id.toLowerCase().includes(q);
-      return matchStatus && matchSearch;
+      const matchPoint =
+        !pointFilter ||
+        (pointFilter === 'salon'
+          ? !a.locationId
+          : a.locationId === pointFilter);
+
+      return matchStatus && matchSearch && matchPoint;
     });
-  }, [appointments, search, statusFilter]);
+  }, [appointments, search, statusFilter, pointFilter]);
 
   const counts = useMemo(() => {
     const result: Record<string, number> = { all: appointments.length };
@@ -846,6 +860,37 @@ function AppointmentsPage() {
               </button>
             )}
           </div>
+
+          {/* Переключатель точек. У салона с одним адресом его нет:
+              выбор из одного — не выбор, а лишняя кнопка. */}
+          {points.length > 1 && (
+            <div style={styles.statusFilters}>
+              <MapPin size={15} style={{ color: 'var(--app-danger)' }} />
+
+              <button
+                type="button"
+                style={styles.filterBtn(pointFilter === '')}
+                onClick={() => setPointFilter('')}
+              >
+                {t('common.all')}
+              </button>
+
+              {points.map((point) => (
+                <button
+                  key={point.id}
+                  type="button"
+                  style={styles.filterBtn(
+                    pointFilter === (point.isSalon ? 'salon' : point.id),
+                  )}
+                  onClick={() =>
+                    setPointFilter(point.isSalon ? 'salon' : point.id)
+                  }
+                >
+                  {point.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div style={styles.statusFilters}>
             <Filter size={15} style={{ color: 'var(--app-danger)' }} />

@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   ClipboardCopy,
   Link2,
+  MapPin,
   RefreshCw,
   Scissors,
   Search,
@@ -152,6 +153,8 @@ function MastersPage() {
   const [savingCoopId, setSavingCoopId] = useState<string | null>(null);
   const [points, setPoints] = useState<Point[]>([]);
   const [savingLocId, setSavingLocId] = useState<string | null>(null);
+  /** Какую точку показывать. Пусто — все. 'salon' — главный адрес. */
+  const [pointFilter, setPointFilter] = useState('');
 
   /**
    * Публичный адрес ссылки на запись, по профилю мастера.
@@ -361,14 +364,22 @@ function MastersPage() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return masters;
-    return masters.filter((m) =>
-      (m.profession ?? '').toLowerCase().includes(q) ||
-      (m.firstName ?? '').toLowerCase().includes(q) ||
-      (m.lastName ?? '').toLowerCase().includes(q) ||
-      (m.city ?? '').toLowerCase().includes(q),
-    );
-  }, [masters, search]);
+
+    return masters.filter((m) => {
+      const matchSearch =
+        !q ||
+        (m.profession ?? '').toLowerCase().includes(q) ||
+        (m.firstName ?? '').toLowerCase().includes(q) ||
+        (m.lastName ?? '').toLowerCase().includes(q) ||
+        (m.city ?? '').toLowerCase().includes(q);
+
+      const matchPoint =
+        !pointFilter ||
+        (pointFilter === 'salon' ? !m.locationId : m.locationId === pointFilter);
+
+      return matchSearch && matchPoint;
+    });
+  }, [masters, search, pointFilter]);
 
 
   return (
@@ -476,6 +487,41 @@ function MastersPage() {
               <div><p className="panel-kicker">{t("masters.team").toUpperCase()}</p><h2>{t('masters.count', { count: filtered.length })}</h2></div>
               <Scissors size={22} />
             </div>
+
+            {/* Переключатель точек. У салона с одним адресом его нет. */}
+            {points.length > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '0 16px 14px' }}>
+                <MapPin size={15} style={{ color: 'var(--app-danger)' }} />
+
+                {[{ id: '', name: t('common.all') }, ...points.map((point) => ({
+                  id: point.isSalon ? 'salon' : point.id,
+                  name: point.name,
+                }))].map((option) => (
+                  <button
+                    key={option.id || 'all'}
+                    type="button"
+                    onClick={() => setPointFilter(option.id)}
+                    style={{
+                      minHeight: 32,
+                      padding: '0 12px',
+                      borderRadius: 10,
+                      border: pointFilter === option.id
+                        ? '1px solid var(--app-accent)'
+                        : '1px solid rgba(var(--app-ink-rgb),0.14)',
+                      background: pointFilter === option.id
+                        ? 'rgba(var(--app-ink-rgb),0.07)'
+                        : 'transparent',
+                      color: 'var(--app-text)',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {option.name}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {filtered.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '48px 20px', color: 'var(--app-text-muted)', textAlign: 'center' }}>
