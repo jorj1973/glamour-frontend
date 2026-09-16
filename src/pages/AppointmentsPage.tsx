@@ -15,6 +15,7 @@ import {
   Trash2,
   User,
   X,
+  MapPin,
   XCircle,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -61,6 +62,17 @@ type Appointment = {
    * салона. Сервер присылает такие записи без подробностей (ADR-005).
    */
   opaque?: boolean;
+
+  /** Точка визита. Пусто — главный адрес салона. */
+  locationId?: string | null;
+};
+
+/** Точка салона: первая — сам салон. */
+type Point = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isSalon: boolean;
 };
 
 type NewAppointmentForm = {
@@ -162,6 +174,7 @@ function AppointmentsPage() {
   const dateLocale = i18n.language?.startsWith('ro') ? 'ro-RO' : i18n.language?.startsWith('en') ? 'en-GB' : 'ru-RU';
 
   const [salon, setSalon] = useState<SalonSummary | null>(null);
+  const [points, setPoints] = useState<Point[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [message, setMessage] = useState(t('appointments.loading'));
   const [search, setSearch] = useState('');
@@ -262,6 +275,19 @@ function AppointmentsPage() {
    * правильно (ADR-005). Салону — всех своих. Кто в базе не значится,
    * записывается гостем: имя и телефон.
    */
+  /** Точки салона — чтобы у записи было видно, куда идёт клиент. */
+  async function loadPoints(salonId: string) {
+    try {
+      const res = await api.get<{ points: Point[] }>(
+        `/salons/${salonId}/locations`,
+      );
+
+      setPoints(res.data.points);
+    } catch {
+      // Филиалов может не быть — тогда и показывать нечего.
+    }
+  }
+
   async function loadClients(salonId: string) {
     try {
       const endpoint = isMasterWorkspace
@@ -315,6 +341,7 @@ function AppointmentsPage() {
           loadAppointments(s.id),
           loadMasters(s.id),
           loadClients(s.id),
+          loadPoints(s.id),
           isMasterWorkspace ? loadOwnMaster(s.id) : Promise.resolve(),
         ]);
       } catch {
@@ -926,6 +953,17 @@ function AppointmentsPage() {
                                 {a.serviceName}
                               </span>
                             )}
+                            {/* Точка показывается только у филиала:
+                                у главного адреса она и так известна, и
+                                метка на каждой записи была бы шумом. */}
+                            {a.locationId && points.length > 1 && (
+                              <span style={styles.infoChip}>
+                                <MapPin size={12} />{' '}
+                                {points.find((point) => point.id === a.locationId)?.name ??
+                                  t('appointments.otherPoint')}
+                              </span>
+                            )}
+
                             <span style={styles.infoChip}>
                               <Clock size={12} /> {formatDuration(a.startTime, a.endTime)}
                             </span>

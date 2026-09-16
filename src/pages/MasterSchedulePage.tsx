@@ -12,6 +12,14 @@ type SalonSummary = {
   membershipStatus?: string | null;
 };
 
+/** Точка салона: первая — сам салон. */
+type Point = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isSalon: boolean;
+};
+
 type WorkSchedule = {
   id: string;
   masterProfileId: string;
@@ -24,6 +32,7 @@ type WorkSchedule = {
   breakEndTime: string | null;
   isWorkingDay: boolean;
   isActive: boolean;
+  locationId: string | null;
 };
 
 type DayRow = {
@@ -34,6 +43,9 @@ type DayRow = {
   endTime: string;
   breakStartTime: string;
   breakEndTime: string;
+
+  /** Пусто — там же, где мастер работает обычно. */
+  locationId: string;
 };
 
 const CURRENT_SALON_ID_KEY = 'glamour_current_salon_id';
@@ -49,6 +61,7 @@ function emptyRow(day: string): DayRow {
     endTime: '18:00',
     breakStartTime: '',
     breakEndTime: '',
+    locationId: '',
   };
 }
 
@@ -61,6 +74,7 @@ function MasterSchedulePage() {
   const { t } = useTranslation();
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [masterProfileId, setMasterProfileId] = useState('');
+  const [points, setPoints] = useState<Point[]>([]);
   const [rows, setRows] = useState<DayRow[]>(DAYS.map(emptyRow));
   const [isLoading, setIsLoading] = useState(true);
   const [savingDay, setSavingDay] = useState<string | null>(null);
@@ -83,6 +97,16 @@ function MasterSchedulePage() {
       const current = (savedId ? masterSalons.find((s) => s.id === savedId) : undefined) ?? masterSalons[0] ?? null;
       setSalon(current);
       if (!current) { setErrorMsg(t('schedule.salonNotFound')); return; }
+
+      try {
+        const pointsRes = await api.get<{ points: Point[] }>(
+          `/salons/${current.id}/locations`,
+        );
+
+        setPoints(pointsRes.data.points.filter((point) => point.isActive));
+      } catch {
+        // Филиалов может не быть — тогда и выбирать нечего.
+      }
 
       const sessionRes = await api.get<any>('/auth/session');
       const currentUserId = sessionRes.data?.user?.id;
@@ -112,6 +136,7 @@ function MasterSchedulePage() {
           isWorkingDay: found.isWorkingDay,
           startTime: trimTime(found.startTime) || '09:00',
           endTime: trimTime(found.endTime) || '18:00',
+          locationId: found.locationId ?? '',
           breakStartTime: trimTime(found.breakStartTime),
           breakEndTime: trimTime(found.breakEndTime),
         };
@@ -143,6 +168,10 @@ function MasterSchedulePage() {
         isWorkingDay: row.isWorkingDay,
         isActive: true,
       };
+      // Пустая точка значит «там же, где обычно»: посылаем null, а не
+      // пропускаем поле, — иначе прежний выбор остался бы навсегда.
+      payload.locationId = row.locationId || null;
+
       if (row.isWorkingDay) {
         payload.startTime = row.startTime;
         payload.endTime = row.endTime;
@@ -242,6 +271,38 @@ function MasterSchedulePage() {
                         <span style={{ color: 'var(--app-text-muted)' }}>—</span>
                         <input type="time" value={row.endTime} onChange={(e) => updateRow(row.dayOfWeek, { endTime: e.target.value })} style={inputStyle} />
                       </div>
+
+                      {/* Точка дня. Показывается только когда адресов
+                          больше одного: выбор из одного — не выбор.
+
+                          Пустое значение значит «там же, где обычно», то
+                          есть точка мастера. Поэтому сам салон в список
+                          не попадает: пункт с тем же пустым значением был
+                          бы вторым ответом на один вопрос.
+
+                          Чего этот выбор пока не умеет, честно: мастер с
+                          основной точкой в филиале не может сказать
+                          «а по вторникам я в салоне». Появится, когда
+                          понадобится живому салону. */}
+                      {points.length > 1 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>{t('schedule.location')}</span>
+                          <select
+                            value={row.locationId}
+                            onChange={(e) => updateRow(row.dayOfWeek, { locationId: e.target.value })}
+                            style={inputStyle}
+                          >
+                            <option value="">{t('schedule.locationDefault')}</option>
+                            {points
+                              .filter((point) => !point.isSalon)
+                              .map((point) => (
+                                <option key={point.id} value={point.id}>
+                                  {point.name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      )}
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ color: 'var(--app-text-muted)', fontSize: 12 }}>{t('schedule.break')}</span>

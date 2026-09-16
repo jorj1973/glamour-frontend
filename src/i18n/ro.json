@@ -182,7 +182,8 @@
     "check": "Verifică",
     "confirmTitle": "VERIFICAȚI PROGRAMAREA",
     "confirmCreate": "Confirmă programarea",
-    "changeBack": "Modifică"
+    "changeBack": "Modifică",
+    "otherPoint": "Altă locație"
   },
   "clients": {
     "title": "Clienții salonului",
@@ -270,7 +271,9 @@
     "count_one": "{{count}} maestru",
     "count_few": "{{count}} maeștri",
     "count_other": "{{count}} de maeștri",
-    "coopError": "Nu s-a putut schimba tipul de colaborare."
+    "coopError": "Nu s-a putut schimba tipul de colaborare.",
+    "location": "Locație",
+    "locError": "Locația nu a putut fi schimbată"
   },
   "services": {
     "title": "Catalogul serviciilor",
@@ -648,7 +651,9 @@
       "friday": "Vineri",
       "saturday": "Sâmbătă",
       "sunday": "Duminică"
-    }
+    },
+    "location": "Locație",
+    "locationDefault": "Ca de obicei"
   },
   "calendar": {
     "eyebrow": "Programul meu",

@@ -181,7 +181,8 @@
     "check": "Check",
     "confirmTitle": "CHECK THE APPOINTMENT",
     "confirmCreate": "Confirm the appointment",
-    "changeBack": "Change"
+    "changeBack": "Change",
+    "otherPoint": "Another location"
   },
   "clients": {
     "title": "Salon Clients",
@@ -267,7 +268,9 @@
     "profileHidden": "Hidden",
     "count_one": "{{count}} master",
     "count_other": "{{count}} masters",
-    "coopError": "Failed to change the cooperation type."
+    "coopError": "Failed to change the cooperation type.",
+    "location": "Location",
+    "locError": "Could not change the location"
   },
   "services": {
     "title": "Service Catalog",
@@ -643,7 +646,9 @@
       "friday": "Friday",
       "saturday": "Saturday",
       "sunday": "Sunday"
-    }
+    },
+    "location": "Location",
+    "locationDefault": "As usual"
   },
   "calendar": {
     "eyebrow": "My schedule",

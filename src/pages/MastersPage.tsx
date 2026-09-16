@@ -52,6 +52,19 @@ function masterBio(
   return master.bio || '';
 }
 
+/**
+ * Точка салона в списке мастеров.
+ *
+ * Первая всегда сам салон — так же, как на странице «О салоне»: он и
+ * есть первый адрес. Пустая точка у мастера значит именно её.
+ */
+type Point = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isSalon: boolean;
+};
+
 type Master = {
   id: string;
   userId?: string;
@@ -77,6 +90,7 @@ type Master = {
   firstName?: string | null;
   lastName?: string | null;
   cooperationType?: string | null;
+  locationId?: string | null;
   membershipStatus?: string | null;
 };
 
@@ -136,6 +150,8 @@ function MastersPage() {
   const [linkError, setLinkError] = useState('');
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
   const [savingCoopId, setSavingCoopId] = useState<string | null>(null);
+  const [points, setPoints] = useState<Point[]>([]);
+  const [savingLocId, setSavingLocId] = useState<string | null>(null);
 
   /**
    * Публичный адрес ссылки на запись, по профилю мастера.
@@ -158,6 +174,17 @@ function MastersPage() {
       if (!currentSalon) { setMessage(t('masters.salonNotFound')); return; }
       const mastersResponse = await api.get<Master[]>('/masters', { params: { salonId: currentSalon.id } });
       setMasters(mastersResponse.data);
+
+      try {
+        const pointsResponse = await api.get<{ points: Point[] }>(
+          `/salons/${currentSalon.id}/locations`,
+        );
+
+        setPoints(pointsResponse.data.points.filter((point) => point.isActive));
+      } catch {
+        // Филиалов может не быть вовсе, и это не повод ломать список
+        // мастеров: выбор точки тогда просто не показывается.
+      }
 
       try {
         const links = await api.get<
@@ -249,6 +276,27 @@ function MastersPage() {
       setLinkError(t('masters.linkError'));
     } finally {
       setIsLinkLoading(false);
+    }
+  }
+
+  /**
+   * Куда мастер ходит работать. Уже созданные записи не двигаются:
+   * клиенту назвали адрес, и менять его задним числом нельзя.
+   */
+  async function changeLocation(masterId: string, next: string) {
+    if (!salon) return;
+    setSavingLocId(masterId);
+    try {
+      await api.patch(
+        `/masters/location/${masterId}`,
+        next ? { locationId: next } : {},
+        { params: { salonId: salon.id } },
+      );
+      await loadData();
+    } catch {
+      setMessage(t('masters.locError'));
+    } finally {
+      setSavingLocId(null);
     }
   }
 
@@ -543,6 +591,37 @@ function MastersPage() {
                                 <strong>{master.cooperationType?.toLowerCase() === 'independent' ? t('masters.independent') : t('masters.staff')}</strong>
                               )}
                             </div>
+
+                            {/* Точка показывается только там, где есть из
+                                чего выбирать: у салона с одним адресом
+                                этот выбор был бы выбором из одного. */}
+                            {points.length > 1 && (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', borderRadius: 10, background: 'rgba(var(--app-ink-rgb),0.04)', fontSize: 12, color: 'var(--app-text-muted)' }}>
+                                <span>{t('masters.location')}</span>
+                                {canManage ? (
+                                  <select
+                                    value={master.locationId ?? ''}
+                                    disabled={savingLocId === master.id}
+                                    onChange={(e) => void changeLocation(master.id, e.target.value)}
+                                    style={{ marginTop: 2, padding: '6px 8px', border: '1px solid rgba(var(--app-ink-rgb),0.14)', borderRadius: 8, background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                                  >
+                                    {points.map((point) => (
+                                      <option key={point.id} value={point.isSalon ? '' : point.id}>
+                                        {point.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <strong>
+                                    {points.find((point) =>
+                                      master.locationId
+                                        ? point.id === master.locationId
+                                        : point.isSalon,
+                                    )?.name ?? '—'}
+                                  </strong>
+                                )}
+                              </div>
+                            )}
 
                             {/* Прямая ссылка на запись к этому мастеру:
                                 администратору её отправлять клиентке, и
