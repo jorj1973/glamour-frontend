@@ -1159,7 +1159,28 @@
       "sun": "Duminică"
     },
     "phone": "Telefon",
-    "descriptionHint": "Clientul vede descrierea în limba lui. Completează toate cele trei file."
+    "descriptionHint": "Clientul vede descrierea în limba lui. Completează toate cele trei file.",
+    "locations": {
+      "title": "Filiale",
+      "used": "Ocupate {{used}} din {{limit}} — salonul se numără ca adresă.",
+      "usedUnlimited": "Adrese: {{used}}. Tariful nu limitează numărul lor.",
+      "notYet": "Deocamdată filiala este o adresă și un telefon în cabinet. Alegerea filialei la programare urmează.",
+      "mainPoint": "salon",
+      "mainHint": "Adresa principală se modifică în formularul de mai sus.",
+      "noAddress": "Adresa nu este completată",
+      "name": "Denumirea filialei",
+      "add": "Adaugă filială",
+      "added": "Filiala a fost adăugată",
+      "saved": "Salvat",
+      "disable": "Dezactivează",
+      "enable": "Activează",
+      "off": "Dezactivată — nu ocupă loc în tarif",
+      "full": "Tariful permite {{limit}} adrese, salonul inclus. Dezactivați o filială sau schimbați tariful.",
+      "needName": "Scrieți denumirea filialei",
+      "loadFailed": "Filialele nu au putut fi încărcate",
+      "saveFailed": "Nu s-a putut salva",
+      "addFailed": "Filiala nu a putut fi adăugată"
+    }
   },
   "clientSalon": {
     "empty": "Aici vor apărea saloanele în care ai fost."

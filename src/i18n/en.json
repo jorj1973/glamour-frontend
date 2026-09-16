@@ -1152,7 +1152,28 @@
       "sun": "Sunday"
     },
     "phone": "Phone",
-    "descriptionHint": "Clients see the description in their own language. Fill in all three tabs."
+    "descriptionHint": "Clients see the description in their own language. Fill in all three tabs.",
+    "locations": {
+      "title": "Branches",
+      "used": "{{used}} of {{limit}} used — the salon counts as an address.",
+      "usedUnlimited": "Addresses: {{used}}. The plan does not limit them.",
+      "notYet": "For now a branch is an address and a phone in the cabinet. Choosing a branch when booking comes next.",
+      "mainPoint": "salon",
+      "mainHint": "The main address is edited in the form above.",
+      "noAddress": "No address yet",
+      "name": "Branch name",
+      "add": "Add branch",
+      "added": "Branch added",
+      "saved": "Saved",
+      "disable": "Turn off",
+      "enable": "Turn on",
+      "off": "Turned off — takes no plan seat",
+      "full": "The plan allows {{limit}} address(es), the salon included. Turn a branch off or change the plan.",
+      "needName": "Enter the branch name",
+      "loadFailed": "Could not load the branches",
+      "saveFailed": "Could not save",
+      "addFailed": "Could not add the branch"
+    }
   },
   "clientSalon": {
     "empty": "Salons you have visited will appear here."

@@ -5,6 +5,7 @@ import api from '../api/api';
 import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
 import ActionButton, { type ActionState } from '../components/ActionButton';
+import SalonLocationsPanel from '../components/SalonLocationsPanel';
 
 type WorkingHours = Record<string, { from: string; to: string } | null>;
 
@@ -187,6 +188,7 @@ function SalonInfoPage() {
         {isLoading ? (
           <p className="dashboard-status">{t('common.loading')}</p>
         ) : (
+          <>
           <form onSubmit={handleSave}>
             <section className="dashboard-columns">
               <article className="dashboard-panel">
@@ -371,6 +373,9 @@ function SalonInfoPage() {
               />
             </div>
           </form>
+
+          <SalonLocationsPanel salonId={salonId} />
+          </>
         )}
       </main>
     </AppLayout>
