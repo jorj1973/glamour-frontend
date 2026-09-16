@@ -364,10 +364,10 @@ function SalonInfoPage() {
               <ActionButton
                 type="submit"
                 state={saveState}
-                label={t('payment.saveButton')}
-                loadingLabel={t('payment.saving')}
+                label={t('common.save')}
+                loadingLabel={t('common.saving')}
                 successLabel={t('success.saved')}
-                errorLabel={t('payment.saveButton')}
+                errorLabel={t('common.save')}
                 hint={saveHint}
                 icon={<Save size={17} />}
               />
