@@ -72,8 +72,8 @@
     "actionLog": "Jurnal",
     "payouts": "Decontare cu maeștrii",
     "myPayout": "Decontarea mea",
-    "currentPoint": "Locația",
-    "allPoints": "Toate locațiile"
+    "currentPoint": "Filiala",
+    "allPoints": "Toate filialele"
   },
   "auth": {
     "login": "Autentificare",
@@ -185,7 +185,7 @@
     "confirmTitle": "VERIFICAȚI PROGRAMAREA",
     "confirmCreate": "Confirmă programarea",
     "changeBack": "Modifică",
-    "otherPoint": "Altă locație"
+    "otherPoint": "Altă filială"
   },
   "clients": {
     "title": "Clienții salonului",
@@ -274,9 +274,9 @@
     "count_few": "{{count}} maeștri",
     "count_other": "{{count}} de maeștri",
     "coopError": "Nu s-a putut schimba tipul de colaborare.",
-    "location": "Locație",
-    "locError": "Locația nu a putut fi schimbată",
-    "locationByMaster": "Maestrul independent își alege singur locația"
+    "location": "Filiala",
+    "locError": "Filiala nu a putut fi schimbată",
+    "locationByMaster": "Maestrul independent își alege singur filiala"
   },
   "services": {
     "title": "Catalogul serviciilor",
@@ -655,7 +655,7 @@
       "saturday": "Sâmbătă",
       "sunday": "Duminică"
     },
-    "location": "Locație",
+    "location": "Filiala",
     "locationDefault": "Ca de obicei",
     "myLocation": "Unde lucrez"
   },

@@ -72,8 +72,8 @@
     "actionLog": "Журнал",
     "payouts": "Расчёт с мастерами",
     "myPayout": "Моя ведомость",
-    "currentPoint": "Точка",
-    "allPoints": "Все точки"
+    "currentPoint": "Филиал",
+    "allPoints": "Все филиалы"
   },
   "auth": {
     "login": "Вход в систему",
@@ -192,7 +192,7 @@
     "confirmTitle": "ПРОВЕРЬТЕ ЗАПИСЬ",
     "confirmCreate": "Подтвердить запись",
     "changeBack": "Изменить",
-    "otherPoint": "Другая точка"
+    "otherPoint": "Другой филиал"
   },
   "services": {
     "mySubtitle": "Управляйте своим прайс-листом. Выбирайте услуги из каталога или создавайте собственные.",
@@ -395,9 +395,9 @@
     "count_many": "{{count}} мастеров",
     "count_other": "{{count}} мастеров",
     "coopError": "Не удалось изменить тип сотрудничества.",
-    "location": "Точка",
-    "locError": "Не удалось сменить точку",
-    "locationByMaster": "Независимый мастер выбирает точку сам"
+    "location": "Филиал",
+    "locError": "Не удалось сменить филиал",
+    "locationByMaster": "Независимый мастер выбирает филиал сам"
   },
   "finance": {
     "statuses": "Статусы",
@@ -660,7 +660,7 @@
       "saturday": "Суббота",
       "sunday": "Воскресенье"
     },
-    "location": "Точка",
+    "location": "Филиал",
     "locationDefault": "Как обычно",
     "myLocation": "Где я работаю"
   },

@@ -72,8 +72,8 @@
     "actionLog": "Journal",
     "payouts": "Master payouts",
     "myPayout": "My payout",
-    "currentPoint": "Location",
-    "allPoints": "All locations"
+    "currentPoint": "Branch",
+    "allPoints": "All branches"
   },
   "auth": {
     "login": "Sign In",
@@ -184,7 +184,7 @@
     "confirmTitle": "CHECK THE APPOINTMENT",
     "confirmCreate": "Confirm the appointment",
     "changeBack": "Change",
-    "otherPoint": "Another location"
+    "otherPoint": "Another branch"
   },
   "clients": {
     "title": "Salon Clients",
@@ -271,9 +271,9 @@
     "count_one": "{{count}} master",
     "count_other": "{{count}} masters",
     "coopError": "Failed to change the cooperation type.",
-    "location": "Location",
-    "locError": "Could not change the location",
-    "locationByMaster": "An independent master chooses her own location"
+    "location": "Branch",
+    "locError": "Could not change the branch",
+    "locationByMaster": "An independent master chooses her own branch"
   },
   "services": {
     "title": "Service Catalog",
@@ -650,7 +650,7 @@
       "saturday": "Saturday",
       "sunday": "Sunday"
     },
-    "location": "Location",
+    "location": "Branch",
     "locationDefault": "As usual",
     "myLocation": "Where I work"
   },

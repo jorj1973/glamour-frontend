@@ -19,6 +19,10 @@ import api from '../api/api';
  * записи. Сегодня филиал — адрес и телефон, видимые в кабинете.
  */
 
+type WorkingHours = Record<string, { from: string; to: string } | null>;
+
+const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
 type Point = {
   id: string;
   name: string;
@@ -28,6 +32,7 @@ type Point = {
   address: string | null;
   addressNote: string | null;
   googleMapsUrl: string | null;
+  workingHours: WorkingHours | null;
   isActive: boolean;
   isSalon: boolean;
 };
@@ -45,6 +50,13 @@ type Draft = {
   address: string;
   addressNote: string;
   googleMapsUrl: string;
+
+  /**
+   * Часы филиала. Пусто — не заполнено, и так и остаётся: салонные сюда
+   * не подставляются. Владелец заполняет их сам, как и всё остальное у
+   * филиала.
+   */
+  hours: WorkingHours;
 };
 
 const EMPTY_DRAFT: Draft = {
@@ -54,7 +66,11 @@ const EMPTY_DRAFT: Draft = {
   address: '',
   addressNote: '',
   googleMapsUrl: '',
+  hours: {},
 };
+
+/** Поля, которые правятся строкой. Часы живут отдельно. */
+type TextField = Exclude<keyof Draft, 'hours'>;
 
 function draftOf(point: Point): Draft {
   return {
@@ -64,6 +80,7 @@ function draftOf(point: Point): Draft {
     address: point.address ?? '',
     addressNote: point.addressNote ?? '',
     googleMapsUrl: point.googleMapsUrl ?? '',
+    hours: point.workingHours ?? {},
   };
 }
 
@@ -126,7 +143,7 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
     }
   }
 
-  function setDraft(id: string, field: keyof Draft, value: string) {
+  function setDraft(id: string, field: TextField, value: string) {
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
   }
 
@@ -139,6 +156,7 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
       address: draft.address.trim() || undefined,
       addressNote: draft.addressNote.trim() || undefined,
       googleMapsUrl: draft.googleMapsUrl.trim() || undefined,
+      workingHours: draft.hours,
     };
   }
 
@@ -239,7 +257,96 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
     fontFamily: 'inherit',
   } as const;
 
-  const fields = (draft: Draft, onChange: (f: keyof Draft, v: string) => void) => (
+  /**
+   * Часы филиала. Отдельным блоком под полями адреса, а не в той же
+   * сетке: семь строк со временем рядом с однострочными полями читаются
+   * как каша.
+   */
+  const hoursEditor = (
+    draft: Draft,
+    onChange: (next: WorkingHours) => void,
+  ) => (
+    <div style={{ display: 'grid', gap: 8, marginTop: 14 }}>
+      <span style={labelStyle}>{t('salonInfo.hours')}</span>
+
+      {DAYS.map((day) => {
+        const value = draft.hours[day] ?? null;
+
+        return (
+          <div
+            key={day}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              flexWrap: 'wrap',
+            }}
+          >
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                minWidth: 140,
+                cursor: 'pointer',
+                color: 'var(--app-text)',
+                fontSize: 13,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={Boolean(value)}
+                onChange={() =>
+                  onChange({
+                    ...draft.hours,
+                    [day]: value ? null : { from: '09:00', to: '18:00' },
+                  })
+                }
+                style={{ width: 17, height: 17, accentColor: 'var(--app-accent)' }}
+              />
+              {t('salonInfo.day.' + day)}
+            </label>
+
+            {value ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input
+                  type="time"
+                  value={value.from}
+                  onChange={(event) =>
+                    onChange({
+                      ...draft.hours,
+                      [day]: { ...value, from: event.target.value },
+                    })
+                  }
+                  style={{ ...inputStyle, width: 'auto', padding: '8px 10px' }}
+                />
+
+                <span style={{ color: 'var(--app-text-muted, #6d656f)' }}>—</span>
+
+                <input
+                  type="time"
+                  value={value.to}
+                  onChange={(event) =>
+                    onChange({
+                      ...draft.hours,
+                      [day]: { ...value, to: event.target.value },
+                    })
+                  }
+                  style={{ ...inputStyle, width: 'auto', padding: '8px 10px' }}
+                />
+              </div>
+            ) : (
+              <span style={{ color: 'var(--app-text-muted, #6d656f)', fontSize: 13 }}>
+                {t('salonInfo.closed')}
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const fields = (draft: Draft, onChange: (f: TextField, v: string) => void) => (
     <div
       style={{
         display: 'grid',
@@ -457,11 +564,20 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
                 </p>
               ) : null}
 
-              {drafts[point.id]
-                ? fields(drafts[point.id], (field, value) =>
+              {drafts[point.id] ? (
+                <>
+                  {fields(drafts[point.id], (field, value) =>
                     setDraft(point.id, field, value),
-                  )
-                : null}
+                  )}
+
+                  {hoursEditor(drafts[point.id], (next) =>
+                    setDrafts((prev) => ({
+                      ...prev,
+                      [point.id]: { ...prev[point.id], hours: next },
+                    })),
+                  )}
+                </>
+              ) : null}
 
               <div
                 style={{
@@ -514,6 +630,10 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         >
           {fields(newDraft, (field, value) =>
             setNewDraft((prev) => ({ ...prev, [field]: value })),
+          )}
+
+          {hoursEditor(newDraft, (next) =>
+            setNewDraft((prev) => ({ ...prev, hours: next })),
           )}
 
           <div
