@@ -6,6 +6,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Trash2,
+  UserPlus,
   UserRound,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -73,6 +74,18 @@ function AdministratorsPage() {
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [administrators, setAdministrators] = useState<Administrator[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
+
+  /** Форма заведения администратора и её ответ. */
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  });
+  const [isCreating, setIsCreating] = useState(false);
+  const [createdPassword, setCreatedPassword] = useState('');
+  const [createdNote, setCreatedNote] = useState('');
   /**
    * Кабинет, в котором стоит владелец. Он и решает, чьи администраторы
    * на экране: выпадающего списка «весь салон или филиал» нет — он был
@@ -179,6 +192,76 @@ function AdministratorsPage() {
     }
   }
 
+  /**
+   * Завести администратора того кабинета, в котором стоит владелец.
+   *
+   * Временный пароль сервер показывает один раз — здесь. Его надо
+   * переписать сразу: второй раз он не покажется нигде, и восстановить
+   * его нельзя, только сбросить обычным письмом.
+   */
+  async function createAdministrator() {
+    if (!salon) return;
+
+    if (
+      form.firstName.trim().length < 2 ||
+      form.lastName.trim().length < 2 ||
+      !form.email.trim() ||
+      !form.phone.trim()
+    ) {
+      setErrorMsg(t('administrators.formRequired'));
+      return;
+    }
+
+    const branchId = cabinet && cabinet !== 'salon' ? cabinet : '';
+
+    setIsCreating(true);
+    setErrorMsg('');
+    setCreatedPassword('');
+    setCreatedNote('');
+
+    try {
+      const response = await api.post<{
+        userId: string;
+        reusedExistingAccount: boolean;
+        temporaryPassword: string | null;
+      }>(`/salons/${salon.id}/administrators`, {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        ...(branchId ? { locationId: branchId } : {}),
+      });
+
+      setCreatedPassword(response.data.temporaryPassword ?? '');
+
+      setCreatedNote(
+        response.data.reusedExistingAccount
+          ? t('administrators.reusedAccount')
+          : '',
+      );
+
+      setForm({ firstName: '', lastName: '', email: '', phone: '' });
+      setIsFormOpen(false);
+      await loadData();
+    } catch (error) {
+      const data = (
+        error as { response?: { data?: { message?: unknown } } }
+      )?.response?.data;
+
+      const message = data?.message;
+
+      setErrorMsg(
+        Array.isArray(message)
+          ? message.join(', ')
+          : typeof message === 'string' && message
+            ? message
+            : t('administrators.createError'),
+      );
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
   async function removeAdministrator(userId: string) {
     if (!salon) {
       return;
@@ -248,6 +331,150 @@ function AdministratorsPage() {
             {errorMsg}
           </div>
         )}
+
+        {/* Заведение администратора владельцем: он вписывает данные,
+            подтверждает, и доступ открывается сразу. Ссылка-приглашение
+            ниже остаётся — она нужна, когда человека нет рядом. */}
+        <section className="platform-invitations-panel" style={{ marginBottom: 24 }}>
+          <div className="platform-panel-heading">
+            <div>
+              <p className="panel-kicker">{t('administrators.kicker')}</p>
+              <h2>{t('administrators.addTitle')}</h2>
+              <p>{t('administrators.addDescription')}</p>
+            </div>
+          </div>
+
+          {createdPassword ? (
+            <div
+              style={{
+                padding: '14px 16px',
+                marginBottom: 14,
+                borderRadius: 14,
+                border: '1px solid rgba(var(--app-ink-rgb),0.14)',
+                background: 'rgba(var(--app-ink-rgb),0.05)',
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--app-text-muted)' }}>
+                {t('administrators.passwordOnce')}
+              </p>
+
+              <strong
+                style={{
+                  display: 'inline-block',
+                  marginTop: 8,
+                  fontSize: 22,
+                  letterSpacing: '0.18em',
+                  color: 'var(--app-text)',
+                }}
+              >
+                {createdPassword}
+              </strong>
+            </div>
+          ) : null}
+
+          {createdNote ? (
+            <p style={{ margin: '0 0 14px', fontSize: 13, color: 'var(--app-text-muted)' }}>
+              {createdNote}
+            </p>
+          ) : null}
+
+          {isFormOpen ? (
+            <>
+              <div
+                style={{
+                  display: 'grid',
+                  gap: 12,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                }}
+              >
+                {(
+                  [
+                    ['firstName', t('administrators.firstName')],
+                    ['lastName', t('administrators.lastName')],
+                    ['email', 'Email'],
+                    ['phone', t('administrators.phone')],
+                  ] as const
+                ).map(([key, label]) => (
+                  <label
+                    key={key}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 6,
+                      fontSize: 13,
+                      color: 'var(--app-text)',
+                    }}
+                  >
+                    {label}
+
+                    <input
+                      value={form[key]}
+                      onChange={(event) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          [key]: event.target.value,
+                        }))
+                      }
+                      placeholder={key === 'phone' ? '+373...' : undefined}
+                      style={{
+                        padding: '11px 14px',
+                        borderRadius: 13,
+                        border: '1px solid rgba(var(--app-ink-rgb),0.12)',
+                        background: 'rgba(var(--app-ink-rgb),0.06)',
+                        color: 'var(--app-text)',
+                        fontSize: 14,
+                        outline: 'none',
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="primary-action"
+                  onClick={() => void createAdministrator()}
+                  disabled={isCreating}
+                >
+                  {isCreating
+                    ? t('common.saving')
+                    : t('administrators.confirmAdd')}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  style={{
+                    minHeight: 40,
+                    padding: '0 16px',
+                    borderRadius: 12,
+                    border: '1px solid rgba(var(--app-ink-rgb),0.14)',
+                    background: 'transparent',
+                    color: 'var(--app-text)',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {t('common.cancel')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="primary-action"
+              onClick={() => {
+                setIsFormOpen(true);
+                setCreatedPassword('');
+                setCreatedNote('');
+              }}
+            >
+              <UserPlus size={15} /> {t('administrators.addButton')}
+            </button>
+          )}
+        </section>
 
         <section className="platform-invitations-panel" style={{ marginBottom: 24 }}>
           <div className="platform-panel-heading">

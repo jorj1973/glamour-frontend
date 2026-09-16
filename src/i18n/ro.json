@@ -1685,7 +1685,18 @@
     "remove": "Retrage accesul",
     "linkError": "Linkul nu a putut fi creat.",
     "removeError": "Accesul nu a putut fi retras.",
-    "ofCabinet": "Administratorii cabinetului: {{name}}"
+    "ofCabinet": "Administratorii cabinetului: {{name}}",
+    "addTitle": "Adaugă un administrator",
+    "addDescription": "Completați datele persoanei. Accesul se deschide imediat, iar parola temporară apare aici o singură dată.",
+    "addButton": "Adaugă un administrator",
+    "confirmAdd": "Confirmă",
+    "firstName": "Prenume",
+    "lastName": "Nume",
+    "phone": "Telefon",
+    "formRequired": "Completați prenumele, numele, emailul și telefonul",
+    "createError": "Administratorul nu a putut fi adăugat",
+    "passwordOnce": "Parolă temporară. Notați-o acum — nu va mai fi arătată a doua oară.",
+    "reusedAccount": "Persoana avea deja un cont — accesul a fost adăugat la el, parola a rămas aceeași."
   },
   "actionLog": {
     "title": "Jurnalul acțiunilor",

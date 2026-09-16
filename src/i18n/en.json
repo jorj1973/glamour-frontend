@@ -1678,7 +1678,18 @@
     "remove": "Revoke access",
     "linkError": "The link could not be created.",
     "removeError": "Access could not be revoked.",
-    "ofCabinet": "Administrators of: {{name}}"
+    "ofCabinet": "Administrators of: {{name}}",
+    "addTitle": "Add an administrator",
+    "addDescription": "Fill in the person’s details. Access opens right away, and the temporary password is shown here once.",
+    "addButton": "Add an administrator",
+    "confirmAdd": "Confirm",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "formRequired": "Fill in the first name, last name, email and phone",
+    "createError": "Could not add the administrator",
+    "passwordOnce": "Temporary password. Write it down now — it will not be shown again.",
+    "reusedAccount": "This person already had an account — access was added to it and the password is unchanged."
   },
   "actionLog": {
     "title": "Action journal",
