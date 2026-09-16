@@ -1280,7 +1280,7 @@
     "subtitle": "Încarcă lista din programul anterior — clienții vor apărea aici și îi vei putea invita în aplicație.",
     "open": "Transferă",
     "collapse": "Restrânge",
-    "hint": "Merge un registru Excel (.xlsx) sau un fișier CSV — din orice program: Excel, Google Sheets, vechiul sistem de programări. Sunt suficiente coloanele cu nume, telefon și email, denumirile coloanelor se recunosc automat. Din registru se citește prima foaie.",
+    "hint": "Merge un registru Excel — și nou (.xlsx), și vechi (.xls) —, un tabel LibreOffice (.ods) sau un fișier CSV. Sunt suficiente coloanele cu nume, telefon și email, denumirile coloanelor se recunosc automat. Se citește prima foaie.",
     "chooseFile": "Alege fișierul",
     "found": "Înregistrări găsite: {{count}}",
     "skipped": "Omise: {{rejected}} cu erori, {{duplicates}} duplicate",

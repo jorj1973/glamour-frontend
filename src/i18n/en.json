@@ -1273,7 +1273,7 @@
     "subtitle": "Upload a list from your previous software — clients will appear here and you can invite them to the app.",
     "open": "Import",
     "collapse": "Collapse",
-    "hint": "An Excel workbook (.xlsx) or a CSV file will do — from any program: Excel, Google Sheets, your old booking system. Columns with name, phone and email are enough, column names are detected automatically. From a workbook the first sheet is read.",
+    "hint": "An Excel workbook — new (.xlsx) or old (.xls) — a LibreOffice spreadsheet (.ods) or a CSV file will do. Columns with name, phone and email are enough, column names are detected automatically. The first sheet is read.",
     "chooseFile": "Choose file",
     "found": "Records found: {{count}}",
     "skipped": "Skipped: {{rejected}} with errors, {{duplicates}} duplicates",
