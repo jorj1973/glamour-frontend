@@ -759,6 +759,12 @@ function SalonRegistrationPage() {
                         периода
                       </div>
 
+                      {/*
+                        Состав — одной строкой и из чисел тарифа.
+                        Три прежние автостроки («До 5 мастеров», «До 1
+                        администраторов», «До 1 филиалов») повторяли то,
+                        что ниже и так стояло словами.
+                      */}
                       <p
                         style={{
                           margin: '12px 0 0',
@@ -769,11 +775,20 @@ function SalonRegistrationPage() {
                         {planComposition(plan)}
                       </p>
 
-                      <ul>
-                        {features.map((feature) => (
-                          <li key={feature}>{feature}</li>
-                        ))}
-                      </ul>
+                      {/*
+                        Список — только то, чего нет ступенью ниже.
+                        У самого дешёвого тарифа его нет вовсе: всё, что
+                        он умеет, умеют и остальные, и перечислять это на
+                        его карточке значит прятать единственный вопрос,
+                        на который карточка отвечает.
+                      */}
+                      {features.length ? (
+                        <ul>
+                          {features.map((feature) => (
+                            <li key={feature}>{feature}</li>
+                          ))}
+                        </ul>
+                      ) : null}
 
                       <button
                         type="button"
