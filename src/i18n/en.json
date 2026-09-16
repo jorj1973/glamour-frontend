@@ -979,7 +979,12 @@
     "unknown": "Something went wrong. Please try again.",
     "reviewNeedsVisit": "You can rate the app after your first completed service.",
     "reviewNeedsSalonWork": "You can rate the salon after your first completed appointment there.",
-    "salonAlreadyReviewed": "You have already reviewed this salon."
+    "salonAlreadyReviewed": "You have already reviewed this salon.",
+    "oldExcel": "This is the old Excel format (.xls). Open the file in Excel and save it again: File → Save As → Excel Workbook (.xlsx).",
+    "openDocument": "This is a LibreOffice spreadsheet (.ods). Save it as an Excel Workbook (.xlsx) or as CSV — the file is fine, it is just a different format.",
+    "excelUnreadable": "The workbook could not be read. The file may be damaged or password-protected.",
+    "fileEmpty": "The file has no rows besides the header.",
+    "noNameOrPhone": "No column with a name or a phone was found. Either one is enough."
   },
   "success": {
     "saved": "Changes saved",

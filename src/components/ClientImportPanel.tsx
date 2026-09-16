@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircle2, FileUp, Trash2, TriangleAlert, Users } from 'lucide-react';
 
 import api from '../api/api';
+import { getErrorKey } from '../api/errorMessage';
 
 type ParsedRow = {
     rowNumber: number;
@@ -95,8 +96,18 @@ function ClientImportPanel({ salonId }: Props) {
             );
 
             setPreview(res.data);
-        } catch {
-            setErrorMsg(t('clientImport.parseError'));
+        } catch (error) {
+            // Сервер называет причину отказа; общая фраза остаётся
+            // только для тех случаев, у которых своего имени нет.
+            const key = getErrorKey(error);
+
+            setErrorMsg(
+                key.startsWith('errors.') &&
+                    key !== 'errors.badRequest' &&
+                    key !== 'errors.unknown'
+                    ? t(key)
+                    : t('clientImport.parseError'),
+            );
         } finally {
             setIsBusy(false);
         }

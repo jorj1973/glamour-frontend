@@ -39,6 +39,30 @@ export function getErrorKey(error: unknown): string {
     return 'errors.fileFormat';
   }
 
+  // Перенос базы. Причин отказа несколько, и они требуют разных
+  // действий: одну решают пересохранением файла, другую — проверкой
+  // столбцов, третью не решает ничто. Общая фраза отправляла человека
+  // чинить то, что не сломано.
+  if (lower.includes('old excel format')) {
+    return 'errors.oldExcel';
+  }
+
+  if (lower.includes('opendocument spreadsheet')) {
+    return 'errors.openDocument';
+  }
+
+  if (lower.includes('could not read the excel file')) {
+    return 'errors.excelUnreadable';
+  }
+
+  if (lower.includes('empty or has no rows')) {
+    return 'errors.fileEmpty';
+  }
+
+  if (lower.includes('could not find name or phone column')) {
+    return 'errors.noNameOrPhone';
+  }
+
   if (lower.includes('portfolio is full')) {
     return 'errors.portfolioFull';
   }

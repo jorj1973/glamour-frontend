@@ -985,7 +985,12 @@
     "unknown": "Ceva nu a mers. Încearcă din nou.",
     "reviewNeedsVisit": "Puteți evalua aplicația după primul serviciu oferit sau primit.",
     "reviewNeedsSalonWork": "Puteți evalua salonul după prima programare finalizată acolo.",
-    "salonAlreadyReviewed": "Ați lăsat deja o recenzie despre acest salon."
+    "salonAlreadyReviewed": "Ați lăsat deja o recenzie despre acest salon.",
+    "oldExcel": "Acesta este formatul vechi Excel (.xls). Deschideți fișierul în Excel și salvați-l din nou: „Fișier\" → „Salvare ca\" → tipul „Registru de lucru Excel (.xlsx)\".",
+    "openDocument": "Acesta este un tabel LibreOffice (.ods). Salvați-l ca „Registru de lucru Excel (.xlsx)\" sau ca CSV — fișierul este întreg, doar are alt format.",
+    "excelUnreadable": "Registrul nu a putut fi citit. Poate fișierul este deteriorat sau protejat cu parolă.",
+    "fileEmpty": "Fișierul nu are niciun rând în afară de antet.",
+    "noNameOrPhone": "Nu am găsit coloana cu nume sau telefon. Este suficientă una dintre ele."
   },
   "success": {
     "saved": "Modificările au fost salvate",
