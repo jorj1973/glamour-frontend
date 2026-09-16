@@ -30,6 +30,17 @@ type Administrator = {
   phone: string;
   isActive: boolean;
   startedAt: string | null;
+
+  /** Зал, которым он распоряжается. Пусто — весь салон. */
+  locationId: string | null;
+};
+
+/** Филиал салона: первый в списке — сам салон. */
+type Point = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isSalon: boolean;
 };
 
 type AdministratorsResponse = {
@@ -60,6 +71,8 @@ function AdministratorsPage() {
 
   const [salon, setSalon] = useState<SalonSummary | null>(null);
   const [administrators, setAdministrators] = useState<Administrator[]>([]);
+  const [points, setPoints] = useState<Point[]>([]);
+  const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [limit, setLimit] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -88,6 +101,16 @@ function AdministratorsPage() {
         setMessage(t('common.loadError'));
 
         return;
+      }
+
+      try {
+        const pointsResponse = await api.get<{ points: Point[] }>(
+          `/salons/${current.id}/locations`,
+        );
+
+        setPoints(pointsResponse.data.points.filter((point) => point.isActive));
+      } catch {
+        // Филиалов может не быть — тогда и ставить некуда.
       }
 
       const response = await api.get<AdministratorsResponse>(
@@ -137,6 +160,29 @@ function AdministratorsPage() {
       setTimeout(() => setCopyStatus('idle'), 3000);
     } catch {
       setCopyStatus('error');
+    }
+  }
+
+  /**
+   * Поставить администратора на зал.
+   *
+   * Пусто — снова весь салон. Уже созданные записи это не двигает: зал
+   * администратора говорит, что он видит, а не где что произошло.
+   */
+  async function setAdministratorLocation(userId: string, next: string) {
+    if (!salon) return;
+    setSavingUserId(userId);
+    setErrorMsg('');
+    try {
+      await api.patch(
+        `/salons/${salon.id}/administrators/${userId}/location`,
+        next ? { locationId: next } : {},
+      );
+      await loadData();
+    } catch {
+      setErrorMsg(t('administrators.locationError'));
+    } finally {
+      setSavingUserId(null);
     }
   }
 
@@ -354,6 +400,55 @@ function AdministratorsPage() {
                       {administrator.email} · {administrator.phone}
                     </div>
                   </div>
+
+                  {/* Зал администратора. Показывается, только когда
+                      у салона есть филиалы: иначе выбор из одного. */}
+                  {points.length > 1 && (
+                    <label
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 4,
+                        fontSize: 12,
+                        color: 'var(--app-text-muted)',
+                      }}
+                    >
+                      {t('administrators.location')}
+
+                      <select
+                        value={administrator.locationId ?? ''}
+                        disabled={savingUserId === administrator.userId}
+                        onChange={(event) =>
+                          void setAdministratorLocation(
+                            administrator.userId,
+                            event.target.value,
+                          )
+                        }
+                        style={{
+                          padding: '7px 10px',
+                          borderRadius: 10,
+                          border: '1px solid rgba(var(--app-ink-rgb),0.14)',
+                          background: 'rgba(var(--app-ink-rgb),0.06)',
+                          color: 'var(--app-text)',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <option value="">
+                          {t('administrators.wholeSalon')}
+                        </option>
+
+                        {points
+                          .filter((point) => !point.isSalon)
+                          .map((point) => (
+                            <option key={point.id} value={point.id}>
+                              {point.name}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                  )}
 
                   <button
                     type="button"

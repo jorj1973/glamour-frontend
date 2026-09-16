@@ -1677,7 +1677,10 @@
     "emptyHint": "Without one, an independent master’s appointments can be moved only by the master.",
     "remove": "Revoke access",
     "linkError": "The link could not be created.",
-    "removeError": "Access could not be revoked."
+    "removeError": "Access could not be revoked.",
+    "location": "Room",
+    "wholeSalon": "The whole salon",
+    "locationError": "Could not change the administrator’s room"
   },
   "actionLog": {
     "title": "Action journal",

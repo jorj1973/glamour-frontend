@@ -1684,7 +1684,10 @@
     "emptyHint": "Fără administrator, programările maeștrilor independenți le mută doar ei înșiși.",
     "remove": "Retrage accesul",
     "linkError": "Linkul nu a putut fi creat.",
-    "removeError": "Accesul nu a putut fi retras."
+    "removeError": "Accesul nu a putut fi retras.",
+    "location": "Sala",
+    "wholeSalon": "Tot salonul",
+    "locationError": "Sala administratorului nu a putut fi schimbată"
   },
   "actionLog": {
     "title": "Jurnalul acțiunilor",
