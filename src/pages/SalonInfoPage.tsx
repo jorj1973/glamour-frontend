@@ -6,6 +6,7 @@ import { getErrorKey } from '../api/errorMessage';
 import AppLayout from '../components/AppLayout';
 import ActionButton, { type ActionState } from '../components/ActionButton';
 import SalonLocationsPanel from '../components/SalonLocationsPanel';
+import { onPointChanged, readCurrentPoint } from '../current-point';
 
 type WorkingHours = Record<string, { from: string; to: string } | null>;
 
@@ -66,6 +67,23 @@ function SalonInfoPage() {
   const [hours, setHours] = useState<WorkingHours>({});
 
   const salonId = localStorage.getItem(CURRENT_SALON_ID_KEY) ?? '';
+
+  /**
+   * Выбранный наверху филиал.
+   *
+   * Когда он выбран, эта страница показывает его карточку, а не салон.
+   * Иначе выходило нечестно: в меню стоит «тест», а на экране адрес и
+   * описание GLAMOUR — владелец прочитал это как «данные подставились
+   * от салона», и был прав.
+   *
+   * 'salon' и пусто значат сам салон: его правит форма ниже.
+   */
+  const [chosenPoint, setChosenPoint] = useState(readCurrentPoint);
+
+  useEffect(() => onPointChanged(() => setChosenPoint(readCurrentPoint())), []);
+
+  const branchId =
+    chosenPoint && chosenPoint !== 'salon' ? chosenPoint : '';
 
   useEffect(() => { void load(); }, []);
 
@@ -187,6 +205,12 @@ function SalonInfoPage() {
 
         {isLoading ? (
           <p className="dashboard-status">{t('common.loading')}</p>
+        ) : branchId ? (
+          /* Выбран филиал — показываем его, а не салон. Описание, email
+             и Instagram у филиала пока общие с салоном: своих полей у
+             него нет, и подсовывать сюда салонные было бы тем самым
+             подставленным значением, из-за которого всё и началось. */
+          <SalonLocationsPanel salonId={salonId} onlyBranchId={branchId} />
         ) : (
           <>
           <form onSubmit={handleSave}>

@@ -15,8 +15,11 @@ import api from '../api/api';
  * Панель стоит отдельным блоком после формы салона, а не внутри неё:
  * у каждого филиала своё сохранение, а форма внутри формы — не форма.
  *
- * Чего здесь нет, честно: часов работы филиала и выбора филиала при
- * записи. Сегодня филиал — адрес и телефон, видимые в кабинете.
+ * Подсказок-примеров в полях нет нарочно. Пример адреса, похожий на
+ * адрес самого салона, владелец прочитал как подставленное значение —
+ * и был прав, что возмутился: серый текст в пустом поле неотличим от
+ * заполненного, когда он описывает то же самое место. У филиала данные
+ * свои, и пустое поле должно выглядеть пустым.
  */
 
 type WorkingHours = Record<string, { from: string; to: string } | null>;
@@ -103,7 +106,21 @@ function serverMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function SalonLocationsPanel({ salonId }: { salonId: string }) {
+type Props = {
+  salonId: string;
+
+  /**
+   * Показать только этот филиал, без салона, счёта и кнопки «Добавить».
+   *
+   * Так страница «О салоне» при выбранном филиале показывает его
+   * собственную карточку вместо салонной. Отдельный экран для этого
+   * заводить не стали: карточка та же самая, а два места правки одного
+   * филиала разошлись бы при первой же доработке.
+   */
+  onlyBranchId?: string;
+};
+
+function SalonLocationsPanel({ salonId, onlyBranchId }: Props) {
   const { t } = useTranslation();
 
   const [view, setView] = useState<View | null>(null);
@@ -368,7 +385,6 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         <input
           style={inputStyle}
           value={draft.phone}
-          placeholder="+373..."
           onChange={(event) => onChange('phone', event.target.value)}
         />
       </label>
@@ -387,7 +403,6 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         <input
           style={inputStyle}
           value={draft.address}
-          placeholder={t('salonInfo.streetPlaceholder')}
           onChange={(event) => onChange('address', event.target.value)}
         />
       </label>
@@ -397,7 +412,6 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         <input
           style={inputStyle}
           value={draft.addressNote}
-          placeholder={t('salonInfo.notePlaceholder')}
           onChange={(event) => onChange('addressNote', event.target.value)}
         />
       </label>
@@ -407,7 +421,6 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         <input
           style={inputStyle}
           value={draft.googleMapsUrl}
-          placeholder={t('salonInfo.googleMapsUrlPlaceholder')}
           onChange={(event) => onChange('googleMapsUrl', event.target.value)}
         />
       </label>
@@ -432,29 +445,33 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
         <Building2 size={22} />
       </div>
 
-      <p
-        style={{
-          margin: '0 0 6px',
-          color: 'var(--app-text-muted, #6d656f)',
-          fontSize: 13,
-          lineHeight: 1.6,
-        }}
-      >
-        {limit === null
-          ? t('salonInfo.locations.usedUnlimited', { used })
-          : t('salonInfo.locations.used', { used, limit })}
-      </p>
+      {!onlyBranchId ? (
+        <p
+          style={{
+            margin: '0 0 6px',
+            color: 'var(--app-text-muted, #6d656f)',
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}
+        >
+          {limit === null
+            ? t('salonInfo.locations.usedUnlimited', { used })
+            : t('salonInfo.locations.used', { used, limit })}
+        </p>
+      ) : null}
 
-      <p
-        style={{
-          margin: '0 0 16px',
-          color: 'var(--app-text-muted, #6d656f)',
-          fontSize: 13,
-          lineHeight: 1.6,
-        }}
-      >
-        {t('salonInfo.locations.notYet')}
-      </p>
+      {!onlyBranchId ? (
+        <p
+          style={{
+            margin: '0 0 16px',
+            color: 'var(--app-text-muted, #6d656f)',
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}
+        >
+          {t('salonInfo.locations.notYet')}
+        </p>
+      ) : null}
 
       {errorMsg ? (
         <p
@@ -485,7 +502,11 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
       ) : null}
 
       <div style={{ display: 'grid', gap: 14 }}>
-        {(view?.points ?? []).map((point) =>
+        {(view?.points ?? [])
+          .filter((point) =>
+            onlyBranchId ? point.id === onlyBranchId : true,
+          )
+          .map((point) =>
           point.isSalon ? (
             <section
               key={point.id}
@@ -615,11 +636,11 @@ function SalonLocationsPanel({ salonId }: { salonId: string }) {
                 </button>
               </div>
             </section>
-          ),
-        )}
+            ),
+          )}
       </div>
 
-      {isAdding ? (
+      {onlyBranchId ? null : isAdding ? (
         <section
           style={{
             marginTop: 14,
