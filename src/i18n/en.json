@@ -1892,7 +1892,10 @@
     "required": "Please write your name and phone — without them we cannot answer",
     "failed": "Could not send. Please try again",
     "sentTitle": "Received",
-    "sentText": "We will contact you shortly."
+    "sentText": "We will contact you shortly.",
+    "start": "Open your salon",
+    "noCode": "The link is incomplete — it carries no invitation code. Ask the person who invited you to send it again.",
+    "startFailed": "The registration could not be opened. Try again, or ask for a new link."
   },
   "refer": {
     "title": "Recommend the app",

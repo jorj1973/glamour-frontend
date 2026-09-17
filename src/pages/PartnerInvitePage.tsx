@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Gift, Sparkles } from 'lucide-react';
+import { Gift, Sparkles } from 'lucide-react';
 
 import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -30,7 +30,6 @@ type Referrer = {
   welcomeMessages: number;
 };
 
-type Kind = 'salon' | 'master';
 
 function readCode(): string {
   const hash = window.location.hash;
@@ -49,15 +48,7 @@ function PartnerInvitePage() {
   const [code] = useState(readCode);
   const [referrer, setReferrer] = useState<Referrer | null>(null);
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [kind, setKind] = useState<Kind>('salon');
-  const [salonName, setSalonName] = useState('');
-  const [city, setCity] = useState('');
-  const [note, setNote] = useState('');
-
   const [isSending, setIsSending] = useState(false);
-  const [isSent, setIsSent] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -89,9 +80,22 @@ function PartnerInvitePage() {
     };
   }, [code]);
 
-  async function submit() {
-    if (name.trim().length < 2 || phone.trim().length < 5) {
-      setErrorMsg(t('invite.required'));
+  /**
+   * Одна кнопка вместо анкеты.
+   *
+   * Прежде здесь стояла форма из шести полей, а после неё человек
+   * заполнял ровно то же самое ещё раз — уже на регистрации. Две анкеты
+   * подряд теряют больше людей, чем любая цена, и вторая из них была
+   * наша собственная выдумка.
+   *
+   * Теперь код превращается в приглашение на сервере, и человек попадает
+   * сразу на регистрацию. Адрес ссылки не изменился: салоны уже разослали
+   * её, и ломать разосланное нельзя.
+   */
+  async function start() {
+    if (!code) {
+      setErrorMsg(t('invite.noCode'));
+
       return;
     }
 
@@ -99,45 +103,23 @@ function PartnerInvitePage() {
     setErrorMsg('');
 
     try {
-      await api.post('/referrals/lead', {
-        code: code || undefined,
-        name: name.trim(),
-        phone: phone.trim(),
-        kind,
-        salonName: salonName.trim() || undefined,
-        city: city.trim() || undefined,
-        note: note.trim() || undefined,
-      });
+      const res = await api.post<{ token: string }>(
+        '/platform-registration/by-referral',
+        { code },
+      );
 
-      setIsSent(true);
+      // Дальше обычная регистрация: та же форма, то же одобрение.
+      window.location.hash =
+        '#register?invite=' + encodeURIComponent(res.data.token);
     } catch {
-      setErrorMsg(t('invite.failed'));
-    } finally {
+      setErrorMsg(t('invite.startFailed'));
       setIsSending(false);
     }
   }
 
   const changes = [t('invite.c1'), t('invite.c2'), t('invite.c3'), t('invite.c4')];
 
-  const inputStyle = {
-    width: '100%',
-    padding: '12px 14px',
-    borderRadius: 13,
-    border: '1px solid var(--app-border)',
-    background: 'var(--app-input)',
-    color: 'var(--app-text)',
-    fontSize: 15,
-    fontFamily: 'inherit',
-  } as const;
 
-  const labelStyle = {
-    display: 'block',
-    marginBottom: 6,
-    color: 'var(--app-text-muted)',
-    fontSize: 12,
-    fontWeight: 700,
-    letterSpacing: '0.05em',
-  } as const;
 
   const blockTitle = {
     margin: '0 0 10px',
@@ -265,179 +247,61 @@ function PartnerInvitePage() {
           </section>
         ) : null}
 
-        {isSent ? (
-          <section
-            style={{
-              padding: '24px 18px',
-              border: '1px solid var(--app-border)',
-              borderRadius: 16,
-              textAlign: 'center',
-            }}
-          >
-            <Check size={26} color="var(--app-accent)" />
-
-            <h2 style={{ margin: '10px 0 8px', fontSize: 20 }}>
-              {t('invite.sentTitle')}
-            </h2>
-
+        <section
+          style={{
+            padding: '20px 18px',
+            border: '1px solid var(--app-border)',
+            borderRadius: 16,
+            background: 'var(--app-panel)',
+            textAlign: 'center',
+          }}
+        >
+          {errorMsg ? (
             <p
               style={{
-                margin: 0,
-                color: 'var(--app-text-muted)',
-                fontSize: 15,
+                margin: '0 0 12px',
+                color: '#dc2626',
+                fontSize: 14,
                 lineHeight: 1.6,
               }}
             >
-              {t('invite.sentText')}
+              {errorMsg}
             </p>
-          </section>
-        ) : (
-          <section
+          ) : null}
+
+          <button
+            type="button"
+            disabled={!code || isSending}
+            onClick={() => void start()}
             style={{
-              padding: '20px 18px',
-              border: '1px solid var(--app-border)',
-              borderRadius: 16,
-              background: 'var(--app-panel)',
+              width: '100%',
+              minHeight: 50,
+              border: 'none',
+              borderRadius: 14,
+              background: 'var(--app-accent)',
+              color: '#fff',
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: !code || isSending ? 'default' : 'pointer',
+              opacity: !code || isSending ? 0.7 : 1,
             }}
           >
-            <h2 style={{ margin: '0 0 8px', fontSize: 20 }}>
-              {t('invite.formTitle')}
-            </h2>
+            {isSending ? t('common.loading') : t('invite.start')}
+          </button>
 
+          {!code ? (
             <p
               style={{
-                margin: '0 0 18px',
+                margin: '12px 0 0',
                 color: 'var(--app-text-muted)',
                 fontSize: 14,
                 lineHeight: 1.6,
               }}
             >
-              {t('invite.formHint')}
+              {t('invite.noCode')}
             </p>
-
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              {(['salon', 'master'] as Kind[]).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setKind(value)}
-                  style={{
-                    flex: 1,
-                    minHeight: 44,
-                    borderRadius: 12,
-                    border:
-                      kind === value
-                        ? '1px solid var(--app-accent)'
-                        : '1px solid var(--app-border)',
-                    background:
-                      kind === value
-                        ? 'rgba(var(--app-ink-rgb),0.06)'
-                        : 'transparent',
-                    color: 'var(--app-text)',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {value === 'salon'
-                    ? t('invite.kindSalon')
-                    : t('invite.kindMaster')}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: 'grid', gap: 14 }}>
-              <div>
-                <label style={labelStyle}>{t('invite.name')}</label>
-
-                <input
-                  style={inputStyle}
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('invite.phone')}</label>
-
-                <input
-                  style={inputStyle}
-                  value={phone}
-                  inputMode="tel"
-                  onChange={(event) => setPhone(event.target.value)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>
-                  {kind === 'salon'
-                    ? t('invite.salonName')
-                    : t('invite.masterWhere')}
-                </label>
-
-                <input
-                  style={inputStyle}
-                  value={salonName}
-                  onChange={(event) => setSalonName(event.target.value)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('invite.city')}</label>
-
-                <input
-                  style={inputStyle}
-                  value={city}
-                  onChange={(event) => setCity(event.target.value)}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>{t('invite.note')}</label>
-
-                <textarea
-                  style={{ ...inputStyle, resize: 'vertical' }}
-                  rows={3}
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                />
-              </div>
-            </div>
-
-            {errorMsg ? (
-              <p
-                style={{
-                  margin: '14px 0 0',
-                  color: 'var(--app-danger)',
-                  fontSize: 14,
-                }}
-              >
-                {errorMsg}
-              </p>
-            ) : null}
-
-            <button
-              type="button"
-              onClick={() => void submit()}
-              disabled={isSending}
-              style={{
-                width: '100%',
-                marginTop: 18,
-                minHeight: 50,
-                border: 'none',
-                borderRadius: 14,
-                background: 'var(--app-accent)',
-                color: '#fff',
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: isSending ? 'default' : 'pointer',
-                opacity: isSending ? 0.7 : 1,
-              }}
-            >
-              {isSending ? t('invite.sending') : t('invite.send')}
-            </button>
-          </section>
-        )}
+          ) : null}
+        </section>
       </div>
     </main>
   );

@@ -1899,7 +1899,10 @@
     "required": "Scrieți numele și telefonul — fără ele nu vă putem răspunde",
     "failed": "Nu s-a putut trimite. Încercați din nou",
     "sentTitle": "Am primit",
-    "sentText": "Vă contactăm în cel mai scurt timp."
+    "sentText": "Vă contactăm în cel mai scurt timp.",
+    "start": "Deschideți salonul",
+    "noCode": "Linkul este incomplet — nu conține codul invitației. Rugați persoana care v-a invitat să vi-l trimită din nou.",
+    "startFailed": "Înregistrarea nu s-a putut deschide. Încercați din nou sau cereți un link nou."
   },
   "refer": {
     "title": "Recomandați aplicația",
