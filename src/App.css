@@ -6209,3 +6209,108 @@ body:has(.registration-page-salon) {
 .registration-page-salon .registration-invitation-summary {
   justify-content: center;
 }
+
+/* ------------------------------------------------------------------
+   Карточка тарифа: сверху вниз одним рассказом. 2026-09-17.
+
+   Было: название, фраза о тарифе, цена, состав числами, список. Фраза
+   стояла над ценой и читалась как состав — человек принимал её за то,
+   что покупает, а настоящий состав шёл ниже и повторял её другими
+   словами. Список при этом висел посередине карточки, вразнобой
+   выровненный по центру вместе со всем остальным.
+
+   Стало: имя, приветствие с осторожным приглашением — одно на всех
+   трёх, — цена, пробные дни, состав числами, а под ним то, что человек
+   получает. Списки идут ступенями: у нижнего тарифа он весь, у
+   следующего «всё из него, и сверх того». Последней строкой перед
+   кнопкой — что случится, если нажать.
+
+   Список выровнен по левому краю: строки в нём разной длины, и по
+   центру они превращаются в лесенку. Всё остальное на карточке
+   остаётся по центру — так задумана страница целиком.
+   ------------------------------------------------------------------ */
+
+.registration-page-salon .registration-plan-card {
+  padding: 28px 24px 24px;
+}
+
+.registration-page-salon .registration-plan-heading h2 {
+  font-size: 25px;
+}
+
+.registration-page-salon .registration-plan-greeting {
+  min-height: 0;
+  margin: 12px 0 0;
+  color: var(--pf-text-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.registration-page-salon .registration-plan-price {
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.registration-page-salon .registration-trial {
+  justify-content: center;
+}
+
+.registration-page-salon .registration-plan-composition {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--pf-border);
+  border-radius: 14px;
+  background: var(--pf-panel-flat);
+  color: var(--pf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.registration-page-salon .registration-plan-includes {
+  margin: 22px 0 12px;
+  color: var(--pf-accent-text);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.registration-page-salon .registration-plan-card ul {
+  display: grid;
+  gap: 11px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.registration-page-salon .registration-plan-card li {
+  display: grid;
+  align-items: start;
+  gap: 9px;
+  grid-template-columns: 16px minmax(0, 1fr);
+  color: var(--pf-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.registration-page-salon .registration-plan-card li svg {
+  margin-top: 3px;
+  color: var(--pf-accent-text);
+}
+
+.registration-page-salon .registration-plan-cta {
+  margin: auto 0 14px;
+  padding-top: 20px;
+  color: var(--pf-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.registration-page-salon .registration-plan-card .registration-primary-button {
+  margin-top: 0;
+}

@@ -2022,6 +2022,12 @@
     "identityPhone": "Telefon:",
     "sending": "Trimitem cererea…",
     "submit": "Trimiteți cererea spre aprobare",
-    "submitNote": "După trimitere, contul rămâne inactiv până la aprobarea proprietarului platformei."
+    "submitNote": "După trimitere, contul rămâne inactiv până la aprobarea proprietarului platformei.",
+    "plan": {
+      "greeting": "Bună ziua! Priviți în voie: fără contract și fără card, plătiți abia după zilele de probă.",
+      "includes": "Ce include",
+      "includesPlus": "Tot din {{plan}}, și în plus",
+      "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă."
+    }
   }
 }

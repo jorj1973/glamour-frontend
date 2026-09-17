@@ -1,5 +1,6 @@
 import {
   Building2,
+  Check,
   CheckCircle2,
   ChevronLeft,
   Clock3,
@@ -774,7 +775,7 @@ function SalonRegistrationPage() {
                 ) : null}
 
                 <section className="registration-plans">
-                  {families.map((family) => {
+                  {families.map((family, index) => {
                     const plan = planOfPeriod(family, period);
 
                     if (!plan) {
@@ -782,6 +783,13 @@ function SalonRegistrationPage() {
                     }
 
                     const features = getPlanFeatures(plan);
+
+                    // Ступень ниже — её имя стоит в заголовке списка:
+                    // «Всё из Start, и сверх того». Так карточка не
+                    // повторяет чужой состав, но и не делает вид, что
+                    // его нет.
+                    const previous =
+                      index > 0 ? planOfPeriod(families[index - 1], period) : null;
 
                     return (
                       <article
@@ -817,7 +825,16 @@ function SalonRegistrationPage() {
                             {plan.name}
                           </h2>
 
-                          {plan.description ? <p>{plan.description}</p> : null}
+                          {/*
+                            Над ценой — приветствие и осторожное
+                            приглашение, одно и то же на всех карточках.
+                            Прежде здесь стояло описание тарифа, и оно
+                            обманывало: человек читал его как состав, а
+                            состав был ниже.
+                          */}
+                          <p className="registration-plan-greeting">
+                            {t('reg.plan.greeting')}
+                          </p>
                         </div>
 
                         <div className="registration-plan-price">
@@ -841,30 +858,42 @@ function SalonRegistrationPage() {
                           администраторов», «До 1 филиалов») повторяли то,
                           что ниже и так стояло словами.
                         */}
-                        <p
-                          style={{
-                            margin: '12px 0 0',
-                            fontWeight: 600,
-                            lineHeight: 1.5,
-                          }}
-                        >
+                        <p className="registration-plan-composition">
                           {planComposition(plan)}
                         </p>
 
                         {/*
-                          Список — только то, чего нет ступенью ниже. У
-                          самого дешёвого тарифа его нет вовсе: всё, что он
-                          умеет, умеют и остальные, и перечислять это на его
-                          карточке значит прятать единственный вопрос, на
-                          который карточка отвечает.
+                          Ниже цены — то, что человек покупает. Ступенями:
+                          у нижнего тарифа список целиком, у следующего
+                          «всё из него, и сверх того». Список растёт, а не
+                          повторяется.
                         */}
                         {features.length ? (
-                          <ul>
-                            {features.map((feature) => (
-                              <li key={feature}>{feature}</li>
-                            ))}
-                          </ul>
+                          <>
+                            <p className="registration-plan-includes">
+                              {previous
+                                ? t('reg.plan.includesPlus', {
+                                    plan: previous.name,
+                                  })
+                                : t('reg.plan.includes')}
+                            </p>
+
+                            <ul>
+                              {features.map((feature) => (
+                                <li key={feature}>
+                                  <Check size={15} aria-hidden="true" />
+
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
                         ) : null}
+
+                        {/* Последнее перед кнопкой — что произойдёт, если нажать. */}
+                        <p className="registration-plan-cta">
+                          {t('reg.plan.cta', { plan: plan.name })}
+                        </p>
 
                         <button
                           type="button"

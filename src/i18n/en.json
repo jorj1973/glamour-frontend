@@ -2009,6 +2009,12 @@
     "identityPhone": "Phone:",
     "sending": "Sending the application…",
     "submit": "Send the application for approval",
-    "submitNote": "After sending, the account stays inactive until the platform owner approves it."
+    "submitNote": "After sending, the account stays inactive until the platform owner approves it.",
+    "plan": {
+      "greeting": "Hello! Take your time: no contract, no card — you pay only after the trial days.",
+      "includes": "What is included",
+      "includesPlus": "Everything in {{plan}}, and on top",
+      "cta": "Tap and fill in the salon details. After approval we switch {{plan}} on for the trial days."
+    }
   }
 }
