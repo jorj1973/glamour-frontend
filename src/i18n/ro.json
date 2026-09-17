@@ -1914,5 +1914,14 @@
     "welcome": "Celui care se conectează — {{count}} mesaje",
     "off": "Invitațiile sunt oprite acum",
     "failed": "Nu s-a putut încărca"
+  },
+  "subscription": {
+    "endsIn": "Termenul se apropie de final. Zile rămase: {{count}}",
+    "grace": "Termenul de plată a expirat. Zile până la limită: {{count}}",
+    "limited": "Programări rămase: {{count}}. Apoi doar citire",
+    "stopped": "Programările s-au epuizat. Contul rămâne doar pentru citire",
+    "pay": "Prelungește abonamentul",
+    "later": "Mai târziu",
+    "masterNote": "Salonul nu a prelungit abonamentul. Programări noi nu se pot face deocamdată"
   }
 }

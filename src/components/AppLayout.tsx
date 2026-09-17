@@ -44,6 +44,7 @@ import {
 import api from '../api/api';
 import LanguageSwitcher from './LanguageSwitcher';
 import NotificationBell from './NotificationBell';
+import SubscriptionAlarm from './SubscriptionAlarm';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 
 /**
@@ -777,6 +778,15 @@ function AppLayout({ children }: AppLayoutProps) {
       {/* Плавающий колокольчик: виден на всех страницах,
           включая телефон, где меню скрыто. */}
       <NotificationBell />
+
+      {/* Срок подписки. Владелец и администратор видят всё, мастер —
+          только полосу: у него кабинет открыт при клиентке. */}
+      {currentSalonId ? (
+        <SubscriptionAlarm
+          salonId={currentSalonId}
+          canPay={canOpenSalon}
+        />
+      ) : null}
 
       <button
         type="button"

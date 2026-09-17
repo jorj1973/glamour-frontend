@@ -1907,5 +1907,14 @@
     "welcome": "The one who joins gets {{count}} messages",
     "off": "Invitations are off right now",
     "failed": "Could not load"
+  },
+  "subscription": {
+    "endsIn": "The term is ending. Days left: {{count}}",
+    "grace": "Payment is overdue. Days until the limit: {{count}}",
+    "limited": "Appointments left: {{count}}. After that, read only",
+    "stopped": "Appointments are used up. The cabinet stays read-only",
+    "pay": "Renew the plan",
+    "later": "Later",
+    "masterNote": "The salon has not renewed the plan. New appointments are unavailable for now"
   }
 }
