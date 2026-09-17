@@ -207,7 +207,7 @@ function getPlanFeatures(plan: PublicPlan): string[] {
   if (Array.isArray(plan.features)) {
     return plan.features
       .filter((feature): feature is string => typeof feature === 'string')
-      .slice(0, 8);
+      .slice(0, 12);
   }
 
   return [];
