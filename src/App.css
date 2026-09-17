@@ -6045,3 +6045,81 @@ body {
   cursor: not-allowed;
   filter: grayscale(0.55);
 }
+
+/* ------------------------------------------------------------------
+   Регистрация салона: страница вне кабинета. 2026-09-17.
+
+   Она была написана тёмной — тёмные карточки, светлый текст, палитра
+   `--pf-*` из кабинета владельца площадки. А фон ей давала страница
+   приложения, и на светлой теме получалось белое по белому: заголовок
+   «Выберите тариф» пропадал совсем, оставляя пустое место посреди
+   экрана, и дата в приглашении исчезала вместе с ним. Человек видел
+   разрыв и не понимал, что он читает.
+
+   Поэтому страница красится сама и всегда одинаково, темой не
+   спрашиваясь. Так уже сделана соседняя страница — регистрация
+   мастера: её панель тоже тёмная при любой теме. Публичный вход —
+   витрина, а не кабинет: он должен выглядеть одинаково у всех.
+
+   Заодно — середина. Блок вступления шириной 820 пикселей стоял
+   слева, а текст внутри него центрировался по нему же: заголовок и
+   строка о пробном периоде уезжали влево от карточек, и страница
+   выглядела съехавшей.
+   ------------------------------------------------------------------ */
+
+body:has(.registration-page),
+:root[data-theme="light"] body:has(.registration-page),
+:root[data-theme="dark"] body:has(.registration-page) {
+  background: #17151c;
+}
+
+#root:has(.registration-page) {
+  border-color: rgba(225, 172, 82, 0.18);
+  background: #17151c;
+}
+
+.registration-page {
+  --pf-text: #f7f3f7;
+  --pf-text-muted: #9d949f;
+  --pf-border: rgba(225, 172, 82, 0.18);
+  --pf-input: rgba(255, 255, 255, 0.055);
+  --pf-panel-flat: rgba(255, 255, 255, 0.035);
+  --pf-accent-text: #efb6d8;
+  --pf-danger-text: #ffb6c6;
+  --pf-success-text: #8ee5b5;
+  --pf-info-text: #a8c9ff;
+  --app-gold: #e1ac52;
+  --app-gold-deep: #ad7b30;
+  --app-text: #fff7fc;
+  --app-text-muted: #b9b0bb;
+  --app-border: rgba(225, 172, 82, 0.18);
+  --app-ink-rgb: 255, 255, 255;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(173, 90, 148, 0.16),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(106, 69, 130, 0.18),
+      transparent 32%
+    ),
+    #17151c;
+  color: var(--pf-text);
+}
+
+.registration-intro {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.registration-intro > p:last-of-type {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.registration-invitation-summary {
+  justify-content: center;
+}
