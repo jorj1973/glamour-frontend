@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import PublicFooter from '../components/PublicFooter';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 
 /**
@@ -1244,6 +1245,8 @@ function SalonRegistrationPage() {
             </form>
           </>
         ) : null}
+
+        <PublicFooter />
       </section>
     </main>
   );

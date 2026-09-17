@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
+import LegalPage from './pages/LegalPage';
 import PartnerInvitePage from './pages/PartnerInvitePage';
 import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
 import PublicBookingPage from './pages/PublicBookingPage';
@@ -245,6 +246,17 @@ function App() {
   // форма. Ссылку присылают в переписке, где она легко теряет хвост.
   if (currentPage === '#try' || currentPage.startsWith('#try?')) {
     return <PartnerInvitePage />;
+  }
+
+  // Оферта, политика данных и контакты. Живут в приложении, а не на
+  // отдельном сайте: человеку это один адрес, нам — одна сборка.
+  // Открыты всем и до входа: соглашаются с ними раньше, чем входят.
+  if (
+    currentPage === '#terms' ||
+    currentPage === '#privacy' ||
+    currentPage === '#contacts'
+  ) {
+    return <LegalPage />;
   }
 
   // Две формы одного адреса. Короткая — #salon/glamour — не ломается

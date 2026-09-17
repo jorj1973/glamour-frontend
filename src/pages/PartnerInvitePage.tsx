@@ -4,6 +4,7 @@ import { Gift, Sparkles } from 'lucide-react';
 
 import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import PublicFooter from '../components/PublicFooter';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 
 /**
@@ -299,6 +300,8 @@ function PartnerInvitePage() {
             {isSending ? t('common.loading') : t('invite.start')}
           </button>
         </section>
+
+        <PublicFooter />
       </div>
     </main>
   );
