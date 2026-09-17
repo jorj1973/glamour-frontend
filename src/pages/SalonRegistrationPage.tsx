@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 
 import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 /**
  * Регистрация салона по ссылке.
@@ -565,7 +566,7 @@ function SalonRegistrationPage() {
   }
 
   return (
-    <main className="registration-page">
+    <main className="registration-page registration-page-salon">
       <section className="registration-shell">
         <header className="registration-header">
           <div className="registration-brand">
@@ -587,6 +588,14 @@ function SalonRegistrationPage() {
               flexWrap: 'wrap',
             }}
           >
+            {/*
+              Тема и язык — рядом, как в кабинете. Сюда приходят по
+              ссылке из переписки, ещё без входа: и то и другое человеку
+              придётся выбирать здесь, а не в настройках, которых у него
+              пока нет.
+            */}
+            <ThemeSwitcher />
+
             <LanguageSwitcher />
 
             <button

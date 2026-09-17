@@ -4,6 +4,7 @@ import { Gift, Sparkles } from 'lucide-react';
 
 import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import ThemeSwitcher from '../components/ThemeSwitcher';
 
 /**
  * Страница по ссылке. Ссылка одна — `#try`.
@@ -158,7 +159,11 @@ function PartnerInvitePage() {
             GLAMOUR
           </strong>
 
-          <LanguageSwitcher />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ThemeSwitcher />
+
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {referrer ? (

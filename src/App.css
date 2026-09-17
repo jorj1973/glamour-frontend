@@ -6049,36 +6049,43 @@ body {
 /* ------------------------------------------------------------------
    Регистрация салона: страница вне кабинета. 2026-09-17.
 
-   Она была написана тёмной — тёмные карточки, светлый текст, палитра
-   `--pf-*` из кабинета владельца площадки. А фон ей давала страница
-   приложения, и на светлой теме получалось белое по белому: заголовок
-   «Выберите тариф» пропадал совсем, оставляя пустое место посреди
-   экрана, и дата в приглашении исчезала вместе с ним. Человек видел
-   разрыв и не понимал, что он читает.
+   Она написана тёмной — тёмные карточки, светлый текст, палитра
+   `--pf-*` из кабинета владельца площадки. А фон ей давало приложение,
+   и на светлой теме выходило белое по белому: заголовок «Выберите
+   тариф» пропадал совсем, оставляя посреди экрана пустое место.
+   Человек видел разрыв и не понимал, что читает.
 
-   Поэтому страница красится сама и всегда одинаково, темой не
-   спрашиваясь. Так уже сделана соседняя страница — регистрация
-   мастера: её панель тоже тёмная при любой теме. Публичный вход —
-   витрина, а не кабинет: он должен выглядеть одинаково у всех.
+   В партии 86 страница была просто закрашена тёмным при любой теме.
+   Белое по белому это вылечило, но отняло выбор: кабинет у человека
+   светлый, а вход в него — нет.
+
+   Поэтому здесь обе темы целиком. Тёмная — по умолчанию, её видит
+   всякий, кто пришёл впервые. Светлая — когда её выбрали: своя
+   палитра, белые карточки, тёмные буквы и синие подсказки, которые на
+   белом читаются.
+
+   Правила держатся за `registration-page-salon`, а не за общую
+   `registration-page`: тем же набором классов пользуется регистрация
+   мастера, а там левая панель тёмная при любой теме, и тёмные буквы
+   на ней пропали бы ровно так же, как пропадал здесь заголовок.
 
    Заодно — середина. Блок вступления шириной 820 пикселей стоял
    слева, а текст внутри него центрировался по нему же: заголовок и
-   строка о пробном периоде уезжали влево от карточек, и страница
-   выглядела съехавшей.
+   строка о пробном периоде уезжали влево от карточек.
    ------------------------------------------------------------------ */
 
-body:has(.registration-page),
-:root[data-theme="light"] body:has(.registration-page),
-:root[data-theme="dark"] body:has(.registration-page) {
+/* ------------------------------------------------- тёмная, обычная */
+
+body:has(.registration-page-salon) {
   background: #17151c;
 }
 
-#root:has(.registration-page) {
+#root:has(.registration-page-salon) {
   border-color: rgba(225, 172, 82, 0.18);
   background: #17151c;
 }
 
-.registration-page {
+.registration-page-salon {
   --pf-text: #f7f3f7;
   --pf-text-muted: #9d949f;
   --pf-border: rgba(225, 172, 82, 0.18);
@@ -6110,16 +6117,95 @@ body:has(.registration-page),
   color: var(--pf-text);
 }
 
-.registration-intro {
+/* --------------------------------------------- светлая, по выбору */
+
+:root[data-theme="light"] body:has(.registration-page-salon) {
+  background: #f7f4f6;
+}
+
+:root[data-theme="light"] #root:has(.registration-page-salon) {
+  border-color: rgba(157, 109, 27, 0.28);
+  background: #f7f4f6;
+}
+
+:root[data-theme="light"] .registration-page-salon {
+  --pf-text: #211b23;
+  --pf-text-muted: #756b77;
+  --pf-border: rgba(157, 109, 27, 0.28);
+  --pf-input: rgba(54, 40, 57, 0.05);
+  --pf-panel-flat: rgba(54, 40, 57, 0.04);
+  --pf-accent-text: #a83e82;
+  --pf-danger-text: #c23b56;
+  --pf-success-text: #198653;
+  --pf-info-text: #2f6fd6;
+  --app-gold: #9d6d1b;
+  --app-gold-deep: #7a5514;
+  --app-text: #211b23;
+  --app-text-muted: #756b77;
+  --app-border: rgba(157, 109, 27, 0.28);
+  --app-ink-rgb: 54, 40, 57;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(214, 130, 184, 0.13),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(106, 69, 130, 0.07),
+      transparent 32%
+    ),
+    #f7f4f6;
+}
+
+/*
+  Карточки — единственное место, где тёмный цвет вписан числами, а не
+  переменной. На светлой теме их приходится перекрывать целиком.
+*/
+:root[data-theme="light"] .registration-page-salon .registration-plan-card,
+:root[data-theme="light"] .registration-page-salon .registration-form-card,
+:root[data-theme="light"] .registration-page-salon .registration-state-card {
+  background: linear-gradient(145deg, #ffffff, #fdf8fb);
+  box-shadow: 0 22px 60px rgba(54, 40, 57, 0.08);
+}
+
+:root[data-theme="light"] .registration-page-salon .registration-plan-featured {
+  box-shadow:
+    0 22px 60px rgba(54, 40, 57, 0.08),
+    0 0 0 1px rgba(157, 109, 27, 0.3);
+}
+
+:root[data-theme="light"]
+  .registration-page-salon
+  .registration-form-grid
+  select
+  option {
+  background: #ffffff;
+}
+
+:root[data-theme="light"]
+  .registration-page-salon
+  .registration-identity-note
+  strong {
+  color: #1f4c96;
+}
+
+:root[data-theme="light"]
+  .registration-page-salon
+  .registration-identity-note
+  p {
+  color: #4a5a73;
+}
+
+/* ------------------------------------------------------- середина */
+
+.registration-page-salon .registration-intro,
+.registration-page-salon .registration-intro > p:last-of-type {
   margin-right: auto;
   margin-left: auto;
 }
 
-.registration-intro > p:last-of-type {
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.registration-invitation-summary {
+.registration-page-salon .registration-invitation-summary {
   justify-content: center;
 }
