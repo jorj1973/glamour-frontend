@@ -801,30 +801,21 @@ function SalonRegistrationPage() {
                             : 'registration-plan-card'
                         }
                       >
-                        {plan.isFeatured ? (
-                          <span className="registration-plan-badge">
-                            {t('reg.featured')}
-                          </span>
-                        ) : null}
-
                         <div className="registration-plan-heading">
                           {/*
-                            Отметка «Рекомендуемый» приколота к верхнему
-                            правому углу поверх всего, и на имени тарифа
-                            она лежала прямо по буквам. Место под неё
-                            освобождается здесь, а не в общем стиле: имя
-                            переводится, и в русском отметка длиннее
-                            самого имени.
+                            Отметка «Рекомендуемый» стоит над именем, в
+                            общем потоке. Приколотая к правому углу, она
+                            лежала на имени буквами и сдвигала его с
+                            середины — одна карточка из трёх выходила
+                            криво.
                           */}
-                          <h2
-                            style={
-                              plan.isFeatured
-                                ? { paddingRight: 120 }
-                                : undefined
-                            }
-                          >
-                            {plan.name}
-                          </h2>
+                          {plan.isFeatured ? (
+                            <span className="registration-plan-badge">
+                              {t('reg.featured')}
+                            </span>
+                          ) : null}
+
+                          <h2>{plan.name}</h2>
 
                           {/*
                             Над ценой — приветствие и осторожное
@@ -838,13 +829,16 @@ function SalonRegistrationPage() {
                           </p>
                         </div>
 
+                        {/*
+                          Цена без «в месяц»: на что она — уже сказал
+                          переключатель над карточками, и повторять это
+                          трижды значит отвечать на один вопрос в четырёх
+                          местах сразу.
+                        */}
                         <div className="registration-plan-price">
                           <strong>{plan.price}</strong>
 
-                          <span>
-                            {plan.currency}{' '}
-                            {billingLabel(plan.billingPeriod)}
-                          </span>
+                          <span>{plan.currency}</span>
                         </div>
 
                         <div className="registration-trial">
