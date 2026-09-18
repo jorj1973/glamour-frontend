@@ -11,6 +11,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import AppLayout from '../components/AppLayout';
+import BroadcastPanel from '../components/BroadcastPanel';
 import api from '../api/api';
 import { getErrorKey } from '../api/errorMessage';
 
@@ -1281,6 +1282,17 @@ function SmsPage() {
                   {t('sms.gift.note')}
                 </p>
               </section>
+            )}
+
+            {/*
+              Рассылка — только у салона и только при своём счёте.
+              Наёмному мастеру показывать её незачем: платит за него
+              салон, и базы клиенток в этом смысле у него нет. У
+              независимого мастера база своя (ADR-005), и рассылка по
+              ней — отдельный разговор, которого мы ещё не вели.
+            */}
+            {data.scope === 'salon' && data.ownAccount && salon && (
+              <BroadcastPanel salonId={salon.id} enabled={data.enabled} />
             )}
 
             {/* ── Условия видны и после включения ── */}
