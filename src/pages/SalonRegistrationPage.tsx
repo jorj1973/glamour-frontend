@@ -204,6 +204,63 @@ function planOfPeriod(
   return family.monthly ?? family.yearly;
 }
 
+/**
+ * Что входит в тариф — целиком, вместе со ступенями ниже.
+ *
+ * Сперва карточка Business показывала только свою надстройку, а над ней
+ * стояло «Всё из Start, и сверх того». Владелец посмотрел и сказал: под
+ * этим заголовком должно быть всё, а не отсылка. Он прав: человек читает
+ * одну карточку, а не три, и «всё из Start» ему ничего не говорит, пока
+ * он не вернулся глазами к соседней колонке.
+ *
+ * Поэтому список собирается снизу вверх: сперва строки самого дешёвого
+ * тарифа, потом следующего, потом этого. Строки идут в одном порядке во
+ * всех колонках — так видно, где одна длиннее другой.
+ *
+ * Годовой добавляет своё последней строкой — подарок сообщениями. Он
+ * берётся как разница между годовым списком и месячным: то, чего в
+ * месячном нет. Иначе на карточке Business сошлись бы два подарка сразу,
+ * двести от Start и пятьсот своих.
+ */
+function cumulativeFeatures(
+  families: PlanFamily[],
+  index: number,
+  period: BillingPeriod,
+): string[] {
+  const lines: string[] = [];
+
+  for (let step = 0; step <= index; step += 1) {
+    const base = families[step].monthly ?? families[step].yearly;
+
+    if (!base) {
+      continue;
+    }
+
+    for (const line of getPlanFeatures(base)) {
+      if (!lines.includes(line)) {
+        lines.push(line);
+      }
+    }
+  }
+
+  if (period === 'yearly') {
+    const yearly = families[index].yearly;
+    const monthly = families[index].monthly;
+
+    if (yearly) {
+      const monthlyLines = monthly ? getPlanFeatures(monthly) : [];
+
+      for (const line of getPlanFeatures(yearly)) {
+        if (!monthlyLines.includes(line) && !lines.includes(line)) {
+          lines.push(line);
+        }
+      }
+    }
+  }
+
+  return lines;
+}
+
 function getPlanFeatures(plan: PublicPlan): string[] {
   if (Array.isArray(plan.features)) {
     return plan.features
@@ -750,9 +807,8 @@ function SalonRegistrationPage() {
                 {hasBothPeriods ? (
                   <div
                     style={{
-                      display: 'flex',
-                      justifyContent: 'center',
                       marginBottom: 22,
+                      textAlign: 'center',
                     }}
                   >
                     <div style={PERIOD_SWITCH}>
@@ -772,6 +828,23 @@ function SalonRegistrationPage() {
                         {t('reg.periodYearly')}
                       </button>
                     </div>
+
+                    {/*
+                      Выгода года сказана один раз, под переключателем, а
+                      не на каждой карточке: она у всех тарифов одна и та
+                      же, и трижды повторённая превращается в шум.
+                    */}
+                    {period === 'yearly' ? (
+                      <p
+                        style={{
+                          margin: '12px 0 0',
+                          color: 'var(--pf-text-muted)',
+                          fontSize: 13,
+                        }}
+                      >
+                        {t('reg.yearlyHint')}
+                      </p>
+                    ) : null}
                   </div>
                 ) : null}
 
@@ -783,14 +856,7 @@ function SalonRegistrationPage() {
                       return null;
                     }
 
-                    const features = getPlanFeatures(plan);
-
-                    // Ступень ниже — её имя стоит в заголовке списка:
-                    // «Всё из Start, и сверх того». Так карточка не
-                    // повторяет чужой состав, но и не делает вид, что
-                    // его нет.
-                    const previous =
-                      index > 0 ? planOfPeriod(families[index - 1], period) : null;
+                    const features = cumulativeFeatures(families, index, period);
 
                     return (
                       <article
@@ -866,11 +932,7 @@ function SalonRegistrationPage() {
                         {features.length ? (
                           <>
                             <p className="registration-plan-includes">
-                              {previous
-                                ? t('reg.plan.includesPlus', {
-                                    plan: previous.name,
-                                  })
-                                : t('reg.plan.includes')}
+                              {t('reg.plan.includes')}
                             </p>
 
                             <ul>

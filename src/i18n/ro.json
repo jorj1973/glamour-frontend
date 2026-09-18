@@ -2028,6 +2028,7 @@
       "includes": "Ce include",
       "includesPlus": "Tot din {{plan}}, și în plus",
       "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă."
-    }
+    },
+    "yearlyHint": "Un an înainte — plătiți pentru zece luni."
   }
 }

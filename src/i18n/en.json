@@ -2015,6 +2015,7 @@
       "includes": "What is included",
       "includesPlus": "Everything in {{plan}}, and on top",
       "cta": "Tap and fill in the salon details. After approval we switch {{plan}} on for the trial days."
-    }
+    },
+    "yearlyHint": "A year up front — you pay for ten months."
   }
 }
