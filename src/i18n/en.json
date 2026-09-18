@@ -2012,8 +2012,8 @@
     "submitNote": "After sending, the account stays inactive until the platform owner approves it.",
     "plan": {
       "greeting": "Hello! No contract, no card — you pay after the trial days.",
-      "includes": "What is included",
-      "includesPlus": "{{plan}} + …",
+      "includes": "What is included:",
+      "includesPlus": "Everything in {{plan}} and:",
       "cta": "Tap and fill in the salon details. After approval we switch {{plan}} on for the trial days."
     },
     "yearlyHint": "A year up front — you pay for ten months."

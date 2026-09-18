@@ -2025,8 +2025,8 @@
     "submitNote": "După trimitere, contul rămâne inactiv până la aprobarea proprietarului platformei.",
     "plan": {
       "greeting": "Bună ziua! Fără contract și fără card — plătiți după zilele de probă.",
-      "includes": "Ce include",
-      "includesPlus": "{{plan}} + …",
+      "includes": "Ce include:",
+      "includesPlus": "Tot ce este în {{plan}} și:",
       "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă."
     },
     "yearlyHint": "Un an înainte — plătiți pentru zece luni."

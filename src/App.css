@@ -6366,3 +6366,10 @@ body:has(.registration-page-salon) {
 .registration-page-salon .registration-plan-card ul {
   margin-bottom: 4px;
 }
+
+/* Заголовок списка стал фразой — «Всё, что в Start, и:», — и прежняя
+   разрядка, рассчитанная на два слова, растягивала его на три строки. */
+
+.registration-page-salon .registration-plan-includes {
+  letter-spacing: 0.06em;
+}
