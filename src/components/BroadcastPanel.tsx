@@ -54,6 +54,8 @@ type Preview = {
   left: number;
   enough: boolean;
   shortBy: number;
+  /** Разрешает ли тариф откладывать отправку. */
+  canSchedule: boolean;
   text: string;
   sample: { id: string; name: string; phone: string }[];
 };
@@ -111,6 +113,7 @@ function refusalKey(error: unknown): string {
     BROADCAST_SCHEDULE_TOO_SOON: 'sms.broadcast.err.tooSoon',
     BROADCAST_SCHEDULE_TOO_FAR: 'sms.broadcast.err.tooFar',
     BROADCAST_NOT_CANCELLABLE: 'sms.broadcast.err.notCancellable',
+    BROADCAST_SCHEDULE_NOT_IN_PLAN: 'sms.broadcast.err.notInPlan',
   };
 
   return known[message] ?? getErrorKey(error);
@@ -528,43 +531,6 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
         />
       </label>
 
-      {/*
-        Отправить позже. Сообщение в одиннадцать ночи злит даже того,
-        кто рад скидке: салон работает вечером, клиентка читает утром.
-      */}
-      <label
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 8,
-          marginBottom: 14,
-        }}
-      >
-        <input
-          type="checkbox"
-          checked={sendLater}
-          onChange={(event) => setSendLater(event.target.checked)}
-          style={{ marginTop: 3 }}
-        />
-
-        <span style={{ color: 'var(--app-text)', fontSize: 13 }}>
-          {t('sms.broadcast.later')}
-        </span>
-      </label>
-
-      {sendLater ? (
-        <label style={{ display: 'block', marginBottom: 14 }}>
-          <span style={labelStyle}>{t('sms.broadcast.laterWhen')}</span>
-
-          <input
-            type="datetime-local"
-            value={sendAt}
-            onChange={(event) => setSendAt(event.target.value)}
-            style={{ ...fieldStyle, marginTop: 5, maxWidth: 260 }}
-          />
-        </label>
-      ) : null}
-
       <button
         type="button"
         disabled={isBusy || text.trim().length < 5}
@@ -822,6 +788,63 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
           </div>
 
           {/* ── Согласие ── */}
+
+          {/*
+            Отправить позже — после подсчёта, а не до: право на это
+            даёт тариф, а про тариф сервер рассказывает вместе с
+            числами. Спрашивать отдельно значило бы спрашивать дважды.
+          */}
+          {enabled && canSend ? (
+            preview.canSchedule ? (
+              <>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 8,
+                    marginBottom: 10,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={sendLater}
+                    onChange={(event) => setSendLater(event.target.checked)}
+                    style={{ marginTop: 3 }}
+                  />
+
+                  <span style={{ color: 'var(--app-text)', fontSize: 13 }}>
+                    {t('sms.broadcast.later')}
+                  </span>
+                </label>
+
+                {sendLater ? (
+                  <label style={{ display: 'block', marginBottom: 12 }}>
+                    <span style={labelStyle}>
+                      {t('sms.broadcast.laterWhen')}
+                    </span>
+
+                    <input
+                      type="datetime-local"
+                      value={sendAt}
+                      onChange={(event) => setSendAt(event.target.value)}
+                      style={{ ...fieldStyle, marginTop: 5, maxWidth: 260 }}
+                    />
+                  </label>
+                ) : null}
+              </>
+            ) : (
+              <p
+                style={{
+                  margin: '0 0 12px',
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('sms.broadcast.laterLocked')}
+              </p>
+            )
+          ) : null}
 
           {!enabled ? (
             <p

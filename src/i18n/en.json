@@ -1477,6 +1477,7 @@
   },
   "sms": {
     "broadcast": {
+      "laterLocked": "Sending later comes with the Business plan. For now messages go out at once.",
       "later": "Send later",
       "laterWhen": "When to send",
       "schedule": "Schedule",
@@ -1500,6 +1501,7 @@
       "progress": "{{sent}} of {{planned}}",
       "failed": "didn't arrive: {{count}}",
       "err": {
+        "notInPlan": "Scheduling comes with the Business plan and above. Sending right away works on any plan.",
         "notADate": "That does not look like a time. Pick a day and an hour.",
         "tooSoon": "Too soon. Schedule at least two minutes ahead — so there is time to change your mind.",
         "tooFar": "Too far ahead. No more than two months.",

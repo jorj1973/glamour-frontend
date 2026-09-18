@@ -1484,6 +1484,7 @@
   },
   "sms": {
     "broadcast": {
+      "laterLocked": "Trimiterea mai târziu — de la tariful Business. Acum mesajele pleacă imediat.",
       "later": "Trimiteți mai târziu",
       "laterWhen": "Când să plece",
       "schedule": "Programați",
@@ -1507,6 +1508,7 @@
       "progress": "{{sent}} din {{planned}}",
       "failed": "nu au ajuns: {{count}}",
       "err": {
+        "notInPlan": "Programarea mesajelor este disponibilă de la tariful Business. Trimiterea imediată este disponibilă pe oricare.",
         "notADate": "Nu pare a fi o oră. Alegeți ziua și ora.",
         "tooSoon": "Prea devreme. Programați cu cel puțin două minute înainte — ca să rămână timp de răzgândit.",
         "tooFar": "Prea departe. Nu mai mult de două luni.",
