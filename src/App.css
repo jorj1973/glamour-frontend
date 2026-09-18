@@ -6373,3 +6373,13 @@ body:has(.registration-page-salon) {
 .registration-page-salon .registration-plan-includes {
   letter-spacing: 0.06em;
 }
+
+/* Вторая цена — под первой, мелко и приглушённо: акция на первую
+   оплату, дальше цена обычная. */
+
+.registration-page-salon .registration-plan-regular {
+  margin: 6px 0 0;
+  color: var(--pf-text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}

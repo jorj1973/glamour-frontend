@@ -66,6 +66,24 @@ type PublicPlan = {
   smsAllowance: number;
   features: unknown;
   isFeatured: boolean;
+
+  /**
+   * Цена со второй оплаты. Пусто — цена одна и та же всегда.
+   *
+   * Акция действует на первую оплату, какой бы срок ни выбрали, и одна
+   * на салон: взять год выгоднее, потому что скидка накроет двенадцать
+   * месяцев, а не один.
+   */
+  regularPrice?: string | null;
+
+  /** Кому тариф: салону или независимому мастеру. */
+  audience?: string;
+
+  /** Тариф не выбирают кнопкой — о нём договариваются. */
+  byRequest?: boolean;
+
+  /** Сколько клиенток помещается в базу. Пусто — без предела. */
+  maxClients?: number | null;
 };
 
 type PublicInvitationResponse = {
@@ -882,11 +900,23 @@ function SalonRegistrationPage() {
                             середины — одна карточка из трёх выходила
                             криво.
                           */}
-                          {plan.isFeatured ? (
-                            <span className="registration-plan-badge">
-                              {t('reg.featured')}
-                            </span>
-                          ) : null}
+                          {/*
+                            Отметка стоит на всех трёх карточках, но на
+                            двух она невидима. Иначе выделенная карточка
+                            выше соседок на её высоту, и цены в ряду
+                            разъезжаются: у Business пятьсот пятьдесят
+                            оказывается ниже трёхсот пятидесяти у Start.
+                          */}
+                          <span
+                            className="registration-plan-badge"
+                            style={
+                              plan.isFeatured
+                                ? undefined
+                                : { visibility: 'hidden' }
+                            }
+                          >
+                            {t('reg.featured')}
+                          </span>
 
                           <h2>{plan.name}</h2>
 
@@ -913,6 +943,20 @@ function SalonRegistrationPage() {
 
                           <span>{plan.currency}</span>
                         </div>
+
+                        {/*
+                          Вторая цена — не мелкий шрифт ради приличия, а
+                          обещание: по ней мы действительно берём со
+                          второй оплаты. Нет второй цены — строки нет.
+                        */}
+                        {plan.regularPrice ? (
+                          <p className="registration-plan-regular">
+                            {t('reg.thenPrice', {
+                              price: plan.regularPrice,
+                              currency: plan.currency,
+                            })}
+                          </p>
+                        ) : null}
 
                         <div className="registration-trial">
                           <Clock3 size={16} aria-hidden="true" />
