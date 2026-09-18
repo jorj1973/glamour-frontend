@@ -8,6 +8,7 @@ import {
   Link2,
   MapPin,
   Percent,
+  Download,
   RefreshCw,
   Scissors,
   Star,
@@ -57,6 +58,7 @@ function OwnerDashboardPage() {
   const { t } = useTranslation();
   const [data, setData] = useState<DashboardData | null>(null);
   const [salon, setSalon] = useState<SalonSummary | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [upcoming, setUpcoming] = useState<Appointment[]>([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -77,6 +79,51 @@ function OwnerDashboardPage() {
       if (apptRes.status === 'fulfilled') setUpcoming(apptRes.value.data.slice(0, 5));
     } catch { setMessage(t('common.loadError')); }
     finally { setIsLoading(false); }
+  }
+
+  /**
+   * Своё забрать.
+   *
+   * Книгу отдаёт сервер, а браузеру её нужно не показать, а сохранить.
+   * Простая ссылка сюда не годится: запрос уходит с ключом входа, и
+   * без него сервер ответит отказом. Поэтому забираем файл обычным
+   * запросом и подсовываем браузеру уже готовое.
+   */
+  async function downloadExport() {
+    if (!salon) {
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      const response = await api.get('/reports/export', {
+        params: { salonId: salon.id },
+        responseType: 'blob',
+      });
+
+      const disposition = String(
+        response.headers?.['content-disposition'] ?? '',
+      );
+
+      const named = /filename="([^"]+)"/.exec(disposition);
+
+      const url = URL.createObjectURL(response.data as Blob);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download = named ? named[1] : 'glamour.xlsx';
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+    } catch {
+      setMessage(t('common.loadError'));
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   useEffect(() => { void loadDashboard(); }, []);
@@ -157,6 +204,19 @@ function OwnerDashboardPage() {
               <span>{t('dashboard.salon')}</span>
               <strong>{salon?.name ?? '—'}</strong>
             </div>
+            {!isAdministrator && (
+              <button
+                type="button"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 14, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: isExporting ? 'wait' : 'pointer' }}
+                onClick={() => void downloadExport()}
+                disabled={isExporting || !salon}
+                title={t('dashboard.exportHint')}
+              >
+                <Download size={15} />
+                {t('dashboard.export')}
+              </button>
+            )}
+
             <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minHeight: 46, padding: '0 14px', border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 14, background: 'rgba(var(--app-ink-rgb),0.05)', color: 'var(--app-text)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} onClick={() => void loadDashboard()} disabled={isLoading}>
               <RefreshCw size={15} style={isLoading ? { animation: 'spin 1s linear infinite' } : {}} />
               {t('common.refresh')}
