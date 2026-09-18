@@ -6330,3 +6330,39 @@ body:has(.registration-page-salon) {
   display: inline-block;
   margin: 0 0 10px;
 }
+
+/* ------------------------------------------------------------------
+   Карточка тарифа: сперва решение, потом подробности. 2026-09-18.
+
+   Владелец показал на чужие карточки как на образец: имя, одна строка о
+   тарифе, цена, кнопка — и только под чертой список того, что входит.
+   Порядок здесь был обратный: человек шёл сквозь пятнадцать строк
+   состава, прежде чем доходил до кнопки.
+
+   Заодно ушла рамка с составом числами. Она стояла отдельным блоком и
+   отвечала на тот же вопрос, что список под ней, — «что я получу», —
+   и потому разрывала ответ надвое. Теперь это первая строка списка.
+   ------------------------------------------------------------------ */
+
+.registration-page-salon .registration-plan-card .registration-primary-button {
+  margin-top: 24px;
+}
+
+.registration-page-salon .registration-plan-cta {
+  margin: 10px 0 0;
+  padding: 0;
+  color: var(--pf-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.registration-page-salon .registration-plan-includes {
+  margin: 24px 0 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--pf-border);
+}
+
+.registration-page-salon .registration-plan-card ul {
+  margin-bottom: 4px;
+}

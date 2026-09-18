@@ -914,44 +914,11 @@ function SalonRegistrationPage() {
                         </div>
 
                         {/*
-                          Состав — одной строкой и из чисел тарифа. Три
-                          прежние автостроки («До 5 мастеров», «До 1
-                          администраторов», «До 1 филиалов») повторяли то,
-                          что ниже и так стояло словами.
+                          Кнопка стоит сразу под ценой, а список — ниже, за
+                          чертой. Так собраны карточки, на которые владелец
+                          показал как на образец: сперва решение, потом
+                          подробности для тех, кому их нужно.
                         */}
-                        <p className="registration-plan-composition">
-                          {planComposition(plan)}
-                        </p>
-
-                        {/*
-                          Ниже цены — то, что человек покупает. Ступенями:
-                          у нижнего тарифа список целиком, у следующего
-                          «всё из него, и сверх того». Список растёт, а не
-                          повторяется.
-                        */}
-                        {features.length ? (
-                          <>
-                            <p className="registration-plan-includes">
-                              {t('reg.plan.includes')}
-                            </p>
-
-                            <ul>
-                              {features.map((feature) => (
-                                <li key={feature}>
-                                  <Check size={15} aria-hidden="true" />
-
-                                  <span>{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </>
-                        ) : null}
-
-                        {/* Последнее перед кнопкой — что произойдёт, если нажать. */}
-                        <p className="registration-plan-cta">
-                          {t('reg.plan.cta', { plan: plan.name })}
-                        </p>
-
                         <button
                           type="button"
                           className="registration-primary-button"
@@ -962,6 +929,36 @@ function SalonRegistrationPage() {
                             ? t('reg.savingChoice')
                             : t('reg.choosePlan')}
                         </button>
+
+                        <p className="registration-plan-cta">
+                          {t('reg.plan.cta', { plan: plan.name })}
+                        </p>
+
+                        {/*
+                          Состав ушёл из отдельной рамки в первую строку
+                          списка. Рамка отвечала на тот же вопрос, что и
+                          список под ней, — «что я получу», — и потому
+                          разрывала его надвое.
+                        */}
+                        <p className="registration-plan-includes">
+                          {t('reg.plan.includes')}
+                        </p>
+
+                        <ul>
+                          <li>
+                            <Check size={15} aria-hidden="true" />
+
+                            <span>{planComposition(plan)}</span>
+                          </li>
+
+                          {features.map((feature) => (
+                            <li key={feature}>
+                              <Check size={15} aria-hidden="true" />
+
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </article>
                     );
                   })}
