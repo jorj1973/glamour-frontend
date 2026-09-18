@@ -37,6 +37,7 @@ import PlanTextsPanel from '../components/platform/PlanTextsPanel';
 import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
 import BillingPanel from '../components/platform/BillingPanel';
 import LeadsPanel from '../components/platform/LeadsPanel';
+import EnterprisePanel from '../components/platform/EnterprisePanel';
 import NewPlanPanel from '../components/platform/NewPlanPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
@@ -634,6 +635,11 @@ function PlatformOwnerPage() {
           <a href="#platform-sms">
             <Smartphone size={18} aria-hidden="true" />
             SMS и оплаты
+          </a>
+
+          <a href="#platform-enterprise">
+            <Building2 size={18} aria-hidden="true" />
+            Сети салонов
           </a>
         </nav>
 
@@ -1420,6 +1426,10 @@ function PlatformOwnerPage() {
 
             <section id="platform-leads">
               <LeadsPanel />
+            </section>
+
+            <section id="platform-enterprise">
+              <EnterprisePanel />
             </section>
           </>
         ) : null}
