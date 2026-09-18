@@ -938,31 +938,45 @@ function SalonRegistrationPage() {
                           трижды значит отвечать на один вопрос в четырёх
                           местах сразу.
                         */}
-                        <div className="registration-plan-price">
-                          <strong>{plan.price}</strong>
-
-                          <span>{plan.currency}</span>
-                        </div>
-
                         {/*
-                          Вторая цена — не мелкий шрифт ради приличия, а
-                          обещание: по ней мы действительно берём со
-                          второй оплаты. Нет второй цены — строки нет.
+                          У тарифа по договорённости цены нет, и выдумать
+                          её нельзя: она зависит от того, сколько у сети
+                          адресов и мастеров. Вместо числа — честная
+                          строка, вместо выбора — разговор.
                         */}
-                        {plan.regularPrice ? (
-                          <p className="registration-plan-regular">
-                            {t('reg.thenPrice', {
-                              price: plan.regularPrice,
-                              currency: plan.currency,
-                            })}
+                        {plan.byRequest ? (
+                          <p className="registration-plan-byrequest">
+                            {t('reg.byRequestPrice')}
                           </p>
-                        ) : null}
+                        ) : (
+                          <>
+                            <div className="registration-plan-price">
+                              <strong>{plan.price}</strong>
 
-                        <div className="registration-trial">
-                          <Clock3 size={16} aria-hidden="true" />
+                              <span>{plan.currency}</span>
+                            </div>
 
-                          {t('reg.trialDays', { count: plan.trialDays })}
-                        </div>
+                            {/*
+                              Вторая цена — не мелкий шрифт ради приличия,
+                              а обещание: по ней мы действительно берём со
+                              второй оплаты. Нет второй цены — строки нет.
+                            */}
+                            {plan.regularPrice ? (
+                              <p className="registration-plan-regular">
+                                {t('reg.thenPrice', {
+                                  price: plan.regularPrice,
+                                  currency: plan.currency,
+                                })}
+                              </p>
+                            ) : null}
+
+                            <div className="registration-trial">
+                              <Clock3 size={16} aria-hidden="true" />
+
+                              {t('reg.trialDays', { count: plan.trialDays })}
+                            </div>
+                          </>
+                        )}
 
                         {/*
                           Кнопка стоит сразу под ценой, а список — ниже, за
@@ -973,16 +987,24 @@ function SalonRegistrationPage() {
                         <button
                           type="button"
                           className="registration-primary-button"
-                          disabled={isSubmitting}
-                          onClick={() => void choosePlan(plan)}
+                          disabled={isSubmitting && !plan.byRequest}
+                          onClick={() =>
+                            plan.byRequest
+                              ? (window.location.hash = '#enterprise')
+                              : void choosePlan(plan)
+                          }
                         >
-                          {isSubmitting
-                            ? t('reg.savingChoice')
-                            : t('reg.choosePlan')}
+                          {plan.byRequest
+                            ? t('reg.discuss')
+                            : isSubmitting
+                              ? t('reg.savingChoice')
+                              : t('reg.choosePlan')}
                         </button>
 
                         <p className="registration-plan-cta">
-                          {t('reg.plan.cta', { plan: plan.name })}
+                          {plan.byRequest
+                            ? t('reg.plan.ctaByRequest')
+                            : t('reg.plan.cta', { plan: plan.name })}
                         </p>
 
                         {/*

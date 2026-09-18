@@ -2027,9 +2027,43 @@
       "greeting": "Bună ziua! Fără contract și fără card — plătiți după zilele de probă.",
       "includes": "Ce include:",
       "includesPlus": "Tot ce este în {{plan}} și:",
-      "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă."
+      "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă.",
+      "ctaByRequest": "Scrieți câte adrese și câți maeștri aveți — calculăm prețul și răspundem în aceeași zi."
     },
     "yearlyHint": "Un an înainte — plătiți pentru zece luni.",
-    "thenPrice": "Prima plată. Apoi {{price}} {{currency}}"
+    "thenPrice": "Prima plată. Apoi {{price}} {{currency}}",
+    "enterprise": {
+      "title": "Rețea de saloane — o discuție, nu un preț de listă",
+      "lead": "Rețeaua are prețul ei: depinde de câte adrese și câți maeștri aveți. Scrieți-ne și calculăm — răspundem în aceeași zi.",
+      "promisesTitle": "Ce intră în înțelegere",
+      "promise1": "Preț propriu — calculat pentru rețeaua dumneavoastră, nu din listă",
+      "promise2": "Vă transferăm baza manual: o trimiteți cum este, noi o punem la loc",
+      "promise3": "Numărul direct al proprietarului platformei — îmi scrieți mie, nu la suport",
+      "promise4": "Instruirea maeștrilor: îi arătăm fiecăruia personal",
+      "networkSection": "Rețeaua dumneavoastră",
+      "networkNote": "Două cifre din care se vede imediat despre ce vorbim.",
+      "locations": "Câte adrese *",
+      "masters": "Câți maeștri *",
+      "salonName": "Denumirea rețelei *",
+      "city": "Orașul",
+      "youSection": "Cum vă găsim",
+      "youNote": "Vă sun sau vă scriu personal.",
+      "name": "Cum vă numiți *",
+      "phone": "Telefon *",
+      "email": "Email",
+      "note": "Ce este important de spus din start",
+      "submit": "Trimiteți cererea",
+      "sending": "Trimitem…",
+      "submitNote": "Cererea nu vă obligă la nimic: este începutul unei discuții, nu o înregistrare.",
+      "sentEyebrow": "CEREREA A FOST TRIMISĂ",
+      "sentTitle": "Am primit-o, răspund astăzi",
+      "sentText": "Calculez prețul pentru rețeaua dumneavoastră și vă contactez la telefonul indicat.",
+      "back": "La tarife",
+      "badLocations": "Câte adrese — număr întreg, cel puțin unu.",
+      "badMasters": "Câți maeștri — număr întreg, cel puțin unu.",
+      "failed": "Cererea nu s-a putut trimite. Încercați din nou sau scrieți pe emailul de pe pagina «Contacte»."
+    },
+    "byRequestPrice": "Preț prin înțelegere",
+    "discuss": "Discutăm"
   }
 }

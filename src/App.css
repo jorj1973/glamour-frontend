@@ -6383,3 +6383,19 @@ body:has(.registration-page-salon) {
   font-size: 12.5px;
   line-height: 1.5;
 }
+
+/* Тариф по договорённости: вместо цены — строка, вместо выбора —
+   разговор. Место цены занято, чтобы карточка не съехала вверх
+   относительно соседок. */
+
+.registration-page-salon .registration-plan-byrequest {
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0 0;
+  color: var(--app-gold);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+}

@@ -2014,9 +2014,43 @@
       "greeting": "Hello! No contract, no card — you pay after the trial days.",
       "includes": "What is included:",
       "includesPlus": "Everything in {{plan}} and:",
-      "cta": "Tap and fill in the salon details. After approval we switch {{plan}} on for the trial days."
+      "cta": "Tap and fill in the salon details. After approval we switch {{plan}} on for the trial days.",
+      "ctaByRequest": "Tell us how many addresses and specialists you have — we will work out the price and answer the same day."
     },
     "yearlyHint": "A year up front — you pay for ten months.",
-    "thenPrice": "First payment. Then {{price}} {{currency}}"
+    "thenPrice": "First payment. Then {{price}} {{currency}}",
+    "enterprise": {
+      "title": "A network of salons — a conversation, not a price list",
+      "lead": "A network has its own price: it depends on how many addresses and specialists you have. Write to us and we will work it out — we answer the same day.",
+      "promisesTitle": "What the agreement includes",
+      "promise1": "A price of your own — counted for your network, not taken from a list",
+      "promise2": "We move your base by hand: send it as it is, we sort it out",
+      "promise3": "The direct number of the platform owner — you write to me, not to support",
+      "promise4": "Training for the specialists: we show each of them in person",
+      "networkSection": "Your network",
+      "networkNote": "Two numbers that show at once what the conversation is about.",
+      "locations": "How many addresses *",
+      "masters": "How many specialists *",
+      "salonName": "The name of the network *",
+      "city": "City",
+      "youSection": "How to reach you",
+      "youNote": "I will call or write myself.",
+      "name": "Your name *",
+      "phone": "Phone *",
+      "email": "Email",
+      "note": "Anything important to say up front",
+      "submit": "Send the request",
+      "sending": "Sending…",
+      "submitNote": "The request commits you to nothing: it is the start of a conversation, not a registration.",
+      "sentEyebrow": "REQUEST SENT",
+      "sentTitle": "Got it, I will answer today",
+      "sentText": "I will work out the price for your network and reach you on the phone you gave.",
+      "back": "Back to the plans",
+      "badLocations": "How many addresses — a whole number, at least one.",
+      "badMasters": "How many specialists — a whole number, at least one.",
+      "failed": "The request could not be sent. Try again, or write to the email on the Contacts page."
+    },
+    "byRequestPrice": "Price by agreement",
+    "discuss": "Let us talk"
   }
 }

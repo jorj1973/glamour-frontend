@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from './api/api';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
+import EnterprisePage from './pages/EnterprisePage';
 import LegalPage from './pages/LegalPage';
 import PartnerInvitePage from './pages/PartnerInvitePage';
 import PublicMasterRegistrationPage from './pages/PublicMasterRegistrationPage';
@@ -251,6 +252,12 @@ function App() {
   // Оферта, политика данных и контакты. Живут в приложении, а не на
   // отдельном сайте: человеку это один адрес, нам — одна сборка.
   // Открыты всем и до входа: соглашаются с ними раньше, чем входят.
+  // Enterprise: сеть салонов пишет, а не выбирает кнопкой. Открыта всем
+  // и до входа — пишет тот, кого у нас ещё нет.
+  if (currentPage === '#enterprise') {
+    return <EnterprisePage />;
+  }
+
   if (
     currentPage === '#terms' ||
     currentPage === '#privacy' ||
