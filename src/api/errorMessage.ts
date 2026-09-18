@@ -85,6 +85,13 @@ export function getErrorKey(error: unknown): string {
     return 'errors.salonAlreadyReviewed';
   }
 
+  // Предел базы клиенток по тарифу. Общий «Конфликт» здесь не
+  // объясняет ничего, а видит его и клиентка на странице записи, и
+  // мастер у себя: обеим нужно понять, что произошло и что делать.
+  if (lower.includes('client(s) in the base')) {
+    return 'errors.clientLimit';
+  }
+
   switch (status) {
     case 400:
       return 'errors.badRequest';

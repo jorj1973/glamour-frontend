@@ -981,6 +981,7 @@
     "notFound": "Record not found.",
     "conflict": "This record already exists.",
     "badRequest": "Please check the fields you filled in.",
+    "clientLimit": "No room for new clients: the master’s plan limits the client base. Returning clients book as before.",
     "fileTooLarge": "File is too large. Maximum is 10 MB.",
     "fileFormat": "Only PNG, JPEG, WebP or PDF are accepted.",
     "portfolioFull": "Your portfolio is full.",

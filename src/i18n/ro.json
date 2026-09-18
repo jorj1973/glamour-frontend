@@ -987,6 +987,7 @@
     "notFound": "Înregistrarea nu a fost găsită.",
     "conflict": "O astfel de înregistrare există deja.",
     "badRequest": "Verifică câmpurile completate.",
+    "clientLimit": "Nu mai încap cliente noi: tariful maestrului are o limită a bazei. Clientele cunoscute se programează ca înainte.",
     "fileTooLarge": "Fișierul e prea mare. Maximum 10 MB.",
     "fileFormat": "Se acceptă doar PNG, JPEG, WebP sau PDF.",
     "portfolioFull": "Portofoliul este plin.",
