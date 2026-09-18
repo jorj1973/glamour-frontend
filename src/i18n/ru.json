@@ -92,6 +92,8 @@
     "en": "English"
   },
   "dashboard": {
+    "byLocation": "Деньги по адресам",
+    "noLocation": "Без адреса",
     "noSalon": "Салон не найден.",
     "appointmentsMonth": "Записей за месяц",
     "appointmentsToday": "Записей сегодня",

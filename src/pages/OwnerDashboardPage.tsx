@@ -6,6 +6,7 @@ import {
   CreditCard,
   Gift,
   Link2,
+  MapPin,
   Percent,
   RefreshCw,
   Scissors,
@@ -28,7 +29,10 @@ type Appointment = { id: string; startTime: string; endTime: string; status: str
  * деньгам в ответе просто нет (ADR-005 и решение владельца о ресепшн).
  * Поэтому денежные поля необязательные, а `role` говорит, чья это панель.
  */
-type DashboardData = { role?: 'owner' | 'administrator'; revenueToday?: number; revenueMonth?: number; appointmentsToday: number; clientsTotal: number; activeGiftCards: number; activePromoCodes: number; loyaltyClients: number; paymentsCount?: number; averageTicket?: number; topMasters?: TopMaster[]; topServices: TopService[]; salonHealth?: SalonHealth; };
+/** Деньги одного адреса. Пустое имя — платежи без адреса. */
+type LocationMoney = { locationId: string | null; name: string | null; revenueToday: number; revenueMonth: number; paymentsCount: number; averageTicket: number; };
+
+type DashboardData = { role?: 'owner' | 'administrator'; revenueToday?: number; revenueMonth?: number; appointmentsToday: number; clientsTotal: number; activeGiftCards: number; activePromoCodes: number; loyaltyClients: number; paymentsCount?: number; averageTicket?: number; topMasters?: TopMaster[]; topServices: TopService[]; byLocation?: LocationMoney[]; salonHealth?: SalonHealth; };
 
 /** Заполненность профиля салона: процент и список пунктов. */
 type SalonHealth = {
@@ -342,6 +346,35 @@ function OwnerDashboardPage() {
           </article>
           )}
         </section>
+
+        {/*
+          Деньги по адресам. Одна строка — это весь салон, и повторять
+          ею общий итог незачем: панель появляется, только когда адресов
+          больше одного.
+        */}
+        {(data.byLocation ?? []).length > 1 && (
+        <article className="dashboard-panel" style={{ marginTop: 24 }}>
+          <div className="panel-heading">
+            <div><p className="panel-kicker">{t('dashboard.byLocation').toUpperCase()}</p><h2>{t('dashboard.byLocation')}</h2></div>
+            <MapPin size={22} />
+          </div>
+          <div className="ranking-list">
+            {(data.byLocation ?? []).map((row, i) => (
+              <div className="ranking-row" key={row.locationId ?? 'none'}>
+                <span className="ranking-number">{i + 1}</span>
+                <div className="ranking-main">
+                  <strong>{row.name ?? t('dashboard.noLocation')}</strong>
+                  <span>{t('dashboard.revenueToday')}: {row.revenueToday} MDL · {t('dashboard.averageTicket')}: {row.averageTicket} MDL</span>
+                </div>
+                <div className="ranking-value">
+                  <strong style={{ color: 'var(--app-accent-text)' }}>{row.revenueMonth} MDL</strong>
+                  <span>{row.paymentsCount}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+        )}
 
         <article className="dashboard-panel" style={{ marginTop: 24 }}>
           <div className="panel-heading">

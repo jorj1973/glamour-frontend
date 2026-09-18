@@ -86,6 +86,8 @@
     "loggingIn": "Se conectează..."
   },
   "dashboard": {
+    "byLocation": "Bani pe adrese",
+    "noLocation": "Fără adresă",
     "ownerTitle": "Panoul proprietarului",
     "ownerSubtitle": "Indicatori financiari, clienți și activitatea cheie a salonului.",
     "masterTitle": "Cabinetul maestrului",

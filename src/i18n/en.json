@@ -86,6 +86,8 @@
     "loggingIn": "Signing in..."
   },
   "dashboard": {
+    "byLocation": "Money by address",
+    "noLocation": "No address",
     "ownerTitle": "Owner Dashboard",
     "ownerSubtitle": "Financial metrics, clients and key salon activity.",
     "masterTitle": "Master Cabinet",
