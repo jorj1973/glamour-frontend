@@ -1472,6 +1472,21 @@
   },
   "sms": {
     "broadcast": {
+      "send": "Send",
+      "confirmAsk": "People: {{people}}. Messages charged: {{messages}}. Send?",
+      "confirmYes": "Yes, send",
+      "confirmNo": "No",
+      "sending": "Sending",
+      "sent": "Sent",
+      "interrupted": "Sending was interrupted",
+      "progress": "{{sent}} of {{planned}}",
+      "failed": "didn't arrive: {{count}}",
+      "err": {
+        "nothingToSend": "Nobody to send to: no one matched the selection.",
+        "peopleChanged": "The number of people changed since the screen showed it. Calculate again to see the new numbers.",
+        "messagesChanged": "The number of messages comes out different from what the screen showed. Calculate again.",
+        "notEnough": "Not enough messages on the account. Top it up or narrow the selection."
+      },
       "title": "Messages to your client base",
       "lead": "See who would receive the message and how much it would cost. Sending is not possible yet — the button comes later.",
       "audienceLapsed": "Haven't been in a while",

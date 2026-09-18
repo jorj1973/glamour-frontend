@@ -1479,6 +1479,21 @@
   },
   "sms": {
     "broadcast": {
+      "send": "Trimiteți",
+      "confirmAsk": "Va ajunge la persoane: {{people}}. Se vor scădea mesaje: {{messages}}. Trimitem?",
+      "confirmYes": "Da, trimiteți",
+      "confirmNo": "Nu",
+      "sending": "Se trimite",
+      "sent": "Trimis",
+      "interrupted": "Trimiterea s-a întrerupt",
+      "progress": "{{sent}} din {{planned}}",
+      "failed": "nu au ajuns: {{count}}",
+      "err": {
+        "nothingToSend": "Nu are cui să ajungă: nimeni nu se potrivește selecției.",
+        "peopleChanged": "Numărul de persoane s-a schimbat față de ce era pe ecran. Calculați din nou — veți vedea numerele noi.",
+        "messagesChanged": "Numărul de mesaje iese altfel decât era pe ecran. Calculați din nou.",
+        "notEnough": "Nu ajung mesajele din cont. Completați contul sau restrângeți selecția."
+      },
       "title": "Mesaje către baza de cliente",
       "lead": "Vedeți cui va ajunge mesajul și cât se va scădea din cont. Trimiterea nu este încă posibilă — butonul va apărea mai târziu.",
       "audienceLapsed": "Nu au mai venit demult",
