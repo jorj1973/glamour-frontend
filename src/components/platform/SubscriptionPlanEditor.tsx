@@ -367,10 +367,15 @@ function SubscriptionPlanEditor({
         changeReason: "",
       });
 
+      /*
+        Номер версии убран из текста: он нужен машине, а не глазу.
+        Сам факт остаётся — цена не затирается, старая остаётся у тех,
+        кто по ней платит, и всё это видно в истории изменений ниже.
+      */
       setSuccessMessage(
         response.data.pricingVersionCreated
-          ? `Тариф сохранён. Создана новая версия цены v${response.data.plan.priceVersion}.`
-          : "Тариф сохранён без создания новой версии цены.",
+          ? "Тариф сохранён. Прежняя цена осталась у тех, кто уже по ней платит."
+          : "Тариф сохранён. Цена не менялась.",
       );
 
       onUpdated(response.data.plan);
@@ -455,8 +460,6 @@ function SubscriptionPlanEditor({
               ? "Ежемесячная оплата"
               : "Годовая оплата"}
           </strong>
-
-          <span>Версия цены v{plan.priceVersion}</span>
         </div>
 
         <div className="platform-plan-editor-grid">
@@ -650,8 +653,7 @@ function SubscriptionPlanEditor({
               <p>
                 {plan.billingPeriod === "monthly"
                   ? "Ежемесячный вариант"
-                  : "Годовой вариант"}{" "}
-                · текущая версия v{plan.priceVersion}
+                  : "Годовой вариант"}
               </p>
             </div>
 

@@ -424,10 +424,6 @@ function MarketingActionsPanel({
                     <dd>{formatLimit(basePlan.maxLocations, "Без лимита")}</dd>
                   </div>
 
-                  <div>
-                    <dt>Версия цены</dt>
-                    <dd>v{basePlan.priceVersion}</dd>
-                  </div>
                 </dl>
 
                 <div className="platform-plan-actions">

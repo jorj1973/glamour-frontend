@@ -6,6 +6,7 @@ import {
   ClipboardCopy,
   ClipboardList,
   Clock3,
+  Gift,
   LayoutDashboard,
   Link2,
   LogOut,
@@ -38,6 +39,7 @@ import SmsPlatformPanel from '../components/platform/SmsPlatformPanel';
 import BillingPanel from '../components/platform/BillingPanel';
 import LeadsPanel from '../components/platform/LeadsPanel';
 import EnterprisePanel from '../components/platform/EnterprisePanel';
+import GiftsJournalPanel from '../components/platform/GiftsJournalPanel';
 import NewPlanPanel from '../components/platform/NewPlanPanel';
 import ChatReportsPanel from '../components/platform/ChatReportsPanel';
 import SalonStaffReviewsModeration from "../components/platform/SalonStaffReviewsModeration";
@@ -640,6 +642,11 @@ function PlatformOwnerPage() {
           <a href="#platform-enterprise">
             <Building2 size={18} aria-hidden="true" />
             Сети салонов
+          </a>
+
+          <a href="#platform-gifts">
+            <Gift size={18} aria-hidden="true" />
+            Что раздали
           </a>
         </nav>
 
@@ -1430,6 +1437,10 @@ function PlatformOwnerPage() {
 
             <section id="platform-enterprise">
               <EnterprisePanel />
+            </section>
+
+            <section id="platform-gifts">
+              <GiftsJournalPanel />
             </section>
           </>
         ) : null}
