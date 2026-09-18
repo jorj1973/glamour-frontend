@@ -153,6 +153,8 @@
     "resetFilters": "Resetează filtrele",
     "paymentMethod": "Metodă de plată",
     "selectMaster": "Alegeți maestrul",
+    "pickMasterFirst": "Alegeți mai întâi maestrul — serviciile diferă de la unul la altul.",
+    "noMasterServices": "Acest maestru încă nu are servicii. Adăugați-le în pagina „Servicii”.",
     "selectService": "Alegeți serviciul",
     "dateTime": "Data și ora",
     "statusUpdated": "Status actualizat.",

@@ -205,6 +205,9 @@ function AppointmentsPage() {
   // Форма новой записи
   const [masters, setMasters] = useState<Master[]>([]);
   const [masterServices, setMasterServices] = useState<MasterService[]>([]);
+
+  /** Почему список услуг пуст. Пусто — значит просто пуст. */
+  const [servicesErrorKey, setServicesErrorKey] = useState('');
   /**
    * Готовая запись, ждущая подтверждения.
    *
@@ -332,12 +335,29 @@ function AppointmentsPage() {
     }
   }
 
+  /**
+   * Услуги выбранного мастера.
+   *
+   * Адрес — `salon-services`, кабинетный. Прежний, `/:id/services`, не
+   * существовал вовсе: сервер отвечал «не найдено», ошибку здесь ловили
+   * молча, и список выглядел пустым. Салон читал это как «у мастера нет
+   * услуг» и шёл заводить их заново.
+   *
+   * Публичный сосед `services/:id` тоже не подошёл бы: он прячет всё,
+   * что не выставлено на страницу онлайн-записи, а рукой салон
+   * записывает и на такое.
+   *
+   * Ошибку теперь видно. Пустой список и сломанный запрос — разные
+   * беды, и человек должен различать их с первого взгляда.
+   */
   async function loadMasterServices(masterProfileId: string, salonId: string) {
     try {
-      const res = await api.get<MasterService[]>(`/masters/${masterProfileId}/services`, { params: { salonId } });
+      const res = await api.get<MasterService[]>(`/masters/salon-services/${masterProfileId}`, { params: { salonId } });
       setMasterServices(res.data.filter((s) => s.isActive));
-    } catch {
+      setServicesErrorKey('');
+    } catch (error) {
       setMasterServices([]);
+      setServicesErrorKey(getErrorKey(error));
     }
   }
 
@@ -738,6 +758,27 @@ function AppointmentsPage() {
                       </option>
                     ))}
                   </select>
+
+                  {/*
+                    Пустой список объясняет себя. Три разные беды —
+                    мастер не выбран, у мастера нет услуг, запрос не
+                    прошёл — выглядели одинаково: пустой выпадающий
+                    список. Человек видел одно и то же и делал из этого
+                    разные неверные выводы.
+                  */}
+                  {!form.masterProfileId ? (
+                    <small style={styles.fieldHint}>
+                      {t('appointments.pickMasterFirst')}
+                    </small>
+                  ) : servicesErrorKey ? (
+                    <small style={styles.fieldError}>
+                      {t(servicesErrorKey)}
+                    </small>
+                  ) : masterServices.length === 0 ? (
+                    <small style={styles.fieldHint}>
+                      {t('appointments.noMasterServices')}
+                    </small>
+                  ) : null}
                 </label>
                 <label>
                   {t('appointments.dateTime')} *
@@ -1184,6 +1225,17 @@ const styles = {
     width: '100%', padding: '11px 13px',
     border: '1px solid rgba(var(--app-ink-rgb),0.12)', borderRadius: 13,
     background: 'rgba(var(--app-ink-rgb),0.06)', color: 'var(--app-text)', fontSize: 14,
+  } as React.CSSProperties,
+
+  /** Подсказка под полем: почему оно пустое. */
+  fieldHint: {
+    display: 'block', marginTop: 6,
+    color: 'var(--app-text-muted)', fontSize: 12, lineHeight: 1.5,
+  } as React.CSSProperties,
+
+  fieldError: {
+    display: 'block', marginTop: 6,
+    color: '#dc2626', fontSize: 12, lineHeight: 1.5,
   } as React.CSSProperties,
 
   input: {

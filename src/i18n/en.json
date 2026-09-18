@@ -153,6 +153,8 @@
     "resetFilters": "Reset filters",
     "paymentMethod": "Payment method",
     "selectMaster": "Select master",
+    "pickMasterFirst": "Pick a master first — services differ by master.",
+    "noMasterServices": "This master has no services yet. Add them on the Services page.",
     "selectService": "Select service",
     "dateTime": "Date and time",
     "statusUpdated": "Status updated.",
