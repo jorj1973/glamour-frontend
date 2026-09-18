@@ -858,6 +858,13 @@ function SalonRegistrationPage() {
 
                     const features = cumulativeFeatures(families, index, period);
 
+                    // Ступень ниже — её имя стоит в заголовке списка:
+                    // «Start + …». Сам список полон, но заголовок
+                    // показывает, что этот тариф начинается там, где
+                    // кончается предыдущий.
+                    const previous =
+                      index > 0 ? planOfPeriod(families[index - 1], period) : null;
+
                     return (
                       <article
                         key={family.key}
@@ -941,7 +948,11 @@ function SalonRegistrationPage() {
                           разрывала его надвое.
                         */}
                         <p className="registration-plan-includes">
-                          {t('reg.plan.includes')}
+                          {previous
+                            ? t('reg.plan.includesPlus', {
+                                plan: previous.name,
+                              })
+                            : t('reg.plan.includes')}
                         </p>
 
                         <ul>

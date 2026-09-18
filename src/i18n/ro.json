@@ -2026,7 +2026,7 @@
     "plan": {
       "greeting": "Bună ziua! Fără contract și fără card — plătiți după zilele de probă.",
       "includes": "Ce include",
-      "includesPlus": "Tot din {{plan}}, și în plus",
+      "includesPlus": "{{plan}} + …",
       "cta": "Apăsați și completați datele salonului. După aprobare pornim {{plan}} pentru zilele de probă."
     },
     "yearlyHint": "Un an înainte — plătiți pentru zece luni."
