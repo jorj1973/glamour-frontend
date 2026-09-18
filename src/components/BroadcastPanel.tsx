@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, Calculator, Check, Send, Users, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarClock,
+  Calculator,
+  Check,
+  History,
+  Send,
+  Users,
+  X,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import api from '../api/api';
@@ -51,11 +60,15 @@ type Preview = {
 
 type Broadcast = {
   id: string;
-  status: 'sending' | 'done' | 'interrupted';
+  status: 'scheduled' | 'sending' | 'done' | 'interrupted' | 'cancelled';
+  /** Когда назначена. Пусто — уходила сразу. */
+  scheduledAt: string | null;
+  text: string;
   plannedPeople: number;
   plannedMessages: number;
   sentPeople: number;
   failedPeople: number;
+  createdAt: string;
 };
 
 type BroadcastPanelProps = {
@@ -94,13 +107,61 @@ function refusalKey(error: unknown): string {
     BROADCAST_PEOPLE_CHANGED: 'sms.broadcast.err.peopleChanged',
     BROADCAST_MESSAGES_CHANGED: 'sms.broadcast.err.messagesChanged',
     BROADCAST_NOT_ENOUGH: 'sms.broadcast.err.notEnough',
+    BROADCAST_SCHEDULE_NOT_A_DATE: 'sms.broadcast.err.notADate',
+    BROADCAST_SCHEDULE_TOO_SOON: 'sms.broadcast.err.tooSoon',
+    BROADCAST_SCHEDULE_TOO_FAR: 'sms.broadcast.err.tooFar',
+    BROADCAST_NOT_CANCELLABLE: 'sms.broadcast.err.notCancellable',
   };
 
   return known[message] ?? getErrorKey(error);
 }
 
+/**
+ * Состояние рассылки — в слово.
+ *
+ * Три слова написаны ещё для немедленной отправки и лежат в словаре
+ * без приставки `state`. Заводить им двойников ради стройности имён
+ * значило бы держать в словаре две одинаковые фразы, которые однажды
+ * разойдутся при правке одной из них.
+ */
+function statusKey(status: Broadcast['status']): string {
+  const known: Record<Broadcast['status'], string> = {
+    scheduled: 'sms.broadcast.state.scheduled',
+    sending: 'sms.broadcast.sending',
+    done: 'sms.broadcast.sent',
+    interrupted: 'sms.broadcast.interrupted',
+    cancelled: 'sms.broadcast.state.cancelled',
+  };
+
+  return known[status] ?? 'sms.broadcast.sending';
+}
+
 function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  /**
+   * Время — глазами того, кто смотрит.
+   *
+   * Сервер хранит его в UTC, а салон живёт в Кишинёве и назначает на
+   * «десять утра». Показывать здесь UTC значило бы спорить с
+   * человеком о том, что он сам только что ввёл.
+   */
+  function formatWhen(value: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+      ? ''
+      : date.toLocaleString(i18n.language || 'ru', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+  }
 
   const [audience, setAudience] = useState<Audience>('lapsed');
   const [months, setMonths] = useState('6');
@@ -113,6 +174,12 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
+
+  /** Отправить позже. Пусто — сейчас. */
+  const [sendLater, setSendLater] = useState(false);
+  const [sendAt, setSendAt] = useState('');
+
+  const [history, setHistory] = useState<Broadcast[]>([]);
 
   const pollRef = useRef<number | null>(null);
 
@@ -129,12 +196,28 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
   }, [audience, months, includeNeverVisited, text]);
 
   useEffect(() => {
+    void loadHistory();
+
     return () => {
       if (pollRef.current) {
         window.clearInterval(pollRef.current);
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salonId]);
+
+  async function loadHistory() {
+    try {
+      const response = await api.get<Broadcast[]>('/sms/broadcast/history', {
+        params: { salonId },
+      });
+
+      setHistory(response.data);
+    } catch {
+      /** Журнал — не главное на экране: молча пусто лучше, чем крик. */
+      setHistory([]);
+    }
+  }
 
   async function calculate() {
     setIsBusy(true);
@@ -180,6 +263,8 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
           text: text.trim(),
           confirmPeople: preview.people,
           confirmMessages: preview.messages,
+          scheduledAt:
+            sendLater && sendAt ? new Date(sendAt).toISOString() : null,
         },
         { params: { salonId } },
       );
@@ -187,9 +272,36 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
       setBroadcast(response.data);
       setIsConfirming(false);
       setPreview(null);
-      watch(response.data.id);
+
+      void loadHistory();
+
+      /** Назначенную караулить нечего: она уйдёт ночью, без экрана. */
+      if (response.data.status === 'sending') {
+        watch(response.data.id);
+      }
     } catch (error) {
       setIsConfirming(false);
+      setErrorKey(refusalKey(error));
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function cancelScheduled(broadcastId: string) {
+    setIsBusy(true);
+    setErrorKey('');
+
+    try {
+      const response = await api.post<Broadcast>(
+        '/sms/broadcast/' + broadcastId + '/cancel',
+        {},
+        { params: { salonId } },
+      );
+
+      setBroadcast(response.data);
+
+      void loadHistory();
+    } catch (error) {
       setErrorKey(refusalKey(error));
     } finally {
       setIsBusy(false);
@@ -416,6 +528,43 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
         />
       </label>
 
+      {/*
+        Отправить позже. Сообщение в одиннадцать ночи злит даже того,
+        кто рад скидке: салон работает вечером, клиентка читает утром.
+      */}
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          marginBottom: 14,
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={sendLater}
+          onChange={(event) => setSendLater(event.target.checked)}
+          style={{ marginTop: 3 }}
+        />
+
+        <span style={{ color: 'var(--app-text)', fontSize: 13 }}>
+          {t('sms.broadcast.later')}
+        </span>
+      </label>
+
+      {sendLater ? (
+        <label style={{ display: 'block', marginBottom: 14 }}>
+          <span style={labelStyle}>{t('sms.broadcast.laterWhen')}</span>
+
+          <input
+            type="datetime-local"
+            value={sendAt}
+            onChange={(event) => setSendAt(event.target.value)}
+            style={{ ...fieldStyle, marginTop: 5, maxWidth: 260 }}
+          />
+        </label>
+      ) : null}
+
       <button
         type="button"
         disabled={isBusy || text.trim().length < 5}
@@ -447,32 +596,65 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
             borderRadius: 14,
           }}
         >
-          <span style={labelStyle}>
-            {broadcast.status === 'sending'
-              ? t('sms.broadcast.sending')
-              : broadcast.status === 'done'
-                ? t('sms.broadcast.sent')
-                : t('sms.broadcast.interrupted')}
-          </span>
+          <span style={labelStyle}>{t(statusKey(broadcast.status))}</span>
 
-          <p
-            style={{
-              margin: '6px 0 0',
-              color: 'var(--app-text)',
-              fontSize: 14,
-              lineHeight: 1.6,
-            }}
-          >
-            {t('sms.broadcast.progress', {
-              sent: broadcast.sentPeople,
-              planned: broadcast.plannedPeople,
-            })}
+          {broadcast.status === 'scheduled' ? (
+            <>
+              <p
+                style={{
+                  margin: '6px 0 0',
+                  color: 'var(--app-text)',
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('sms.broadcast.scheduledFor', {
+                  when: formatWhen(broadcast.scheduledAt),
+                  people: broadcast.plannedPeople,
+                })}
+              </p>
 
-            {broadcast.failedPeople > 0
-              ? ' · ' +
-                t('sms.broadcast.failed', { count: broadcast.failedPeople })
-              : ''}
-          </p>
+              <p
+                style={{
+                  margin: '6px 0 0',
+                  color: 'var(--app-text-muted)',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('sms.broadcast.frozenNote')}
+              </p>
+
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={() => void cancelScheduled(broadcast.id)}
+                style={{ ...quietStyle, marginTop: 10 }}
+              >
+                <X size={16} aria-hidden="true" />
+                {t('sms.broadcast.cancel')}
+              </button>
+            </>
+          ) : (
+            <p
+              style={{
+                margin: '6px 0 0',
+                color: 'var(--app-text)',
+                fontSize: 14,
+                lineHeight: 1.6,
+              }}
+            >
+              {t('sms.broadcast.progress', {
+                sent: broadcast.sentPeople,
+                planned: broadcast.plannedPeople,
+              })}
+
+              {broadcast.failedPeople > 0
+                ? ' · ' +
+                  t('sms.broadcast.failed', { count: broadcast.failedPeople })
+                : ''}
+            </p>
+          )}
         </div>
       ) : null}
 
@@ -667,10 +849,16 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
                   lineHeight: 1.6,
                 }}
               >
-                {t('sms.broadcast.confirmAsk', {
-                  people: preview.people,
-                  messages: preview.messages,
-                })}
+                {sendLater && sendAt
+                  ? t('sms.broadcast.confirmAskLater', {
+                      people: preview.people,
+                      messages: preview.messages,
+                      when: formatWhen(sendAt),
+                    })
+                  : t('sms.broadcast.confirmAsk', {
+                      people: preview.people,
+                      messages: preview.messages,
+                    })}
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -684,7 +872,9 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
                   }}
                 >
                   <Check size={16} aria-hidden="true" />
-                  {t('sms.broadcast.confirmYes')}
+                  {sendLater && sendAt
+                    ? t('sms.broadcast.confirmYesLater')
+                    : t('sms.broadcast.confirmYes')}
                 </button>
 
                 <button
@@ -704,10 +894,96 @@ function BroadcastPanel({ salonId, enabled }: BroadcastPanelProps) {
               onClick={() => setIsConfirming(true)}
               style={actionStyle}
             >
-              <Send size={16} aria-hidden="true" />
-              {t('sms.broadcast.send')}
+              {sendLater && sendAt ? (
+                <CalendarClock size={16} aria-hidden="true" />
+              ) : (
+                <Send size={16} aria-hidden="true" />
+              )}
+              {sendLater && sendAt
+                ? t('sms.broadcast.schedule')
+                : t('sms.broadcast.send')}
             </button>
           )}
+        </div>
+      ) : null}
+
+      {/*
+        Журнал рассылок. Строки отсюда не пропадают — включая
+        отменённые: «я же отменял» должно быть чем проверить.
+      */}
+      {history.length > 0 ? (
+        <div style={{ marginTop: 18 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
+            <History size={15} color="var(--app-text-muted)" aria-hidden="true" />
+
+            <span style={labelStyle}>{t('sms.broadcast.historyTitle')}</span>
+          </div>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                {history.map((row) => (
+                  <tr key={row.id}>
+                    <td
+                      style={{
+                        padding: '8px 8px 8px 0',
+                        borderBottom:
+                          '1px solid rgba(var(--app-ink-rgb),0.08)',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                        whiteSpace: 'nowrap',
+                        verticalAlign: 'top',
+                      }}
+                    >
+                      {formatWhen(row.scheduledAt ?? row.createdAt)}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: '8px',
+                        borderBottom:
+                          '1px solid rgba(var(--app-ink-rgb),0.08)',
+                        color: 'var(--app-text)',
+                        fontSize: 13,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {row.text}
+                    </td>
+
+                    <td
+                      style={{
+                        padding: '8px 0 8px 8px',
+                        borderBottom:
+                          '1px solid rgba(var(--app-ink-rgb),0.08)',
+                        color: 'var(--app-text-muted)',
+                        fontSize: 12,
+                        whiteSpace: 'nowrap',
+                        textAlign: 'right',
+                        verticalAlign: 'top',
+                      }}
+                    >
+                      {t(statusKey(row.status))}
+
+                      <div>
+                        {t('sms.broadcast.progress', {
+                          sent: row.sentPeople,
+                          planned: row.plannedPeople,
+                        })}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : null}
     </section>

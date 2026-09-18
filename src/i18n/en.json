@@ -1475,6 +1475,19 @@
   },
   "sms": {
     "broadcast": {
+      "later": "Send later",
+      "laterWhen": "When to send",
+      "schedule": "Schedule",
+      "confirmAskLater": "People: {{people}}. Messages charged: {{messages}}. Send {{when}}?",
+      "confirmYesLater": "Yes, schedule it",
+      "scheduledFor": "Goes out {{when}}, to people: {{people}}",
+      "frozenNote": "The list is already fixed. Nobody new will be added, and anyone who asks not to be messaged drops out.",
+      "cancel": "Cancel",
+      "historyTitle": "Already sent",
+      "state": {
+        "scheduled": "Scheduled",
+        "cancelled": "Cancelled"
+      },
       "send": "Send",
       "confirmAsk": "People: {{people}}. Messages charged: {{messages}}. Send?",
       "confirmYes": "Yes, send",
@@ -1485,6 +1498,10 @@
       "progress": "{{sent}} of {{planned}}",
       "failed": "didn't arrive: {{count}}",
       "err": {
+        "notADate": "That does not look like a time. Pick a day and an hour.",
+        "tooSoon": "Too soon. Schedule at least two minutes ahead — so there is time to change your mind.",
+        "tooFar": "Too far ahead. No more than two months.",
+        "notCancellable": "It can no longer be cancelled: it has gone out, or it was cancelled earlier.",
         "nothingToSend": "Nobody to send to: no one matched the selection.",
         "peopleChanged": "The number of people changed since the screen showed it. Calculate again to see the new numbers.",
         "messagesChanged": "The number of messages comes out different from what the screen showed. Calculate again.",

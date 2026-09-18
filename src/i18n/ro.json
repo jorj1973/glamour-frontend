@@ -1482,6 +1482,19 @@
   },
   "sms": {
     "broadcast": {
+      "later": "Trimiteți mai târziu",
+      "laterWhen": "Când să plece",
+      "schedule": "Programați",
+      "confirmAskLater": "Va ajunge la persoane: {{people}}. Se vor scădea mesaje: {{messages}}. Trimitem {{when}}?",
+      "confirmYesLater": "Da, programați",
+      "scheduledFor": "Pleacă {{when}}, către persoane: {{people}}",
+      "frozenNote": "Lista este deja făcută. Nu se vor adăuga persoane noi, iar cele care vor cere să nu li se scrie vor ieși din ea.",
+      "cancel": "Anulați",
+      "historyTitle": "Ce s-a trimis deja",
+      "state": {
+        "scheduled": "Programată",
+        "cancelled": "Anulată"
+      },
       "send": "Trimiteți",
       "confirmAsk": "Va ajunge la persoane: {{people}}. Se vor scădea mesaje: {{messages}}. Trimitem?",
       "confirmYes": "Da, trimiteți",
@@ -1492,6 +1505,10 @@
       "progress": "{{sent}} din {{planned}}",
       "failed": "nu au ajuns: {{count}}",
       "err": {
+        "notADate": "Nu pare a fi o oră. Alegeți ziua și ora.",
+        "tooSoon": "Prea devreme. Programați cu cel puțin două minute înainte — ca să rămână timp de răzgândit.",
+        "tooFar": "Prea departe. Nu mai mult de două luni.",
+        "notCancellable": "Nu se mai poate anula: mesajele au plecat sau a fost anulată mai devreme.",
         "nothingToSend": "Nu are cui să ajungă: nimeni nu se potrivește selecției.",
         "peopleChanged": "Numărul de persoane s-a schimbat față de ce era pe ecran. Calculați din nou — veți vedea numerele noi.",
         "messagesChanged": "Numărul de mesaje iese altfel decât era pe ecran. Calculați din nou.",
