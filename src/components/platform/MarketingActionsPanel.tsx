@@ -45,6 +45,13 @@ export type PlatformPromotion = {
   type: PlatformPromotionType;
   promoCode: string | null;
   bonusDays: number;
+
+  /** Сколько сообщений в подарок. */
+  giftMessages: number;
+
+  /** Выдаётся сама при оплате за год, а не рукой. */
+  autoOnAnnualPayment: boolean;
+
   maxRedemptions: number | null;
   redeemedCount: number;
   startsAt: string | null;

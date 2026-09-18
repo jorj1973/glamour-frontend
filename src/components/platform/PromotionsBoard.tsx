@@ -39,6 +39,8 @@ type PromotionFormState = {
   type: PlatformPromotionType;
   promoCode: string;
   bonusDays: string;
+  giftMessages: string;
+  autoOnAnnualPayment: boolean;
   maxRedemptions: string;
   startsAt: string;
   endsAt: string;
@@ -55,6 +57,8 @@ const EMPTY_FORM: PromotionFormState = {
   type: "first_n_salons",
   promoCode: "",
   bonusDays: "14",
+  giftMessages: "0",
+  autoOnAnnualPayment: false,
   maxRedemptions: "",
   startsAt: "",
   endsAt: "",
@@ -94,6 +98,8 @@ function formToEditState(promotion: PlatformPromotion): PromotionFormState {
     type: promotion.type,
     promoCode: promotion.promoCode ?? "",
     bonusDays: String(promotion.bonusDays),
+    giftMessages: String(promotion.giftMessages ?? 0),
+    autoOnAnnualPayment: promotion.autoOnAnnualPayment ?? false,
     maxRedemptions:
       promotion.maxRedemptions === null ? "" : String(promotion.maxRedemptions),
     startsAt: promotion.startsAt ? promotion.startsAt.slice(0, 10) : "",
@@ -107,6 +113,30 @@ function parseRequiredPositiveInteger(value: string, label: string): number {
 
   if (!/^\d+$/.test(normalizedValue) || Number(normalizedValue) < 1) {
     throw new Error(`${label}: укажите целое число от 1 и выше.`);
+  }
+
+  const numberValue = Number(normalizedValue);
+
+  if (!Number.isSafeInteger(numberValue)) {
+    throw new Error(`${label}: указано слишком большое значение.`);
+  }
+
+  return numberValue;
+}
+
+/**
+ * Число, которому ноль не запрещён.
+ *
+ * Появилось вместе с подарком сообщениями: акция может не давать ни
+ * одного лишнего дня и при этом быть настоящей. Прежний разбор требовал
+ * единицы и называл ноль ошибкой — это было верно, пока награда была
+ * одна.
+ */
+function parseCountFromZero(value: string, label: string): number {
+  const normalizedValue = value.trim() || "0";
+
+  if (!/^\d+$/.test(normalizedValue)) {
+    throw new Error(`${label}: укажите целое число от 0 и выше.`);
   }
 
   const numberValue = Number(normalizedValue);
@@ -240,10 +270,18 @@ function PromotionForm({
         throw new Error("Название: минимум 2 символа.");
       }
 
-      const bonusDays = parseRequiredPositiveInteger(
-        form.bonusDays,
-        "Бонусные дни",
+      const bonusDays = parseCountFromZero(form.bonusDays, "Бонусные дни");
+
+      const giftMessages = parseCountFromZero(
+        form.giftMessages,
+        "Сообщений в подарок",
       );
+
+      if (bonusDays === 0 && giftMessages === 0) {
+        throw new Error(
+          "Акция без награды: поставьте либо бонусные дни, либо сообщения.",
+        );
+      }
 
       const maxRedemptions = parseOptionalPositiveInteger(
         form.maxRedemptions,
@@ -274,6 +312,8 @@ function PromotionForm({
         type: form.type,
         promoCode: form.type === "promo_code" ? promoCode : null,
         bonusDays,
+        giftMessages,
+        autoOnAnnualPayment: form.autoOnAnnualPayment,
         maxRedemptions,
         startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : null,
         endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : null,
@@ -361,10 +401,25 @@ function PromotionForm({
 
           <input
             type="number"
-            min="1"
+            min="0"
             step="1"
             value={form.bonusDays}
             onChange={(event) => updateField("bonusDays", event.target.value)}
+            disabled={isSubmitting}
+          />
+        </label>
+
+        <label>
+          <span>Сообщений в подарок</span>
+
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={form.giftMessages}
+            onChange={(event) =>
+              updateField("giftMessages", event.target.value)
+            }
             disabled={isSubmitting}
           />
         </label>
@@ -455,6 +510,32 @@ function PromotionForm({
           <span>
             <strong>Акция активна</strong>
             <small>Можно будет выдавать салонам сразу после сохранения.</small>
+          </span>
+        </label>
+
+        {/*
+          Кто выдаёт акцию — рука или оплата. Это не вид акции, а
+          отдельный вопрос: «Первые N салонов» можно раздавать и так, и
+          так. Включённая самовыдающаяся акция может быть только одна —
+          за этим следит база, и попытка завести вторую вернётся
+          ошибкой, а не перебьёт первую молча.
+        */}
+        <label>
+          <input
+            type="checkbox"
+            checked={form.autoOnAnnualPayment}
+            onChange={(event) =>
+              updateField("autoOnAnnualPayment", event.target.checked)
+            }
+            disabled={isSubmitting}
+          />
+
+          <span>
+            <strong>Выдавать самой — при оплате за год</strong>
+            <small>
+              Подарок ляжет на счёт в ту же секунду, как вы отметите оплату
+              года. Пока не кончатся места.
+            </small>
           </span>
         </label>
       </div>
@@ -574,10 +655,26 @@ function PromotionCard({
       {promotion.description ? <p>{promotion.description}</p> : null}
 
       <dl className="platform-plan-details">
-        <div>
-          <dt>Бонус</dt>
-          <dd>+{promotion.bonusDays} дней</dd>
-        </div>
+        {promotion.bonusDays > 0 ? (
+          <div>
+            <dt>Бонус</dt>
+            <dd>+{promotion.bonusDays} дней</dd>
+          </div>
+        ) : null}
+
+        {promotion.giftMessages > 0 ? (
+          <div>
+            <dt>Подарок</dt>
+            <dd>{promotion.giftMessages} сообщений</dd>
+          </div>
+        ) : null}
+
+        {promotion.autoOnAnnualPayment ? (
+          <div>
+            <dt>Выдаётся</dt>
+            <dd>сама — при оплате за год</dd>
+          </div>
+        ) : null}
 
         {promotion.promoCode ? (
           <div>

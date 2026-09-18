@@ -86,6 +86,22 @@ type PublicPlan = {
   maxClients?: number | null;
 };
 
+/**
+ * Подарок за оплату года — то, что площадка обещает вслух.
+ *
+ * Счётчик мест приходит с сервера, а не считается здесь: число
+ * оставшихся мест меняет не эта страница, а чужая оплата, и знать его
+ * может только тот, кто её отметил.
+ */
+type AnnualGift = {
+  /** Сколько сообщений в подарок. */
+  messages: number;
+  /** Сколько дней сверх срока. Обычно 0. */
+  bonusDays: number;
+  /** Сколько подарков осталось. `null` — без предела. */
+  seatsLeft: number | null;
+};
+
 type PublicInvitationResponse = {
   invitation: {
     status: string;
@@ -96,6 +112,13 @@ type PublicInvitationResponse = {
     selectedPlanId: string | null;
   };
   plans: PublicPlan[];
+
+  /**
+   * Пусто — акции сейчас нет, и страница молчит. Обещание «первым
+   * пятидесяти», висящее после пятидесятого, обманывает пятьдесят
+   * первого.
+   */
+  annualGift?: AnnualGift | null;
 };
 
 type SelectPlanResponse = {
@@ -327,6 +350,8 @@ function SalonRegistrationPage() {
 
   const [plans, setPlans] = useState<PublicPlan[]>([]);
 
+  const [annualGift, setAnnualGift] = useState<AnnualGift | null>(null);
+
   const [period, setPeriod] = useState<BillingPeriod>('monthly');
 
   const [selectedPlan, setSelectedPlan] = useState<PublicPlan | null>(null);
@@ -433,6 +458,7 @@ function SalonRegistrationPage() {
 
       setInvitation(response.data.invitation);
       setPlans(response.data.plans);
+      setAnnualGift(response.data.annualGift ?? null);
 
       const existingPlan =
         response.data.plans.find(
@@ -861,6 +887,39 @@ function SalonRegistrationPage() {
                         }}
                       >
                         {t('reg.yearlyHint')}
+                      </p>
+                    ) : null}
+
+                    {/*
+                      Подарок — отдельной строкой и другим цветом, потому
+                      что это не свойство тарифа, а обещание площадки, и
+                      оно кончится. Счётчик мест стоит рядом с обещанием,
+                      а не внизу страницы: обещание без остатка мест
+                      звучит бессрочно, а оно не бессрочно.
+
+                      Строки нет вовсе, когда акции нет, — вместо «мест
+                      не осталось». Кто пришёл сегодня, не должен читать
+                      про то, что раздали без него.
+                    */}
+                    {period === 'yearly' && annualGift ? (
+                      <p
+                        style={{
+                          margin: '8px 0 0',
+                          color: 'var(--pf-accent-text)',
+                          fontSize: 13,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {annualGift.messages > 0
+                          ? t('reg.giftYear', { count: annualGift.messages })
+                          : t('reg.giftYearDays', {
+                              count: annualGift.bonusDays,
+                            })}
+
+                        {annualGift.seatsLeft !== null
+                          ? ' ' +
+                            t('reg.giftSeats', { count: annualGift.seatsLeft })
+                          : ''}
                       </p>
                     ) : null}
                   </div>
