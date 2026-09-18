@@ -47,6 +47,9 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
  * оплаты — переключатель над ними.
  */
 
+/** Сколько строк списка видно до нажатия «показать ещё». */
+const VISIBLE_FEATURES = 5;
+
 type RegistrationStep = 'loading' | 'invalid' | 'plan' | 'details' | 'submitted';
 
 type BillingPeriod = 'monthly' | 'yearly';
@@ -351,6 +354,15 @@ function SalonRegistrationPage() {
   const [plans, setPlans] = useState<PublicPlan[]>([]);
 
   const [annualGift, setAnnualGift] = useState<AnnualGift | null>(null);
+
+  /**
+   * Какие карточки раскрыты целиком.
+   *
+   * Сложенный список — не кокетство: у Premium их четырнадцать, и
+   * стена из четырнадцати строк не читается вовсе. Первые пять видно
+   * всегда: спрятать всё значило бы прятать сам товар.
+   */
+  const [openPlans, setOpenPlans] = useState<Record<string, boolean>>({});
 
   const [period, setPeriod] = useState<BillingPeriod>('monthly');
 
@@ -980,14 +992,17 @@ function SalonRegistrationPage() {
                           <h2>{plan.name}</h2>
 
                           {/*
-                            Над ценой — приветствие и осторожное
-                            приглашение, одно и то же на всех карточках.
-                            Прежде здесь стояло описание тарифа, и оно
-                            обманывало: человек читал его как состав, а
-                            состав был ниже.
+                            Под именем — кому этот тариф. Одной строкой и
+                            про человека, а не про возможности.
+                            
+                            Описание уже стояло здесь однажды и было
+                            убрано: оно обманывало, потому что состав
+                            лежал далеко внизу и описание читали как
+                            состав. Теперь состав стоит прямо под ним,
+                            отдельным блоком, и путать их не с чем.
                           */}
                           <p className="registration-plan-greeting">
-                            {t('reg.plan.greeting')}
+                            {plan.description || t('reg.plan.greeting')}
                           </p>
                         </div>
 
@@ -1067,11 +1082,28 @@ function SalonRegistrationPage() {
                         </p>
 
                         {/*
-                          Состав ушёл из отдельной рамки в первую строку
-                          списка. Рамка отвечала на тот же вопрос, что и
-                          список под ней, — «что я получу», — и потому
-                          разрывала его надвое.
+                          Числа — отдельным блоком, над списком.
+                          
+                          Раньше состав был первой строкой списка и тонул
+                          в нём. А это не такая же строка, как остальные:
+                          мастера, адреса, администраторы и сообщения —
+                          то единственное, что тариф действительно
+                          стережёт. Остальное есть у всех.
                         */}
+                        <div className="registration-plan-numbers">
+                          <span>{planComposition(plan)}</span>
+
+                          {/*
+                            «25 в месяц» читается как потолок, и человек
+                            берёт тариф дороже, чем ему нужен, — или не
+                            берёт никакого. Пакеты сообщений есть давно;
+                            сказать об этом здесь стоит одной строки.
+                          */}
+                          {plan.smsAllowance ? (
+                            <small>{t('reg.plan.topUp')}</small>
+                          ) : null}
+                        </div>
+
                         <p className="registration-plan-includes">
                           {previous
                             ? t('reg.plan.includesPlus', {
@@ -1080,14 +1112,19 @@ function SalonRegistrationPage() {
                             : t('reg.plan.includes')}
                         </p>
 
+                        {/*
+                          Видны первые пять, остальное — по нажатию.
+                          
+                          У Premium строк четырнадцать, и стена из
+                          четырнадцати не читается вовсе. Прятать все —
+                          тоже нельзя: это и есть товар. Пять — столько,
+                          сколько глаз берёт за раз.
+                        */}
                         <ul>
-                          <li>
-                            <Check size={15} aria-hidden="true" />
-
-                            <span>{planComposition(plan)}</span>
-                          </li>
-
-                          {features.map((feature) => (
+                          {(openPlans[plan.id]
+                            ? features
+                            : features.slice(0, VISIBLE_FEATURES)
+                          ).map((feature) => (
                             <li key={feature}>
                               <Check size={15} aria-hidden="true" />
 
@@ -1095,6 +1132,25 @@ function SalonRegistrationPage() {
                             </li>
                           ))}
                         </ul>
+
+                        {features.length > VISIBLE_FEATURES ? (
+                          <button
+                            type="button"
+                            className="registration-plan-more"
+                            onClick={() =>
+                              setOpenPlans((current) => ({
+                                ...current,
+                                [plan.id]: !current[plan.id],
+                              }))
+                            }
+                          >
+                            {openPlans[plan.id]
+                              ? t('reg.plan.hideAll')
+                              : t('reg.plan.showAll', {
+                                  count: features.length - VISIBLE_FEATURES,
+                                })}
+                          </button>
+                        ) : null}
                       </article>
                     );
                   })}

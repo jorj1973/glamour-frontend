@@ -2106,6 +2106,11 @@
     "submit": "Trimiteți cererea spre aprobare",
     "submitNote": "După trimitere, contul rămâne inactiv până la aprobarea proprietarului platformei.",
     "plan": {
+      "topUp": "Mesajele se pot cumpăra suplimentar oricând",
+      "hideAll": "Restrângeți",
+      "showAll_one": "Arătați încă {{count}} posibilitate",
+      "showAll_few": "Arătați încă {{count}} posibilități",
+      "showAll_other": "Arătați încă {{count}} de posibilități",
       "greeting": "Bună ziua! Fără contract și fără card — plătiți după zilele de probă.",
       "includes": "Ce include:",
       "includesPlus": "Tot ce este în {{plan}} și:",

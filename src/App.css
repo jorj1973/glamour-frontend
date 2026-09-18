@@ -6399,3 +6399,63 @@ body:has(.registration-page-salon) {
   font-weight: 700;
   line-height: 1.35;
 }
+
+/* ------------------------------------------------------------------
+   Карточка тарифа: числа отдельно, список сложен
+   ------------------------------------------------------------------
+   Разбор чужой страницы тарифов (Hostinger, 18 сентября 2026) показал
+   две вещи, которых нам не хватало.
+
+   Первая: числа — не такая же строка списка, как остальные. Мастера,
+   адреса, администраторы и сообщения — единственное, что тариф
+   действительно стережёт; всё прочее есть у всех. Поэтому они стоят
+   своим блоком, до списка, и читаются раньше него.
+
+   Вторая: список надо складывать. У Premium в нём четырнадцать строк,
+   и стена из четырнадцати не читается вовсе. Видно пять, остальное —
+   по нажатию. Прятать все нельзя: это и есть товар.
+   ------------------------------------------------------------------ */
+
+.registration-page-salon .registration-plan-numbers {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--pf-border);
+  border-radius: 14px;
+  background: var(--pf-panel-flat);
+  text-align: left;
+}
+
+.registration-page-salon .registration-plan-numbers span {
+  display: block;
+  color: var(--pf-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.registration-page-salon .registration-plan-numbers small {
+  display: block;
+  margin-top: 5px;
+  color: var(--pf-text-muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.registration-page-salon .registration-plan-more {
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--pf-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--pf-accent-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.registration-page-salon .registration-plan-more:hover {
+  background: var(--pf-panel-flat);
+}

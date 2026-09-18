@@ -2090,6 +2090,10 @@
     "submit": "Send the application for approval",
     "submitNote": "After sending, the account stays inactive until the platform owner approves it.",
     "plan": {
+      "topUp": "You can top up messages at any time",
+      "hideAll": "Collapse",
+      "showAll_one": "Show {{count}} more",
+      "showAll_other": "Show {{count}} more",
       "greeting": "Hello! No contract, no card — you pay after the trial days.",
       "includes": "What is included:",
       "includesPlus": "Everything in {{plan}} and:",
