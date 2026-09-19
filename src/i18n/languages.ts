@@ -74,6 +74,6 @@ export const FALLBACK: Record<string, string[]> = {
   pl: ['en', 'ro'],
   it: ['en', 'ro'],
   es: ['en', 'ro'],
-  fr: ['ro', 'en'],
+  fr: ['en', 'ro'],
   default: ['ro'],
 };
