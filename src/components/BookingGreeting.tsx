@@ -6,18 +6,18 @@ const STORAGE_KEY = 'glamour_greeting_seen';
 const APPEAR_MS = 200;
 
 /** Сколько окно держится целым, чтобы его успели прочитать. */
-const SHOW_MS = 900;
+const SHOW_MS = 1600;
 
 /** Сколько гаснет само окно. */
-const CARD_MS = 1100;
+const CARD_MS = 1400;
 
 /** Бабочек: четыре на четыре — по одной на каждый участок окна. */
 const COLUMNS = 4;
 const ROWS = 4;
 
 /** Самый поздний вылет и самый долгий полёт. */
-const LAST_DELAY_MS = 7 * 70 + 2 * 40;
-const LONGEST_FLIGHT_MS = 1900 + 4 * 170;
+const LAST_DELAY_MS = (ROWS - 1) * 240 + 2 * 40;
+const LONGEST_FLIGHT_MS = 2200 + 4 * 150;
 
 /** Весь разлёт. */
 const DISSOLVE_MS = LAST_DELAY_MS + LONGEST_FLIGHT_MS;
@@ -42,9 +42,13 @@ const DISSOLVE_MS = LAST_DELAY_MS + LONGEST_FLIGHT_MS;
  * прочь от середины: кажется, что окно рассыпалось ими. Гаснут они не
  * разом, а последней третью пути.
  *
- * Разгон у кривой полёта нарочно вялый: `0.496` вместо `0.62` — это
- * ровно на пятую часть меньшая скорость в первый миг. Бабочка,
- * прыгающая с места, читается как брызги, а не как полёт.
+ * Разгон у кривой полёта нарочно вялый: `0.38` вместо прежних `0.62`
+ * — скорость в первый миг втрое меньше исходной. Бабочка, прыгающая
+ * с места, читается как брызги, а не как полёт.
+ *
+ * Снимаются они волной сверху вниз, ряд за рядом. Так у взгляда есть
+ * куда смотреть, а у читающего — время дочитать нижние строки: пока
+ * верхний ряд уже в воздухе, нижний ещё на месте.
  */
 
 const STYLES = `
@@ -55,7 +59,7 @@ const STYLES = `
     opacity: 0;
   }
 
-  14% {
+  18% {
     opacity: 1;
   }
 
@@ -105,7 +109,7 @@ const STYLES = `
   left: 50%;
   top: 50%;
   opacity: 0;
-  animation: glamour-bf-fly var(--bf-dur) cubic-bezier(0.16, 0.496, 0.28, 1)
+  animation: glamour-bf-fly var(--bf-dur) cubic-bezier(0.16, 0.38, 0.28, 1)
     var(--bf-delay) forwards;
 }
 
@@ -273,7 +277,6 @@ function BookingGreeting({ text, hint }: Props) {
 
     for (let row = 0; row < ROWS; row += 1) {
       for (let column = 0; column < COLUMNS; column += 1) {
-        const index = row * COLUMNS + column;
         const seed = (row * 31 + column * 17) % 97;
 
         const startX = (column - (COLUMNS - 1) / 2) * 92 + (seed % 5) * 6 - 12;
@@ -293,8 +296,10 @@ function BookingGreeting({ text, hint }: Props) {
           // Бабочки тянет вверх: вниз падают, вверх — улетают.
           driftY: Math.round((startY / length) * distance) - 70,
           spin: (seed % 9) * 8 - 32,
-          delay: (index % 8) * 70 + (seed % 3) * 40,
-          duration: 1900 + (seed % 5) * 170,
+          // Волной сверху вниз: верхний ряд снимается первым, нижний
+          // последним. Так взгляд провожает бабочек, а не мечется.
+          delay: row * 240 + (seed % 3) * 40,
+          duration: 2200 + (seed % 5) * 150,
           bob: 700 + (seed % 5) * 90,
           flap: 240 + (seed % 6) * 30,
         });
