@@ -6416,28 +6416,35 @@ body:has(.registration-page-salon) {
    по нажатию. Прятать все нельзя: это и есть товар.
    ------------------------------------------------------------------ */
 
-.registration-page-salon .registration-plan-numbers {
-  margin: 18px 0 0;
-  padding: 12px 14px;
-  border: 1px solid var(--pf-border);
-  border-radius: 14px;
-  background: var(--pf-panel-flat);
-  text-align: left;
-}
+/*
+  Первая строка списка — числа тарифа.
 
-.registration-page-salon .registration-plan-numbers span {
-  display: block;
+  Раньше они стояли отдельной рамкой над списком, мелким серым шрифтом, и
+  владелец сказал прямо: карточки кажутся одинаковыми, а главное спрятано.
+  Теперь числа стоят первой строкой списка и написаны светлее остальных,
+  а под ними тонкая черта: ниже — то, что есть у всех.
+*/
+.registration-page-salon .registration-plan-card li.registration-plan-key {
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--pf-border);
   color: var(--pf-text);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.5;
 }
 
-.registration-page-salon .registration-plan-numbers small {
+.registration-page-salon .registration-plan-card li.registration-plan-key svg {
+  color: var(--pf-text);
+}
+
+.registration-page-salon
+  .registration-plan-card
+  li.registration-plan-key
+  small {
   display: block;
-  margin-top: 5px;
+  margin-top: 6px;
   color: var(--pf-text-muted);
   font-size: 11.5px;
+  font-weight: 500;
   line-height: 1.45;
 }
 

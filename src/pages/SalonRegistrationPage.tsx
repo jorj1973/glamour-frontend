@@ -249,55 +249,35 @@ function planOfPeriod(
 }
 
 /**
- * Что входит в тариф — целиком, вместе со ступенями ниже.
+ * Что даёт именно этот тариф — и ничего сверх того.
  *
- * Сперва карточка Business показывала только свою надстройку, а над ней
- * стояло «Всё из Start, и сверх того». Владелец посмотрел и сказал: под
- * этим заголовком должно быть всё, а не отсылка. Он прав: человек читает
- * одну карточку, а не три, и «всё из Start» ему ничего не говорит, пока
- * он не вернулся глазами к соседней колонке.
+ * До 18 сентября 2026 список собирался снизу вверх: в Premium стояли и
+ * его строки, и все строки Business, и все строки Start. Владелец
+ * посмотрел на три готовые карточки и сказал прямо: они кажутся
+ * одинаковыми. Так и было. Девять строк из десяти в них совпадали, а
+ * то единственное, чем тарифы правда отличаются — мастера, адреса,
+ * администраторы, сообщения, — лежало мелким серым шрифтом в стороне.
  *
- * Поэтому список собирается снизу вверх: сперва строки самого дешёвого
- * тарифа, потом следующего, потом этого. Строки идут в одном порядке во
- * всех колонках — так видно, где одна длиннее другой.
+ * Теперь наоборот. Заголовок говорит «всё, что в Start, и», а под ним
+ * стоит только надстройка: повторять сказанное соседней колонкой не
+ * нужно, на то и заголовок. Числа при этом переехали в список первой
+ * строкой и написаны светлее прочих — главное стоит первым и видно
+ * глазом, а не читается через лупу.
  *
- * Годовой добавляет своё последней строкой — подарок сообщениями. Он
- * берётся как разница между годовым списком и месячным: то, чего в
- * месячном нет. Иначе на карточке Business сошлись бы два подарка сразу,
- * двести от Start и пятьсот своих.
+ * Годовой добавляет своё последней строкой: то, чего нет в месячном.
+ * Так на карточке Business не сходятся два подарка сразу — двести
+ * сообщений от Start и пятьсот своих.
  */
-function cumulativeFeatures(
-  families: PlanFamily[],
-  index: number,
-  period: BillingPeriod,
-): string[] {
-  const lines: string[] = [];
+function ownFeatures(family: PlanFamily, period: BillingPeriod): string[] {
+  const base = family.monthly ?? family.yearly;
+  const lines = base ? [...getPlanFeatures(base)] : [];
 
-  for (let step = 0; step <= index; step += 1) {
-    const base = families[step].monthly ?? families[step].yearly;
+  if (period === 'yearly' && family.yearly) {
+    const monthlyLines = family.monthly ? getPlanFeatures(family.monthly) : [];
 
-    if (!base) {
-      continue;
-    }
-
-    for (const line of getPlanFeatures(base)) {
-      if (!lines.includes(line)) {
+    for (const line of getPlanFeatures(family.yearly)) {
+      if (!monthlyLines.includes(line) && !lines.includes(line)) {
         lines.push(line);
-      }
-    }
-  }
-
-  if (period === 'yearly') {
-    const yearly = families[index].yearly;
-    const monthly = families[index].monthly;
-
-    if (yearly) {
-      const monthlyLines = monthly ? getPlanFeatures(monthly) : [];
-
-      for (const line of getPlanFeatures(yearly)) {
-        if (!monthlyLines.includes(line) && !lines.includes(line)) {
-          lines.push(line);
-        }
       }
     }
   }
@@ -945,7 +925,7 @@ function SalonRegistrationPage() {
                       return null;
                     }
 
-                    const features = cumulativeFeatures(families, index, period);
+                    const features = ownFeatures(family, period);
 
                     // Ступень ниже — её имя стоит в заголовке списка:
                     // «Start + …». Сам список полон, но заголовок
@@ -1081,29 +1061,6 @@ function SalonRegistrationPage() {
                             : t('reg.plan.cta', { plan: plan.name })}
                         </p>
 
-                        {/*
-                          Числа — отдельным блоком, над списком.
-                          
-                          Раньше состав был первой строкой списка и тонул
-                          в нём. А это не такая же строка, как остальные:
-                          мастера, адреса, администраторы и сообщения —
-                          то единственное, что тариф действительно
-                          стережёт. Остальное есть у всех.
-                        */}
-                        <div className="registration-plan-numbers">
-                          <span>{planComposition(plan)}</span>
-
-                          {/*
-                            «25 в месяц» читается как потолок, и человек
-                            берёт тариф дороже, чем ему нужен, — или не
-                            берёт никакого. Пакеты сообщений есть давно;
-                            сказать об этом здесь стоит одной строки.
-                          */}
-                          {plan.smsAllowance ? (
-                            <small>{t('reg.plan.topUp')}</small>
-                          ) : null}
-                        </div>
-
                         <p className="registration-plan-includes">
                           {previous
                             ? t('reg.plan.includesPlus', {
@@ -1114,13 +1071,39 @@ function SalonRegistrationPage() {
 
                         {/*
                           Видны первые пять, остальное — по нажатию.
-                          
-                          У Premium строк четырнадцать, и стена из
-                          четырнадцати не читается вовсе. Прятать все —
-                          тоже нельзя: это и есть товар. Пять — столько,
-                          сколько глаз берёт за раз.
+
+                          Это осталось ради Start: своих строк у него
+                          десять, и стена из десяти не читается. У
+                          Business и Premium своих строк три и одна —
+                          там кнопка не появляется вовсе, и это верно:
+                          прятать нечего.
                         */}
                         <ul>
+                          {/*
+                            Первой строкой — то единственное, что тариф
+                            действительно стережёт: мастера, адреса,
+                            администраторы, сообщения. Остальное есть у
+                            всех, поэтому написано обычным цветом, а это —
+                            светлым.
+
+                            «25 в месяц» читается как потолок, из-за
+                            которого человек берёт тариф дороже, чем ему
+                            нужен, — или не берёт никакого. Пакеты
+                            сообщений есть давно, и сказать об этом стоит
+                            одной строки прямо здесь.
+                          */}
+                          <li className="registration-plan-key">
+                            <Check size={15} aria-hidden="true" />
+
+                            <span>
+                              {planComposition(plan)}
+
+                              {plan.smsAllowance ? (
+                                <small>{t('reg.plan.topUp')}</small>
+                              ) : null}
+                            </span>
+                          </li>
+
                           {(openPlans[plan.id]
                             ? features
                             : features.slice(0, VISIBLE_FEATURES)
