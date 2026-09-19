@@ -308,7 +308,6 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>{t("branding.basicData").toUpperCase()}</span>
                   <h2>{t("branding.basicData")}</h2>
                 </div>
               </div>
@@ -348,7 +347,6 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>{t("branding.images").toUpperCase()}</span>
                   <h2>{t("branding.images")}</h2>
                 </div>
                 <Image size={22} />
@@ -486,7 +484,6 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>{t("branding.colors").toUpperCase()}</span>
                   <h2>{t("branding.colors")}</h2>
                 </div>
                 <Palette size={22} />
@@ -530,7 +527,6 @@ function BrandingPage() {
             <section className="branding-card">
               <div className="branding-card-heading">
                 <div>
-                  <span>{t("branding.theme").toUpperCase()}</span>
                   <h2>{t("branding.theme")}</h2>
                 </div>
               </div>

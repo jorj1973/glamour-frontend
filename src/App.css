@@ -1071,8 +1071,12 @@ input {
 }
 
 .branding-image-preview.logo {
-  width: 112px;
-  height: 112px;
+  /*
+    Одна высота с обложкой — иначе кнопки в соседних колонках стоят на
+    разной высоте, и это видно сразу.
+  */
+  width: 150px;
+  height: 150px;
   border-radius: 24px;
 }
 
