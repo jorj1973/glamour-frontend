@@ -77,3 +77,28 @@ export const FALLBACK: Record<string, string[]> = {
   fr: ['en', 'ro'],
   default: ['ro'],
 };
+
+
+/**
+ * В каком порядке пробовать языки.
+ *
+ * Сначала свой, потом цепочка подмен, последним — язык площадки.
+ * Повторов нет: одно и то же не пробуется дважды.
+ *
+ * Спрашивают этот порядок не только словари i18next. Правовые тексты
+ * и подписи подвала лежат отдельно и переведены не на все языки —
+ * пусть отступают туда же, куда и остальное, а не каждый по-своему.
+ */
+export function languageOrder(language?: string | null): string[] {
+  const wanted = (language ?? '').slice(0, 2).toLowerCase();
+  const chain = FALLBACK[wanted] ?? FALLBACK.default;
+  const order: string[] = [];
+
+  for (const code of [wanted, ...chain, DEFAULT_LANGUAGE.code]) {
+    if (code && !order.includes(code)) {
+      order.push(code);
+    }
+  }
+
+  return order;
+}

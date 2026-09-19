@@ -15,6 +15,8 @@
  * особенно разделы об ответственности и о данных.
  */
 
+import { languageOrder } from '../i18n/languages';
+
 export type LegalSection = {
   heading: string;
   body: string[];
@@ -494,6 +496,11 @@ export const LEGAL_LINKS: Record<string, Record<LegalKind, string>> = {
     privacy: 'Data',
     contacts: 'Contacts',
   },
+  uk: {
+    terms: 'Оферта',
+    privacy: 'Дані',
+    contacts: 'Контакти',
+  },
 };
 
 /** Подпись «назад» и заголовок реквизитов. */
@@ -516,10 +523,35 @@ export const LEGAL_UI: Record<
     updated: 'Last changed',
     details: 'How to reach us',
   },
+  uk: {
+    back: 'Назад',
+    updated: 'Останні зміни',
+    details: 'Як з нами зв’язатися',
+  },
 };
 
+/**
+ * Взять то, что написано на понятном человеку языке.
+ *
+ * Правовые тексты переведены не на все языки, и это надолго: оферту
+ * переводят не так, как кнопку. Пока перевода нет, украинец должен
+ * получить русский текст, а не румынский, — порядок берётся общий,
+ * из `i18n/languages.ts`.
+ */
+function pick<T>(map: Record<string, T>, lang: string): T {
+  for (const code of languageOrder(lang)) {
+    const found = map[code];
+
+    if (found) {
+      return found;
+    }
+  }
+
+  return map.ro;
+}
+
 function packOf(lang: string): LegalPack {
-  return PACKS[lang] ?? PACKS.ro;
+  return pick(PACKS, lang);
 }
 
 export function legalDocument(lang: string, kind: LegalKind): LegalDocument {
@@ -527,9 +559,9 @@ export function legalDocument(lang: string, kind: LegalKind): LegalDocument {
 }
 
 export function legalLinks(lang: string): Record<LegalKind, string> {
-  return LEGAL_LINKS[lang] ?? LEGAL_LINKS.ro;
+  return pick(LEGAL_LINKS, lang);
 }
 
 export function legalUi(lang: string) {
-  return LEGAL_UI[lang] ?? LEGAL_UI.ro;
+  return pick(LEGAL_UI, lang);
 }
