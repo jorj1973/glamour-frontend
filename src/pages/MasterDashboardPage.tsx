@@ -89,7 +89,7 @@ function getPromoUrl(data: PromotionLink, baseUrl: string): string {
   const identifier = data.slug?.trim() || data.code?.trim() || '';
   if (identifier) {
     // Короткая форма: её не режет пересылка и можно продиктовать голосом.
-    return `${baseUrl}/#salon/${encodeURIComponent(identifier)}`;
+    return `${baseUrl}/salon/${encodeURIComponent(identifier)}`;
   }
   return data.publicUrl ?? data.registrationUrl ?? data.url ?? '';
 }

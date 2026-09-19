@@ -42,7 +42,12 @@ api.interceptors.request.use((config) => {
  * Держится в согласии с разбором адреса в App.tsx. Меняешь там —
  * меняй и здесь.
  */
-const PUBLIC_PATHS = ['/reset-password'];
+const PUBLIC_PATHS = [
+  '/reset-password',
+  '/salon/',
+  '/master/',
+  '/try',
+];
 
 const PUBLIC_HASHES = [
   '#reset-password',

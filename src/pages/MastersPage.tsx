@@ -248,7 +248,7 @@ function MastersPage() {
       return;
     }
 
-    const url = `${window.location.origin}/#salon/${encodeURIComponent(slug)}`;
+    const url = `${window.location.origin}/salon/${encodeURIComponent(slug)}`;
 
     try {
       if (navigator.clipboard && window.isSecureContext) {

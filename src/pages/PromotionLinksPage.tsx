@@ -115,10 +115,10 @@ function getLinkUrl(link: PromotionLink): string {
     case 'service':
     case 'booking':
     case 'promotion':
-      return `${window.location.origin}/#salon/${encodedIdentifier}`;
+      return `${window.location.origin}/salon/${encodedIdentifier}`;
 
     default:
-      return `${window.location.origin}/#salon/${encodedIdentifier}`;
+      return `${window.location.origin}/salon/${encodedIdentifier}`;
   }
 }
 
@@ -293,7 +293,7 @@ function PromotionLinksPage() {
 
     const url =
       window.location.origin +
-      '/#try?ref=' +
+      '/try?ref=' +
       encodeURIComponent(refer.code);
 
     try {
@@ -1218,7 +1218,7 @@ function PromotionLinksPage() {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {window.location.origin + '/#try?ref=' + refer.code}
+                        {window.location.origin + '/try?ref=' + refer.code}
                       </code>
 
                       <button

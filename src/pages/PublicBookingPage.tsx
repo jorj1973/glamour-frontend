@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { addressFromPath } from '../route';
 import BookingGreeting from '../components/BookingGreeting';
 import BookingCalendar from '../components/BookingCalendar';
 import {
@@ -187,6 +188,14 @@ type LoginResponse = {
 };
 
 function getIdentifier(): string {
+    // Новый адрес: /salon/glamour. Старый, с решёткой, продолжает
+    // открываться — по нему напечатаны визитки и разосланы письма.
+    const fromPath = addressFromPath();
+
+    if (fromPath && fromPath.kind === 'salon') {
+        return fromPath.identifier;
+    }
+
     const hash = window.location.hash;
 
     // Короткая форма: #salon/glamour. В ней нет вопросительного знака,

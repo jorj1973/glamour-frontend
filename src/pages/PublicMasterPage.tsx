@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import MasterPublicCard from '../components/MasterPublicCard';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { addressFromPath } from '../route';
 
 /**
  * Постоянная публичная страница мастера: #master/<masterProfileId>
@@ -17,6 +18,15 @@ function PublicMasterPage() {
 
   useEffect(() => {
     function readHash() {
+      // Новый адрес: /master/<id>. Старый с решёткой работает как
+      // работал.
+      const fromPath = addressFromPath();
+
+      if (fromPath && fromPath.kind === 'master') {
+        setMasterProfileId(fromPath.identifier);
+        return;
+      }
+
       const hash = window.location.hash;
       const match = hash.match(/^#master\/([0-9a-fA-F-]{36})/);
       setMasterProfileId(match ? match[1] : '');
@@ -24,8 +34,12 @@ function PublicMasterPage() {
 
     readHash();
     window.addEventListener('hashchange', readHash);
+    window.addEventListener('popstate', readHash);
 
-    return () => window.removeEventListener('hashchange', readHash);
+    return () => {
+      window.removeEventListener('hashchange', readHash);
+      window.removeEventListener('popstate', readHash);
+    };
   }, []);
 
   return (

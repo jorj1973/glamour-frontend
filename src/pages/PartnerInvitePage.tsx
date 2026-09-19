@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Gift, Sparkles } from 'lucide-react';
 
 import api from '../api/api';
+import { addressFromPath } from '../route';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import PublicFooter from '../components/PublicFooter';
 import ThemeSwitcher from '../components/ThemeSwitcher';
@@ -41,6 +42,14 @@ type Referrer = {
 
 
 function readCode(): string {
+  // Новый адрес: /try?ref=КОД. Старый, #try?ref=КОД, продолжает
+  // работать: он уже разослан в переписках.
+  const fromPath = addressFromPath();
+
+  if (fromPath && fromPath.kind === 'try') {
+    return fromPath.ref;
+  }
+
   const hash = window.location.hash;
   const at = hash.indexOf('?');
 

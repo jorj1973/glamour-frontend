@@ -18,6 +18,23 @@
       content="Programare online la salon: alege serviciul, maestrul și ora potrivită."
     />
 
+    <!--
+      Что покажет WhatsApp, когда мастер кинет ссылку клиентке.
+      Здесь стоят общие слова про площадку; название салона и мастера
+      подставляются отдельно — это делается на сервере, потому что
+      мессенджеры JavaScript не выполняют и увидят только то, что
+      пришло в ответе.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GLAMOUR" />
+    <meta property="og:title" content="GLAMOUR" />
+    <meta
+      property="og:description"
+      content="Programare online la salon: alege serviciul, maestrul și ora potrivită."
+    />
+    <meta property="og:image" content="https://glamourapp.md/icon-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <!-- Цвет строки состояния при установке. -->
     <meta name="theme-color" content="#17151c" />
 
@@ -29,6 +46,38 @@
     <meta name="apple-mobile-web-app-title" content="GLAMOUR" />
   </head>
   <body>
+    <script>
+      /*
+        Старые адреса переводим в новые до запуска приложения.
+
+        Визитки напечатаны, письма разосланы, ссылки лежат в чужих
+        переписках — ломать их нельзя. Но и держать витрины в хеше
+        нельзя: всё, что после решётки, браузер серверу не посылает, и
+        для поисковика сотня витрин — одна страница.
+
+        Поэтому #salon/glamour тихо становится /salon/glamour в самом
+        начале, без перезагрузки и без мигания. Человек разницы не
+        заметит, поисковик увидит настоящий адрес.
+      */
+      (function () {
+        if (window.location.pathname !== '/') {
+          return;
+        }
+
+        var hash = window.location.hash;
+        var shop = hash.match(/^#(salon|master)\/([^/?#]+)(.*)$/);
+
+        if (shop) {
+          history.replaceState(null, '', '/' + shop[1] + '/' + shop[2] + shop[3]);
+          return;
+        }
+
+        if (hash === '#try' || hash.indexOf('#try?') === 0) {
+          history.replaceState(null, '', '/try' + hash.slice(4));
+        }
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

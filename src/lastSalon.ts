@@ -30,7 +30,7 @@ export function bookingUrl(
   identifier: string,
   fullChoice = false,
 ): string {
-  const base = '/#salon/' + encodeURIComponent(identifier);
+  const base = '/salon/' + encodeURIComponent(identifier);
 
   // Полный выбор нужен там, где человек пришёл НЕ по чужой ссылке,
   // а сам: из своего кабинета или из отложенных. Ссылка мастера
@@ -41,6 +41,12 @@ export function bookingUrl(
 
 /** Просили ли открыть запись без привязки к мастеру или услуге ссылки. */
 export function wantsFullChoice(): boolean {
+  // Новый адрес держит признак в обычном запросе: /salon/x?all=1.
+  // Старый — в хвосте хеша: #salon/x?all=1. Работают оба.
+  if (new URLSearchParams(window.location.search).get('all') === '1') {
+    return true;
+  }
+
   const hash = window.location.hash;
   const mark = hash.indexOf('?');
 

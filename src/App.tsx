@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from './api/api';
+import { currentPageKey } from './route';
 import LoginPage from './pages/LoginPage';
 import SalonRegistrationPage from './pages/SalonRegistrationPage';
 import EnterprisePage from './pages/EnterprisePage';
@@ -88,22 +89,25 @@ function App() {
     Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
   );
 
-  const [currentPage, setCurrentPage] = useState(
-    window.location.hash,
-  );
+  /**
+   * Адрес читается из пути и из хеша разом: витрины живут в пути,
+   * кабинет — в хеше. Само правило лежит в `route.ts`, здесь только
+   * его применение.
+   */
+  const [currentPage, setCurrentPage] = useState(currentPageKey);
 
   useEffect(() => {
-    function handleHashChange() {
-      setCurrentPage(window.location.hash);
+    function handleAddressChange() {
+      setCurrentPage(currentPageKey());
     }
 
-    window.addEventListener('hashchange', handleHashChange);
+    // Хеш меняет кабинет, путь — кнопка «назад» в браузере.
+    window.addEventListener('hashchange', handleAddressChange);
+    window.addEventListener('popstate', handleAddressChange);
 
     return () => {
-      window.removeEventListener(
-        'hashchange',
-        handleHashChange,
-      );
+      window.removeEventListener('hashchange', handleAddressChange);
+      window.removeEventListener('popstate', handleAddressChange);
     };
   }, []);
 
