@@ -48,7 +48,7 @@ export const LANGUAGES: Language[] = [
   { code: 'ru', name: 'Русский', ready: true },
   DEFAULT_LANGUAGE,
   { code: 'en', name: 'English', ready: true },
-  { code: 'uk', name: 'Українська', ready: false },
+  { code: 'uk', name: 'Українська', ready: true },
   { code: 'pl', name: 'Polski', ready: false },
   { code: 'it', name: 'Italiano', ready: false },
   { code: 'es', name: 'Español', ready: false },
