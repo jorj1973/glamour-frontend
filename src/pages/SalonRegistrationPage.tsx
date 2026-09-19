@@ -171,6 +171,8 @@ type RegistrationFormState = {
   legalName: string;
   salonEmail: string;
   salonPhone: string;
+  /** Промокод. Пусто — у человека его нет, и это обычное дело. */
+  promoCode: string;
   timezone: string;
   preferredLanguage: 'ru' | 'ro' | 'en';
 };
@@ -186,6 +188,7 @@ const INITIAL_FORM: RegistrationFormState = {
   legalName: '',
   salonEmail: '',
   salonPhone: '',
+  promoCode: '',
   timezone: 'Europe/Chisinau',
   preferredLanguage: 'ru',
 };
@@ -624,6 +627,7 @@ function SalonRegistrationPage() {
       legalName?: string;
       salonEmail?: string;
       salonPhone?: string;
+      promoCode?: string;
       timezone: string;
       preferredLanguage: 'ru' | 'ro' | 'en';
     } = {
@@ -650,6 +654,15 @@ function SalonRegistrationPage() {
       payload.salonPhone = form.salonPhone.trim();
     }
 
+    /**
+     * Код уходит прописными: в базе он записан так, а человек наберёт
+     * как придётся. Пустое поле не отправляется вовсе — пустой код это
+     * не код, а его отсутствие.
+     */
+    if (form.promoCode.trim()) {
+      payload.promoCode = form.promoCode.trim().toUpperCase();
+    }
+
     try {
       const response = await api.post<RegistrationResponse>(
         '/platform-registration/complete',
@@ -664,8 +677,23 @@ function SalonRegistrationPage() {
         top: 0,
         behavior: 'smooth',
       });
-    } catch {
-      setErrorKey('reg.errors.submitFailed');
+    } catch (error) {
+      /**
+       * Неизвестный промокод называется своим именем.
+       *
+       * Общее «не получилось» заставило бы человека гадать, что не
+       * так: почта, телефон, пароль? А не так одна буква в коде, и он
+       * может её поправить сам.
+       */
+      const message = (
+        error as { response?: { data?: { message?: unknown } } }
+      )?.response?.data?.message;
+
+      setErrorKey(
+        message === 'PROMO_CODE_UNKNOWN'
+          ? 'reg.promoUnknown'
+          : 'reg.errors.submitFailed',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -1364,6 +1392,26 @@ function SalonRegistrationPage() {
                       minLength={2}
                       maxLength={150}
                       required
+                    />
+                  </label>
+
+                  {/*
+                    Промокод — необязательное поле, и выглядеть оно
+                    должно так же, как прочие необязательные. Звёздочки
+                    и рамки вокруг него сделали бы вид, что без кода
+                    регистрация неполная.
+                  */}
+                  <label>
+                    <span>{t('reg.promoCode')}</span>
+                    <input
+                      type="text"
+                      value={form.promoCode}
+                      onChange={(event) =>
+                        updateField('promoCode', event.target.value)
+                      }
+                      maxLength={40}
+                      autoCapitalize="characters"
+                      autoComplete="off"
                     />
                   </label>
 

@@ -2000,6 +2000,8 @@
     "masterNote": "The salon has not renewed the plan. New appointments are unavailable for now"
   },
   "reg": {
+    "promoCode": "Promo code, if you have one",
+    "promoUnknown": "There is no such promo code. Check the spelling or clear the field.",
     "dateUnknown": "not set",
     "perMonth": "per month",
     "perYear": "per year",

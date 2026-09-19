@@ -2010,6 +2010,8 @@
     "masterNote": "Salonul nu a prelungit abonamentul. Programări noi nu se pot face deocamdată"
   },
   "reg": {
+    "promoCode": "Cod promoțional, dacă aveți",
+    "promoUnknown": "Acest cod promoțional nu există. Verificați scrierea sau ștergeți-l.",
     "dateUnknown": "nespecificată",
     "perMonth": "pe lună",
     "perYear": "pe an",
