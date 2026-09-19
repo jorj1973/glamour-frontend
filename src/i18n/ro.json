@@ -87,7 +87,7 @@
   },
   "dashboard": {
     "export": "Descărcați în Excel",
-    "exportHint": "Un registru cu două pagini: clientele și plățile. Datele dumneavoastră sunt ale dumneavoastră.",
+    "exportHint": "Un registru cu două pagini: clienții și plățile. Datele dumneavoastră sunt ale dumneavoastră.",
     "byLocation": "Bani pe adrese",
     "noLocation": "Fără adresă",
     "ownerTitle": "Panoul proprietarului",
@@ -991,7 +991,7 @@
     "notFound": "Înregistrarea nu a fost găsită.",
     "conflict": "O astfel de înregistrare există deja.",
     "badRequest": "Verifică câmpurile completate.",
-    "clientLimit": "Nu mai încap cliente noi: tariful maestrului are o limită a bazei. Clientele cunoscute se programează ca înainte.",
+    "clientLimit": "Nu mai încap clienți noi: tariful maestrului are o limită a bazei. Clienții cunoscuți se programează ca înainte.",
     "fileTooLarge": "Fișierul e prea mare. Maximum 10 MB.",
     "fileFormat": "Se acceptă doar PNG, JPEG, WebP sau PDF.",
     "portfolioFull": "Portofoliul este plin.",
@@ -1518,7 +1518,7 @@
         "messagesChanged": "Numărul de mesaje iese altfel decât era pe ecran. Calculați din nou.",
         "notEnough": "Nu ajung mesajele din cont. Completați contul sau restrângeți selecția."
       },
-      "title": "Mesaje către baza de cliente",
+      "title": "Mesaje către baza de clienți",
       "lead": "Vedeți cui va ajunge mesajul și cât se va scădea din cont. Trimiterea nu este încă posibilă — butonul va apărea mai târziu.",
       "audienceLapsed": "Nu au mai venit demult",
       "audienceRecent": "Au venit recent",
@@ -1561,7 +1561,7 @@
     "kicker": "NOTIFICĂRI",
     "title": "Memento prin SMS",
     "noSalon": "Salonul nu a fost găsit.",
-    "consent": "Activând SMS-urile, confirmați că trimiteți mementouri la numerele pe care clientele vi le-au lăsat ele însele și că ele așteaptă mesaje despre programările lor.",
+    "consent": "Activând SMS-urile, confirmați că trimiteți mementouri la numerele pe care clienții vi le-au lăsat ei înșiși și că ei așteaptă mesaje despre programările lor.",
     "off": {
       "badge": "Dezactivate",
       "intro": "Un memento în ajunul vizitei este cel mai simplu mod de a reduce neprezentările. Clientele care au aplicația îl primesc gratuit, prin notificare și e-mail. SMS-urile sunt pentru celelalte: pentru cele mutate din agenda de hârtie, de la care aveți doar numele și numărul.",
@@ -1576,10 +1576,10 @@
       "left": "Mesaje rămase",
       "leftNote": "{{allowance}} din abonament și {{purchased}} cumpărate",
       "needWeek": "Necesar pentru săptămâna următoare",
-      "needWeekOk": "Ajung pentru clientele deja programate",
-      "needWeekShort": "Nu ajung pentru clientele deja programate",
+      "needWeekOk": "Ajung pentru clienții deja programați",
+      "needWeekShort": "Nu ajung pentru clienții deja programați",
       "short": "Lipsesc {{n}} mesaje pentru programările din această săptămână",
-      "shortNote": "Pentru următoarele șapte zile sunt programate cliente care necesită {{need}} mesaje. În cont aveți {{left}}. Restul mementourilor nu vor pleca.",
+      "shortNote": "Pentru următoarele șapte zile sunt programați clienți care necesită {{need}} mesaje. În cont aveți {{left}}. Restul mementourilor nu vor pleca.",
       "duplicate": "Trimite SMS și celor care au aplicația",
       "duplicateNote": "Ele primesc oricum notificare și e-mail gratuit. Activați dacă sunteți dispus să plătiți pentru siguranță.",
       "disable": "Dezactivează SMS"
@@ -1637,7 +1637,7 @@
     },
     "staff": {
       "title": "Nu aveți un cont separat",
-      "note": "Lucrați în acest salon ca maestru angajat, iar mementourile pentru clientele dumneavoastră le plătește salonul. Cont personal au maeștrii independenți — cei care lucrează în salon pe cont propriu."
+      "note": "Lucrați în acest salon ca maestru angajat, iar mementourile pentru clienții dumneavoastră le plătește salonul. Cont personal au maeștrii independenți — cei care lucrează în salon pe cont propriu."
     },
     "gift": {
       "title": "Dăruiește mesaje unui maestru",
@@ -1663,7 +1663,7 @@
     },
     "warn": {
       "weekTitle": "Până la sfârșitul săptămânii lipsesc {{n}} mesaje",
-      "weekNote": "Pentru clientele deja programate e nevoie de {{need}}, iar în cont sunt {{left}}. Mai este timp să alimentați.",
+      "weekNote": "Pentru clienții deja programați e nevoie de {{need}}, iar în cont sunt {{left}}. Mai este timp să alimentați.",
       "dayTitle": "Mementourile de mâine nu vor pleca",
       "dayNote": "Pentru mâine e nevoie de {{need}} mesaje, iar în cont sunt {{left}}. Primele mementouri pleacă la noapte.",
       "zeroTitle": "Mesajele s-au terminat",

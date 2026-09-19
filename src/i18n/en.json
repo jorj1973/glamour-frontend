@@ -279,7 +279,7 @@
     "coopError": "Failed to change the cooperation type.",
     "location": "Branch",
     "locError": "Could not change the branch",
-    "locationByMaster": "An independent master chooses her own branch"
+    "locationByMaster": "An independent master chooses their own branch"
   },
   "services": {
     "title": "Service Catalog",
@@ -1948,8 +1948,8 @@
     "why": "This was built inside a salon, for a salon. That is why it has nothing nobody uses, and has what is missing every day.",
     "changesTitle": "What changes",
     "c1": "The client books herself — at night, on a day off, while your hands are busy. You simply see: tomorrow at 11:00 Lena is coming for colouring.",
-    "c2": "Your base stays yours. You upload it yourself from Excel — nobody but you sees it. Visit history, photos of the work, her favourite shade.",
-    "c3": "The client gets a reminder the day before, on her phone. They come more often and cancel less — that is what people notice first.",
+    "c2": "Your base stays yours. You upload it yourself from Excel — nobody but you sees it. Visit history, photos of the work, their favourite shade.",
+    "c3": "The client gets a reminder the day before, on their phone. They come more often and cancel less — that is what people notice first.",
     "c4": "Money is visible without a calculator: how much today, how much this month, how much each master earned per service, who owes whom on settlement day.",
     "nowTitle": "How we connect you",
     "now": "We connect every salon personally: we show everything to you and to every master, help move the base, and answer the same day inside the app.",

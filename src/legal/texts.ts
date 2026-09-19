@@ -41,21 +41,21 @@ const RU: LegalPack = {
       {
         heading: 'Что это за программа',
         body: [
-          'GLAMOUR — программа для салона красоты: клиентка записывается сама, база хранит историю визитов, расписание видно каждому мастеру, а деньги считаются без калькулятора.',
+          'GLAMOUR — программа для салона красоты: клиент записывается сам, база хранит историю визитов, расписание видно каждому мастеру, а деньги считаются без калькулятора.',
           'Кто оказывает услугу и как с нами связаться — на странице «Контакты».',
         ],
       },
       {
         heading: 'Как начинается работа',
         body: [
-          'Вы открываете ссылку, выбираете тариф и заполняете данные салона. Заявка приходит к владельцу площадки, и он её рассматривает.',
-          'До одобрения вход в кабинет закрыт и денег с вас не берут.',
+          'Вы открываете ссылку, выбираете тариф и заполняете данные салона. Кабинет открывается сразу, а заявка приходит к владельцу площадки — он её рассматривает.',
+          'Денег при регистрации не берут. Если заявка окажется чужой или поддельной, владелец площадки может закрыть салон.',
         ],
       },
       {
         heading: 'Пробные дни',
         body: [
-          'После одобрения салон получает бесплатные пробные дни — сколько именно, написано на карточке тарифа.',
+          'Пробные дни идут с самой регистрации — сколько именно, написано на карточке тарифа.',
           'Карта для этого не нужна, автоматического списания нет. Не подошло — просто не оплачиваете.',
         ],
       },
@@ -85,7 +85,7 @@ const RU: LegalPack = {
       {
         heading: 'За что мы не отвечаем',
         body: [
-          'За то, что салон написал своим клиенткам, и за то, как салон ведёт свои дела.',
+          'За то, что салон написал своим клиентам, и за то, как салон ведёт свои дела.',
           'Мы делаем всё, чтобы программа работала без перерывов, но не можем обещать этого за интернет, телефон или оператора SMS.',
         ],
       },
@@ -108,13 +108,13 @@ const RU: LegalPack = {
     title: 'Политика данных',
     updated: '17 сентября 2026',
     intro:
-      'Коротко: данные клиенток вносит салон, и принадлежат они салону. Мы храним их, чтобы программа работала, и больше ни для чего.',
+      'Коротко: данные клиентов вносит салон, и принадлежат они салону. Мы храним их, чтобы программа работала, и больше ни для чего.',
     sections: [
       {
         heading: 'Кто за что отвечает',
         body: [
           'Салон решает, чьи данные вносить и зачем. Мы храним и обрабатываем их по его поручению.',
-          'Если клиентка хочет узнать, что о ней записано, или попросить удалить — она обращается в свой салон. Салон обращается к нам, если нужна помощь.',
+          'Если клиент хочет узнать, что о нём записано, или попросить удалить — он обращается в свой салон. Салон обращается к нам, если нужна помощь.',
         ],
       },
       {
@@ -124,7 +124,7 @@ const RU: LegalPack = {
         ],
       },
       {
-        heading: 'Что салон записывает о клиентках',
+        heading: 'Что салон записывает о клиентах',
         body: [
           'Имя, телефон, иногда почту, историю визитов, фотографии работ и заметки мастера. Что именно записывать — решает салон.',
         ],
@@ -189,21 +189,21 @@ const RO: LegalPack = {
       {
         heading: 'Ce este această aplicație',
         body: [
-          'GLAMOUR este aplicația salonului de frumusețe: clienta se programează singură, baza păstrează istoricul vizitelor, orarul se vede la fiecare maestru, iar banii se numără fără calculator.',
+          'GLAMOUR este aplicația salonului de frumusețe: clientul se programează singur, baza păstrează istoricul vizitelor, orarul se vede la fiecare maestru, iar banii se numără fără calculator.',
           'Cine prestează serviciul și cum ne găsiți — pe pagina «Contacte».',
         ],
       },
       {
         heading: 'Cum începe colaborarea',
         body: [
-          'Deschideți linkul, alegeți tariful și completați datele salonului. Cererea ajunge la proprietarul platformei, care o examinează.',
-          'Până la aprobare, intrarea în cont este închisă și nu se încasează niciun ban.',
+          'Deschideți linkul, alegeți tariful și completați datele salonului. Contul se deschide imediat, iar cererea ajunge la proprietarul platformei, care o examinează.',
+          'La înregistrare nu se încasează niciun ban. Dacă cererea se dovedește străină sau falsă, proprietarul platformei poate închide salonul.',
         ],
       },
       {
         heading: 'Zilele de probă',
         body: [
-          'După aprobare, salonul primește zile de probă gratuite — câte anume scrie pe cartela tarifului.',
+          'Zilele de probă curg chiar de la înregistrare — câte anume scrie pe cartela tarifului.',
           'Nu este nevoie de card și nu există debitare automată. Nu vi se potrivește — pur și simplu nu plătiți.',
         ],
       },
@@ -226,14 +226,14 @@ const RO: LegalPack = {
       {
         heading: 'Ale cui sunt datele',
         body: [
-          'Baza de cliente aparține salonului. Nu o vindem, nu o dăm altor saloane și nu o folosim pentru reclama noastră.',
+          'Baza de clienți aparține salonului. Nu o vindem, nu o dăm altor saloane și nu o folosim pentru reclama noastră.',
           'Dacă plecați, luați baza cu dumneavoastră.',
         ],
       },
       {
         heading: 'Pentru ce nu răspundem',
         body: [
-          'Pentru ce le-a scris salonul clientelor sale și pentru felul în care salonul își conduce afacerea.',
+          'Pentru ce le-a scris salonul clienților săi și pentru felul în care salonul își conduce afacerea.',
           'Facem totul ca aplicația să meargă fără întreruperi, dar nu putem promite acest lucru în locul internetului, al telefonului sau al operatorului de SMS.',
         ],
       },
@@ -256,13 +256,13 @@ const RO: LegalPack = {
     title: 'Politica datelor',
     updated: '17 septembrie 2026',
     intro:
-      'Pe scurt: datele clientelor le introduce salonul și ele aparțin salonului. Noi le păstrăm ca aplicația să funcționeze și pentru nimic altceva.',
+      'Pe scurt: datele clienților le introduce salonul și ele aparțin salonului. Noi le păstrăm ca aplicația să funcționeze și pentru nimic altceva.',
     sections: [
       {
         heading: 'Cine de ce răspunde',
         body: [
           'Salonul hotărăște ale cui date le introduce și în ce scop. Noi le păstrăm și le prelucrăm la cererea lui.',
-          'Dacă o clientă vrea să afle ce este scris despre ea sau cere ștergerea — se adresează salonului său. Salonul ni se adresează nouă, dacă are nevoie de ajutor.',
+          'Dacă un client vrea să afle ce este scris despre el sau cere ștergerea — se adresează salonului său. Salonul ni se adresează nouă, dacă are nevoie de ajutor.',
         ],
       },
       {
@@ -272,7 +272,7 @@ const RO: LegalPack = {
         ],
       },
       {
-        heading: 'Ce scrie salonul despre cliente',
+        heading: 'Ce scrie salonul despre clienți',
         body: [
           'Numele, telefonul, uneori emailul, istoricul vizitelor, fotografiile lucrărilor și notițele maestrului. Ce anume — hotărăște salonul.',
         ],
@@ -337,21 +337,21 @@ const EN: LegalPack = {
       {
         heading: 'What this application is',
         body: [
-          'GLAMOUR is the salon application: the client books herself, the base keeps the visit history, the schedule is visible to every specialist, and the money is counted without a calculator.',
+          'GLAMOUR is the salon application: the client books for themselves, the base keeps the visit history, the schedule is visible to every specialist, and the money is counted without a calculator.',
           'Who provides the service and how to reach us — on the Contacts page.',
         ],
       },
       {
         heading: 'How the work begins',
         body: [
-          'You open the link, choose a plan and fill in the salon details. The application reaches the platform owner, who reviews it.',
-          'Until approval the cabinet stays closed and no money is taken.',
+          'You open the link, choose a plan and fill in the salon details. The cabinet opens right away, and the application reaches the platform owner, who reviews it.',
+          'No money is taken at registration. If the application turns out to be false or to belong to someone else, the platform owner can close the salon.',
         ],
       },
       {
         heading: 'Trial days',
         body: [
-          'After approval the salon gets free trial days — how many is written on the plan card.',
+          'Trial days run from registration itself — how many is written on the plan card.',
           'No card is needed and nothing is charged automatically. If it does not suit you, you simply do not pay.',
         ],
       },
@@ -408,7 +408,7 @@ const EN: LegalPack = {
         heading: 'Who is responsible for what',
         body: [
           'The salon decides whose data to enter and why. We keep and process it on its instruction.',
-          'If a client wants to know what is written about her, or asks for deletion, she turns to her salon. The salon turns to us if it needs help.',
+          'If a client wants to know what is written about them, or asks for deletion, they turn to their salon. The salon turns to us if it needs help.',
         ],
       },
       {
