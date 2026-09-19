@@ -391,43 +391,58 @@ function SalonRegistrationPage() {
   }
 
   /**
-   * Состав тарифа одной строкой, собранный из его же чисел.
+   * Числа тарифа — каждое своей строкой.
    *
-   * Прежде карточка печатала три отдельные строки — «До 5 мастеров»,
-   * «До 1 администраторов», «До 1 филиалов». Тот же состав повторялся
-   * потом словами в списке возможностей: один вопрос отвечали в двух
-   * местах, и второй ответ вдобавок не склонялся.
+   * Сперва они стояли тремя строками списка, потом склеились в одну
+   * через точки, потом переехали первой строкой в «Что входит». Теперь
+   * снова врозь, и на этот раз по делу: владелец смотрел на готовую
+   * карточку и сказал, что склейка читается как одна длинная фраза, а
+   * каждое число — отдельное обещание, и галочка нужна каждому.
    *
-   * Склонение теперь не наше дело: числительные знает i18next, и знает
-   * их для трёх языков сразу. Прежняя таблица «мастер / мастера /
-   * мастеров» жила прямо в этом файле и молча ошибалась на румынском,
-   * где после двадцати появляется «de»: не «20 maeștri», а «20 de
-   * maeștri».
+   * Склонение не наше дело: числительные знает i18next, и знает их для
+   * трёх языков сразу. Прежняя таблица «мастер / мастера / мастеров»
+   * жила прямо в этом файле и молча ошибалась на румынском, где после
+   * двадцати появляется «de»: не «20 maeștri», а «20 de maeștri».
+   *
+   * К строке сообщений привязана приписка про пакеты. «25 в месяц»
+   * читается как потолок, из-за которого человек берёт тариф дороже,
+   * чем ему нужен, — или не берёт никакого.
    */
-  function planComposition(plan: PublicPlan): string {
-    const parts: string[] = [];
+  function planNumbers(
+    plan: PublicPlan,
+  ): { id: string; text: string; note?: string }[] {
+    const rows: { id: string; text: string; note?: string }[] = [];
 
-    parts.push(
-      plan.maxMasters
+    rows.push({
+      id: 'masters',
+      text: plan.maxMasters
         ? t('reg.composition.masters', { count: plan.maxMasters })
         : t('reg.composition.mastersUnlimited'),
-    );
+    });
 
     if (plan.maxLocations) {
-      parts.push(t('reg.composition.locations', { count: plan.maxLocations }));
+      rows.push({
+        id: 'locations',
+        text: t('reg.composition.locations', { count: plan.maxLocations }),
+      });
     }
 
     if (plan.maxAdministrators) {
-      parts.push(
-        t('reg.composition.admins', { count: plan.maxAdministrators }),
-      );
+      rows.push({
+        id: 'admins',
+        text: t('reg.composition.admins', { count: plan.maxAdministrators }),
+      });
     }
 
     if (plan.smsAllowance) {
-      parts.push(t('reg.composition.sms', { count: plan.smsAllowance }));
+      rows.push({
+        id: 'sms',
+        text: t('reg.composition.sms', { count: plan.smsAllowance }),
+        note: t('reg.plan.topUp'),
+      });
     }
 
-    return parts.join(' · ');
+    return rows;
   }
 
   const loadInvitation = useCallback(async () => {
@@ -1080,29 +1095,30 @@ function SalonRegistrationPage() {
                         */}
                         <ul>
                           {/*
-                            Первой строкой — то единственное, что тариф
-                            действительно стережёт: мастера, адреса,
-                            администраторы, сообщения. Остальное есть у
-                            всех, поэтому написано обычным цветом, а это —
-                            светлым.
-
-                            «25 в месяц» читается как потолок, из-за
-                            которого человек берёт тариф дороже, чем ему
-                            нужен, — или не берёт никакого. Пакеты
-                            сообщений есть давно, и сказать об этом стоит
-                            одной строки прямо здесь.
+                            Числа тарифа — сверху, каждое своей строкой и
+                            со своей галочкой: это отдельные обещания, а
+                            не одна длинная фраза. Написаны светлее
+                            прочих, потому что это и есть разница между
+                            тарифами; всё, что ниже черты, есть у всех.
                           */}
-                          <li className="registration-plan-key">
-                            <Check size={15} aria-hidden="true" />
+                          {planNumbers(plan).map((row, place, rows) => (
+                            <li
+                              key={row.id}
+                              className={
+                                place === rows.length - 1
+                                  ? 'registration-plan-key registration-plan-edge'
+                                  : 'registration-plan-key'
+                              }
+                            >
+                              <Check size={15} aria-hidden="true" />
 
-                            <span>
-                              {planComposition(plan)}
+                              <span>
+                                {row.text}
 
-                              {plan.smsAllowance ? (
-                                <small>{t('reg.plan.topUp')}</small>
-                              ) : null}
-                            </span>
-                          </li>
+                                {row.note ? <small>{row.note}</small> : null}
+                              </span>
+                            </li>
+                          ))}
 
                           {(openPlans[plan.id]
                             ? features

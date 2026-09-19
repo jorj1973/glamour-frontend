@@ -6425,11 +6425,15 @@ body:has(.registration-page-salon) {
   а под ними тонкая черта: ниже — то, что есть у всех.
 */
 .registration-page-salon .registration-plan-card li.registration-plan-key {
-  padding-bottom: 13px;
-  border-bottom: 1px solid var(--pf-border);
   color: var(--pf-text);
   font-size: 14px;
   font-weight: 700;
+}
+
+/* Черта — только под последним числом, а не под каждым. */
+.registration-page-salon .registration-plan-card li.registration-plan-edge {
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--pf-border);
 }
 
 .registration-page-salon .registration-plan-card li.registration-plan-key svg {
