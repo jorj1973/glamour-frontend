@@ -41,6 +41,10 @@ const DISSOLVE_MS = LAST_DELAY_MS + LONGEST_FLIGHT_MS;
  * Каждая начинает с того места окна, за которое «отвечала», и уходит
  * прочь от середины: кажется, что окно рассыпалось ими. Гаснут они не
  * разом, а последней третью пути.
+ *
+ * Разгон у кривой полёта нарочно вялый: `0.496` вместо `0.62` — это
+ * ровно на пятую часть меньшая скорость в первый миг. Бабочка,
+ * прыгающая с места, читается как брызги, а не как полёт.
  */
 
 const STYLES = `
@@ -101,7 +105,7 @@ const STYLES = `
   left: 50%;
   top: 50%;
   opacity: 0;
-  animation: glamour-bf-fly var(--bf-dur) cubic-bezier(0.16, 0.62, 0.28, 1)
+  animation: glamour-bf-fly var(--bf-dur) cubic-bezier(0.16, 0.496, 0.28, 1)
     var(--bf-delay) forwards;
 }
 
@@ -281,7 +285,8 @@ function BookingGreeting({ text, hint }: Props) {
 
         result.push({
           key: row + '-' + column,
-          size: 32 + (seed % 5) * 5,
+          // На пять сотых крупнее: в полёте мельче кажется, чем в покое.
+          size: Math.round((32 + (seed % 5) * 5) * 1.05),
           startX: Math.round(startX),
           startY: Math.round(startY),
           driftX: Math.round((startX / length) * distance),
