@@ -36,8 +36,27 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+/*
+  Размер у органов управления задан прямо. Корень задаёт 18 пикселей —
+  это размер для чтения, и кнопка, взяв его по наследству, оказывается
+  крупнее всего вокруг: заголовок карточки 15, подпись 14, подсказка 12.
+  Поля ввода 16: ниже этого iPhone сам увеличивает страницу, когда в
+  поле ставят курсор.
+*/
+button,
+select {
+  font-size: 15px;
+}
+
+input,
+textarea {
+  font-size: 16px;
 }
 
 .dashboard-page {
@@ -329,6 +348,7 @@ input {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
+  font-size: 15px;
   border-radius: 14px;
   color: #b9b0bb;
   text-decoration: none;
@@ -356,7 +376,8 @@ input {
   border-radius: 14px;
   background: transparent;
   color: #b9b0bb;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -672,6 +693,12 @@ input {
 .color-grid label {
   display: grid;
   gap: 8px;
+  /*
+    Подпись стоит над полем и держится его левого края. Общее правило
+    #root ставит текст по центру — это остаток от заготовки Vite, и
+    подпись из-за него висела посередине над строкой ввода.
+  */
+  text-align: left;
   color: #d7ced8;
   font-size: 14px;
 }
@@ -726,7 +753,7 @@ input {
 
 .theme-options {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
 
@@ -1032,7 +1059,12 @@ input {
 
 .branding-image-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /*
+    Две колонки — только если панель их вправду вмещает. Окно бывает
+    широким, а колонка настроек узкой: справа стоит телефон
+    предпросмотра. Тогда карточки встают друг под другом.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
 }
 
@@ -1065,6 +1097,7 @@ input {
 
 .branding-image-preview {
   display: grid;
+  justify-self: center;
   place-items: center;
   overflow: hidden;
   border: 1px dashed var(--app-border);
@@ -1393,7 +1426,8 @@ input {
   border-radius: 13px;
   background: var(--pf-input);
   color: var(--pf-text-muted);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1926,7 +1960,8 @@ input {
   outline: 0;
   background: transparent;
   color: var(--app-text);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .platform-form-field input {
@@ -1970,7 +2005,8 @@ input {
   border-radius: 13px;
   background: #342a25;
   color: #ffffff;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 800;
   cursor: pointer;
   transition:
@@ -2071,7 +2107,8 @@ input {
   border-radius: 11px;
   background: #8f6e5d;
   color: #ffffff;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -2277,7 +2314,8 @@ input {
   outline: 0;
   background: var(--pf-input);
   color: var(--pf-text);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   line-height: 1.45;
 }
@@ -2300,7 +2338,8 @@ input {
   gap: 8px;
   padding: 0 14px;
   border-radius: 12px;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -2467,7 +2506,8 @@ input {
   background: transparent;
   color: var(--pf-text-muted);
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 700;
 }
 
@@ -2642,7 +2682,8 @@ input {
   background: #d682b8;
   color: #17151c;
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 800;
 }
 
@@ -2726,7 +2767,8 @@ input {
   outline: 0;
   background: var(--pf-input);
   color: var(--pf-text);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .registration-form-grid input:focus,
@@ -2974,7 +3016,8 @@ input {
   gap: 8px;
   padding: 0 14px;
   border-radius: 12px;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -3416,7 +3459,8 @@ input {
   outline: 0;
   background: var(--pf-input);
   color: var(--pf-text);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .platform-plan-editor-grid input {
@@ -3537,7 +3581,8 @@ input {
   gap: 8px;
   padding: 0 18px;
   border-radius: 13px;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -3610,7 +3655,8 @@ input {
   border-radius: 11px;
   background: transparent;
   color: var(--pf-text-muted);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -3704,7 +3750,8 @@ input {
   border-radius: 11px;
   background: var(--pf-input);
   color: var(--pf-text-muted);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
@@ -3844,7 +3891,8 @@ input {
   border-radius: 11px;
   background: transparent;
   color: var(--pf-text-muted);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
@@ -3884,7 +3932,8 @@ input {
   border: 1px solid var(--pf-border);
   background: var(--pf-input);
   color: inherit;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   padding: 0 10px;
 }
 
@@ -3898,7 +3947,8 @@ input {
   border: 0;
   background: #d682b8;
   color: #17151c;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 800;
   font-size: 13px;
   cursor: pointer;
@@ -4218,7 +4268,8 @@ input {
   outline: 0;
   background: transparent;
   color: #2d2630;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 14px;
 }
 
@@ -4377,7 +4428,8 @@ input {
   background: transparent;
   color: #a94f85;
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 800;
 }
 
@@ -4478,7 +4530,8 @@ input {
   background: rgba(var(--app-ink-rgb), 0.06);
   color: #fff7fc;
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-weight: 750;
 }
 
@@ -5565,7 +5618,8 @@ input {
   border: none;
   background: transparent;
   color: var(--app-text-muted);
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
@@ -5694,7 +5748,8 @@ input {
   background: rgba(214, 130, 184, 0.08);
   color: var(--app-accent-text);
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 700;
 }
@@ -5740,7 +5795,8 @@ input {
   background: transparent;
   color: var(--app-text-muted);
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 700;
   text-align: left;
@@ -5779,7 +5835,8 @@ input {
   background: var(--app-input);
   color: var(--app-text);
   cursor: pointer;
-  font: inherit;
+  font-family: inherit;
+  line-height: inherit;
   font-size: 13px;
   font-weight: 700;
 }
