@@ -22,6 +22,7 @@ import api from '../api/api';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import PublicFooter from '../components/PublicFooter';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+import { READY_LANGUAGES } from '../i18n/languages';
 
 /**
  * Регистрация салона по ссылке.
@@ -1490,9 +1491,11 @@ function SalonRegistrationPage() {
                       }
                       required
                     >
-                      <option value="ru">Русский</option>
-                      <option value="ro">Română</option>
-                      <option value="en">English</option>
+                      {READY_LANGUAGES.map((one) => (
+                        <option key={one.code} value={one.code}>
+                          {one.name}
+                        </option>
+                      ))}
                     </select>
                   </label>
                 </div>

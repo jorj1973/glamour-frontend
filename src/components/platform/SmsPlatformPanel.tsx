@@ -4,8 +4,15 @@ import { useTranslation } from 'react-i18next';
 
 import api from '../../api/api';
 import { getErrorKey } from '../../api/errorMessage';
+import { LANGUAGES } from '../../i18n/languages';
 
-const LANGS = ['ru', 'ro', 'en'] as const;
+/**
+ * Языки берутся из общего списка приложения, и берутся все, а не
+ * только готовые: тексты площадки пишутся заранее, до того как язык
+ * покажут людям. Иначе вкладка появлялась бы в день включения языка, и
+ * первый же салон увидел бы пустую карточку тарифа.
+ */
+const LANGS = LANGUAGES.map((one) => one.code);
 
 type Lang = (typeof LANGS)[number];
 
@@ -1292,7 +1299,14 @@ function SmsPlatformPanel() {
               {t('smsAdmin.paymentHint')}
             </p>
 
-            <div style={{ display: 'flex', gap: 7, marginBottom: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 7,
+                marginBottom: 12,
+              }}
+            >
               {LANGS.map((code) => {
                 const isCurrent = code === lang;
                 const filled = Boolean(payment[code]?.trim());
