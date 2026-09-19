@@ -1039,6 +1039,7 @@ input {
 .branding-image-control {
   display: grid;
   gap: 14px;
+  min-width: 0;
   padding: 16px;
   border: 1px solid var(--app-border);
   border-radius: 18px;
@@ -1056,6 +1057,7 @@ input {
 }
 
 .branding-image-title span {
+  overflow-wrap: anywhere;
   color: var(--app-text-muted);
   font-size: 12px;
   line-height: 1.4;
@@ -1075,7 +1077,7 @@ input {
     Одна высота с обложкой — иначе кнопки в соседних колонках стоят на
     разной высоте, и это видно сразу.
   */
-  width: 150px;
+  width: min(150px, 100%);
   height: 150px;
   border-radius: 24px;
 }
@@ -1098,9 +1100,9 @@ input {
 }
 
 .branding-image-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .branding-image-button,
@@ -1109,8 +1111,9 @@ input {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-width: 0;
   min-height: 42px;
-  padding: 0 14px;
+  padding: 0 12px;
   border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
