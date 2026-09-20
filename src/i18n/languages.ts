@@ -50,7 +50,7 @@ export const LANGUAGES: Language[] = [
   { code: 'en', name: 'English', ready: true },
   { code: 'uk', name: 'Українська', ready: true },
   { code: 'pl', name: 'Polski', ready: true },
-  { code: 'it', name: 'Italiano', ready: false },
+  { code: 'it', name: 'Italiano', ready: true },
   { code: 'es', name: 'Español', ready: false },
   { code: 'fr', name: 'Français', ready: false },
 ];
