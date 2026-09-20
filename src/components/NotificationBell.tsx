@@ -137,7 +137,7 @@ function NotificationBell({ inline = false, onOpenPage }: BellProps) {
         }
 
         try {
-            await api.post('/push/test');
+            await api.post('/notifications/test');
             setTestMsg(t('notifications.testSent'));
         } catch {
             setTestMsg(t('notifications.testFailed'));

@@ -298,7 +298,34 @@ function ClientCabinetPage() {
 
             <ChatOpenButton />
 
-            <NotificationBell inline />
+            <NotificationBell
+              inline
+              onOpenPage={(hash) => {
+                /*
+                  Кабинет клиента — одна страница с разделами, и
+                  адресов он не разбирает. Поэтому уведомление
+                  открывает раздел, а не уводит по адресу. Переписка —
+                  исключение: она отдельная страница и работает у всех
+                  ролей одинаково.
+                */
+                if (hash.startsWith('#chat')) {
+                  window.location.hash = '#chat';
+
+                  return;
+                }
+
+                if (hash.startsWith('#appointments')) {
+                  setTab('appointments');
+                  setBookingTab('my');
+
+                  return;
+                }
+
+                if (hash.startsWith('#reviews')) {
+                  setTab('reviews');
+                }
+              }}
+            />
 
             <button
               type="button"

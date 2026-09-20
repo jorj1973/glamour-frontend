@@ -200,6 +200,8 @@ function AppointmentsPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  /** Запись, названная в адресе: к ней привело уведомление. */
+  const [addressId, setAddressId] = useState('');
   const [showForm, setShowForm] = useState(false);
 
   // Форма новой записи
@@ -383,6 +385,61 @@ function AppointmentsPage() {
     void init();
     return () => { cancelled = true; };
   }, [isMasterWorkspace]);
+
+  /**
+   * Запись, к которой привело уведомление.
+   *
+   * Адрес вида `#appointments?id=…` называет одну запись. Раскрываем
+   * её и снимаем отбор: под чужим отбором запись может не попасть в
+   * список, и человек решит, что её нет вовсе.
+   */
+  useEffect(() => {
+    function readAddress() {
+      const hash = window.location.hash;
+
+      if (!hash.startsWith('#appointments')) {
+        return;
+      }
+
+      const at = hash.indexOf('?');
+
+      if (at === -1) {
+        return;
+      }
+
+      const wanted = new URLSearchParams(hash.slice(at + 1)).get('id');
+
+      if (!wanted) {
+        return;
+      }
+
+      setSearch('');
+      setStatusFilter('all');
+      setExpandedId(wanted);
+      setAddressId(wanted);
+    }
+
+    readAddress();
+    window.addEventListener('hashchange', readAddress);
+
+    return () => window.removeEventListener('hashchange', readAddress);
+  }, []);
+
+  /**
+   * Подвести экран к этой записи.
+   *
+   * Отдельно от предыдущего: список приходит с сервера позже адреса,
+   * и подводить экран к тому, чего ещё нет на странице, бессмысленно.
+   */
+  useEffect(() => {
+    if (!addressId || appointments.length === 0) {
+      return;
+    }
+
+    const card = document.getElementById('appointment-' + addressId);
+
+    card?.scrollIntoView({ block: 'center' });
+  }, [addressId, appointments.length]);
 
   useEffect(() => {
     if (form.masterProfileId && salon) {
@@ -949,7 +1006,11 @@ function AppointmentsPage() {
                   const isToday = new Date(a.startTime).toDateString() === new Date().toDateString();
 
                   return (
-                    <div key={a.id} style={styles.appointmentCard(isToday)}>
+                    <div
+                      key={a.id}
+                      id={'appointment-' + a.id}
+                      style={styles.appointmentCard(isToday)}
+                    >
                       {/* Основная строка */}
                       <div
                         style={styles.appointmentRow}

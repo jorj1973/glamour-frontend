@@ -2044,6 +2044,10 @@
     "experienceHint_other": "Experiencia: {{count}} años"
   },
   "notifications": {
+    "check": {
+      "title": "Comprobación de notificaciones",
+      "message": "Toca: se abrirá aquello de lo que trata la notificación."
+    },
     "title": "Avisos",
     "empty": "De momento no hay nada",
     "created": {

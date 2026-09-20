@@ -2044,6 +2044,10 @@
     "experienceHint_other": "Expérience : {{count}} ans"
   },
   "notifications": {
+    "check": {
+      "title": "Vérification des notifications",
+      "message": "Appuyez : la page concernée s’ouvrira."
+    },
     "title": "Notifications",
     "empty": "Rien pour l'instant",
     "created": {

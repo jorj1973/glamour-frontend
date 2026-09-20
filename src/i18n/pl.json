@@ -2064,6 +2064,10 @@
     "experienceHint_other": "Doświadczenie: {{count}} lat"
   },
   "notifications": {
+    "check": {
+      "title": "Sprawdzenie powiadomień",
+      "message": "Naciśnij — otworzy się to, czego dotyczy powiadomienie."
+    },
     "title": "Powiadomienia",
     "empty": "Na razie nic nie ma",
     "created": {

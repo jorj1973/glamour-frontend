@@ -1306,6 +1306,10 @@
     "inviteError": "Invitațiile nu au putut fi trimise. Încercați mai târziu."
   },
   "notifications": {
+    "check": {
+      "title": "Verificarea notificărilor",
+      "message": "Apăsați — se va deschide ceea ce vă anunță."
+    },
     "title": "Notificări",
     "empty": "Deocamdată nimic",
     "created": {

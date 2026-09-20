@@ -328,7 +328,10 @@ function App() {
     localStorage.getItem(WORKSPACE_MODE_KEY);
 
   if (workspaceMode === 'master') {
-    switch (currentPage) {
+    // Адрес может нести уточнение: #appointments?id=… ведёт к
+    // одной записи. Страницу выбираем по имени, уточнение
+    // читает сама страница.
+    switch (currentPage.split('?')[0]) {
       // Независимый мастер платит за свои напоминания сам,
       // значит и счёт смотрит свой.
       case '#sms':
@@ -395,7 +398,8 @@ function App() {
     return <PlatformOwnerPage />;
   }
 
-  switch (currentPage) {
+  // Уточнение в адресе на выбор страницы не влияет.
+  switch (currentPage.split('?')[0]) {
     case '#appointments':
       return <AppointmentsPage />;
 

@@ -1299,6 +1299,10 @@
     "inviteError": "Could not send invitations. Please try later."
   },
   "notifications": {
+    "check": {
+      "title": "Notification check",
+      "message": "Tap it — the page it is about will open."
+    },
     "title": "Notifications",
     "empty": "Nothing yet",
     "created": {
