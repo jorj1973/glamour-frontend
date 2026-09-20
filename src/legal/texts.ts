@@ -511,6 +511,11 @@ export const LEGAL_LINKS: Record<string, Record<LegalKind, string>> = {
     privacy: 'Dati',
     contacts: 'Contatti',
   },
+  es: {
+    terms: 'Condiciones',
+    privacy: 'Datos',
+    contacts: 'Contacto',
+  },
 };
 
 /** Подпись «назад» и заголовок реквизитов. */
@@ -547,6 +552,11 @@ export const LEGAL_UI: Record<
     back: 'Indietro',
     updated: 'Ultima modifica',
     details: 'Come contattarci',
+  },
+  es: {
+    back: 'Atrás',
+    updated: 'Última modificación',
+    details: 'Cómo contactarnos',
   },
 };
 
