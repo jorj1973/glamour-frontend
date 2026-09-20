@@ -777,7 +777,11 @@ function AppLayout({ children }: AppLayoutProps) {
     <div className={isMenuOpen ? 'app-shell sidebar-open' : 'app-shell'}>
       {/* Плавающий колокольчик: виден на всех страницах,
           включая телефон, где меню скрыто. */}
-      <NotificationBell />
+      <NotificationBell
+        onOpenPage={(hash) => {
+          window.location.hash = hash;
+        }}
+      />
 
       {/* Срок подписки. Владелец и администратор видят всё, мастер —
           только полосу: у него кабинет открыт при клиентке. */}

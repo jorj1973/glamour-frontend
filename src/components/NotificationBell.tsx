@@ -19,6 +19,13 @@ type Notification = {
     isRead: boolean;
     createdAt: string;
     data: Record<string, string> | null;
+
+    /**
+     * Адрес страницы, о которой уведомление.
+     *
+     * Считает сервер. Пусто — вести некуда, строка не нажимается.
+     */
+    target?: string;
 };
 
 /** Значок по виду уведомления: глазом быстрее, чем читать. */
@@ -51,9 +58,19 @@ type BellProps = {
      * далеко от содержимого.
      */
     inline?: boolean;
+
+    /**
+     * Куда уводить по нажатию на уведомление.
+     *
+     * Передаёт тот, кто знает, какие страницы вообще есть. Кабинет
+     * салона и мастера ходит по адресам; кабинет клиента — одна
+     * страница, ему уводить некуда. Нет обработчика — строка не
+     * нажимается, и это честнее мёртвого нажатия.
+     */
+    onOpenPage?: (hash: string) => void;
 };
 
-function NotificationBell({ inline = false }: BellProps) {
+function NotificationBell({ inline = false, onOpenPage }: BellProps) {
     const { t, i18n } = useTranslation();
 
     const [items, setItems] = useState<Notification[]>([]);
@@ -70,6 +87,42 @@ function NotificationBell({ inline = false }: BellProps) {
      * Если разрешения ещё нет, спрашиваем здесь: человек сам
      * нажал, значит момент подходящий.
      */
+    /**
+     * Перейти к тому, о чём уведомление.
+     *
+     * Заодно помечаем прочитанным: человек его увидел и открыл. Если
+     * отметка не прошла, всё равно уводим — не открыть страницу
+     * из-за сбоя записи было бы обиднее, а счётчик поправится сам
+     * при следующем открытии колокольчика.
+     */
+    async function follow(item: Notification) {
+        const hash = (item.target ?? '').trim();
+
+        if (!onOpenPage || !hash) {
+            return;
+        }
+
+        setIsOpen(false);
+
+        if (!item.isRead) {
+            setItems((previous) =>
+                previous.map((one) =>
+                    one.id === item.id ? { ...one, isRead: true } : one,
+                ),
+            );
+            setUnread((previous) => Math.max(0, previous - 1));
+
+            try {
+                await api.patch('/notifications/' + item.id + '/read');
+            } catch {
+                // Отметка не прошла — страница важнее. Счётчик
+                // поправится при следующем открытии колокольчика.
+            }
+        }
+
+        onOpenPage(hash);
+    }
+
     async function sendTest() {
         setTestMsg('');
 
@@ -381,10 +434,16 @@ function NotificationBell({ inline = false }: BellProps) {
                     ) : (
                         items.map((item) => {
                             const text = textFor(item);
+                            const goes = Boolean(onOpenPage && item.target);
 
                             return (
                                 <div
                                     key={item.id}
+                                    onClick={
+                                        goes
+                                            ? () => void follow(item)
+                                            : undefined
+                                    }
                                     style={{
                                         display: 'flex',
                                         gap: 11,
@@ -394,6 +453,7 @@ function NotificationBell({ inline = false }: BellProps) {
                                         background: item.isRead
                                             ? 'transparent'
                                             : 'rgba(var(--app-accent-rgb), 0.07)',
+                                        cursor: goes ? 'pointer' : 'default',
                                     }}
                                 >
                                     <span
