@@ -501,6 +501,11 @@ export const LEGAL_LINKS: Record<string, Record<LegalKind, string>> = {
     privacy: 'Дані',
     contacts: 'Контакти',
   },
+  pl: {
+    terms: 'Regulamin',
+    privacy: 'Dane',
+    contacts: 'Kontakt',
+  },
 };
 
 /** Подпись «назад» и заголовок реквизитов. */
@@ -527,6 +532,11 @@ export const LEGAL_UI: Record<
     back: 'Назад',
     updated: 'Останні зміни',
     details: 'Як з нами зв’язатися',
+  },
+  pl: {
+    back: 'Wstecz',
+    updated: 'Ostatnia zmiana',
+    details: 'Jak się z nami skontaktować',
   },
 };
 
