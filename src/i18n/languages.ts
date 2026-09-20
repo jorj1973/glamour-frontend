@@ -52,7 +52,7 @@ export const LANGUAGES: Language[] = [
   { code: 'pl', name: 'Polski', ready: true },
   { code: 'it', name: 'Italiano', ready: true },
   { code: 'es', name: 'Español', ready: true },
-  { code: 'fr', name: 'Français', ready: false },
+  { code: 'fr', name: 'Français', ready: true },
 ];
 
 /** Те, что можно предлагать человеку прямо сейчас. */
