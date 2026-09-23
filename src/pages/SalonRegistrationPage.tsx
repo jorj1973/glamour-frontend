@@ -88,6 +88,16 @@ type PublicPlan = {
 
   /** Сколько клиенток помещается в базу. Пусто — без предела. */
   maxClients?: number | null;
+
+  /**
+   * Что этот тариф дарит за оплату года. `null` — ничего: акции нет,
+   * она кончилась, или оплата месячная.
+   *
+   * Считает сервер. Дни у тарифов разные, и правило «своё число тарифа
+   * главнее общего числа акции» живёт там же, где начисление.
+   * Посчитанное здесь однажды разойдётся с тем, что начислит оплата.
+   */
+  annualGift?: AnnualGift | null;
 };
 
 /**
@@ -116,13 +126,6 @@ type PublicInvitationResponse = {
     selectedPlanId: string | null;
   };
   plans: PublicPlan[];
-
-  /**
-   * Пусто — акции сейчас нет, и страница молчит. Обещание «первым
-   * пятидесяти», висящее после пятидесятого, обманывает пятьдесят
-   * первого.
-   */
-  annualGift?: AnnualGift | null;
 };
 
 type SelectPlanResponse = {
@@ -322,6 +325,101 @@ function periodButton(isActive: boolean) {
   } as const;
 }
 
+/** Перевод, как его отдаёт `useTranslation`. */
+type Translate = ReturnType<typeof useTranslation>['t'];
+
+/**
+ * Обещание площадки — одно на всю страницу.
+ *
+ * Акция одна, и остаток мест у всех карточек один и тот же, поэтому
+ * берём его у первого тарифа, который что-то обещает. Самих чисел
+ * подарка здесь нет: они у тарифов разные и стоят на карточках.
+ */
+function sharedGift(plans: PublicPlan[]): AnnualGift | null {
+  for (const plan of plans) {
+    if (plan.annualGift) {
+      return plan.annualGift;
+    }
+  }
+
+  return null;
+}
+
+/** Строка над списком: подарок есть, и вот сколько мест осталось. */
+function giftHeader(t: Translate, plans: PublicPlan[]) {
+  const gift = sharedGift(plans);
+
+  if (!gift) {
+    return null;
+  }
+
+  const seats =
+    gift.seatsLeft === null
+      ? ''
+      : ' ' + t('reg.giftSeats', { count: gift.seatsLeft });
+
+  return (
+    <p
+      style={{
+        margin: '8px 0 0',
+        color: 'var(--pf-accent-text)',
+        fontSize: 13,
+        fontWeight: 600,
+      }}
+    >
+      {t('reg.giftHeader') + seats}
+    </p>
+  );
+}
+
+/**
+ * Что дарит этот тариф.
+ *
+ * Подарок бывает из двух частей — сообщения и дни, — и каждая часть
+ * склоняется по-своему. Поэтому строка не склеивается из двух готовых
+ * предложений, а собирается из частей: рамка отдельно, части отдельно.
+ * Языку, где «и» стоит не там, где в русском, иначе не помочь.
+ *
+ * Дарить нечего — строки нет. Пустое обещание хуже отсутствующего.
+ */
+function giftOnPlan(t: Translate, gift?: AnnualGift | null) {
+  if (!gift) {
+    return null;
+  }
+
+  const parts: string[] = [];
+
+  if (gift.messages > 0) {
+    parts.push(t('reg.giftMessages', { count: gift.messages }));
+  }
+
+  if (gift.bonusDays > 0) {
+    parts.push(t('reg.giftDays', { count: gift.bonusDays }));
+  }
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  const whole =
+    parts.length > 1
+      ? t('reg.giftBoth', { first: parts[0], second: parts[1] })
+      : parts[0];
+
+  return (
+    <p
+      style={{
+        margin: '0 0 14px',
+        color: 'var(--pf-accent-text)',
+        fontSize: 13,
+        fontWeight: 600,
+      }}
+    >
+      {t('reg.giftOnPlan', { gift: whole })}
+    </p>
+  );
+}
+
 function SalonRegistrationPage() {
   const { t, i18n } = useTranslation();
 
@@ -336,8 +434,6 @@ function SalonRegistrationPage() {
   >(null);
 
   const [plans, setPlans] = useState<PublicPlan[]>([]);
-
-  const [annualGift, setAnnualGift] = useState<AnnualGift | null>(null);
 
   /**
    * Какие карточки раскрыты целиком.
@@ -469,7 +565,6 @@ function SalonRegistrationPage() {
 
       setInvitation(response.data.invitation);
       setPlans(response.data.plans);
-      setAnnualGift(response.data.annualGift ?? null);
 
       const existingPlan =
         response.data.plans.find(
@@ -927,37 +1022,20 @@ function SalonRegistrationPage() {
                     ) : null}
 
                     {/*
-                      Подарок — отдельной строкой и другим цветом, потому
-                      что это не свойство тарифа, а обещание площадки, и
-                      оно кончится. Счётчик мест стоит рядом с обещанием,
-                      а не внизу страницы: обещание без остатка мест
-                      звучит бессрочно, а оно не бессрочно.
+                      Здесь только то, что общее для всей страницы: что
+                      подарок есть и сколько мест осталось. Сами числа
+                      стоят на карточках — дни у тарифов разные, и одной
+                      строкой на всех правду не сказать.
+
+                      Счётчик мест при обещании, а не внизу страницы:
+                      обещание без остатка мест звучит бессрочно, а оно
+                      не бессрочно.
 
                       Строки нет вовсе, когда акции нет, — вместо «мест
                       не осталось». Кто пришёл сегодня, не должен читать
                       про то, что раздали без него.
                     */}
-                    {period === 'yearly' && annualGift ? (
-                      <p
-                        style={{
-                          margin: '8px 0 0',
-                          color: 'var(--pf-accent-text)',
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {annualGift.messages > 0
-                          ? t('reg.giftYear', { count: annualGift.messages })
-                          : t('reg.giftYearDays', {
-                              count: annualGift.bonusDays,
-                            })}
-
-                        {annualGift.seatsLeft !== null
-                          ? ' ' +
-                            t('reg.giftSeats', { count: annualGift.seatsLeft })
-                          : ''}
-                      </p>
-                    ) : null}
+                    {period === 'yearly' ? giftHeader(t, plans) : null}
                   </div>
                 ) : null}
 
@@ -1075,6 +1153,17 @@ function SalonRegistrationPage() {
                             </div>
                           </>
                         )}
+
+                        {/*
+                          Подарок — под ценой и над кнопкой: это довод
+                          выбрать именно этот тариф, и стоять он должен
+                          там, где выбирают. Числа у каждой карточки
+                          свои.
+
+                          Пусто — акции нет, она кончилась, или оплата
+                          месячная: за месяц подарка не бывает.
+                        */}
+                        {giftOnPlan(t, plan.annualGift)}
 
                         {/*
                           Кнопка стоит сразу под ценой, а список — ниже, за
