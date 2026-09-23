@@ -2114,6 +2114,8 @@
     "giftBoth": "{{first}} and {{second}}",
     "giftOnPlan": "Gift for paying yearly: {{gift}}.",
     "giftHeader": "Pay for the year — the platform adds a gift.",
+    "freeMonths_one": "{{count}} month free",
+    "freeMonths_other": "{{count}} months free",
     "giftSeats_one": "{{count}} place left.",
     "giftSeats_other": "{{count}} places left.",
     "thenPrice": "First payment. Then {{price}} {{currency}}",

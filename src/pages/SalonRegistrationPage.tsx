@@ -420,6 +420,69 @@ function giftOnPlan(t: Translate, gift?: AnnualGift | null) {
   );
 }
 
+/**
+ * Отформатировать число как показана цена рядом: столько же знаков
+ * после запятой. Зачёркнутая «12 × помесячно» должна выглядеть как
+ * годовая цена, а не «12000» против «10000.00».
+ */
+function formatLike(sample: string, value: number): string {
+  const dot = sample.indexOf('.');
+  const decimals = dot === -1 ? 0 : sample.length - dot - 1;
+
+  return value.toFixed(decimals);
+}
+
+/**
+ * Честная выгода года: годовой тариф против двенадцати помесячных.
+ *
+ * `was` — сколько человек заплатил бы, платя каждый месяц: настоящая
+ * сумма, а не выдуманное «было». `free` — сколько месяцев в подарок,
+ * и только когда это целое число: «два месяца бесплатно» при полутора
+ * месяцах было бы обманом. `off` — та же выгода в процентах, про запас.
+ *
+ * Нет пары помесячно/год, помесячная цена ноль или год не дешевле —
+ * возвращаем null, и карточка молчит.
+ */
+function yearlyAnchor(
+  family: PlanFamily,
+): { was: number; free: number | null; off: number } | null {
+  const monthly = planOfPeriod(family, 'monthly');
+  const yearly = planOfPeriod(family, 'yearly');
+
+  if (!monthly || !yearly) {
+    return null;
+  }
+
+  const monthlyPrice = Number(monthly.price);
+  const yearlyPrice = Number(yearly.price);
+
+  if (
+    !Number.isFinite(monthlyPrice) ||
+    !Number.isFinite(yearlyPrice) ||
+    monthlyPrice <= 0
+  ) {
+    return null;
+  }
+
+  const was = monthlyPrice * 12;
+  const saving = was - yearlyPrice;
+
+  if (saving <= 0) {
+    return null;
+  }
+
+  const exact = saving / monthlyPrice;
+  const rounded = Math.round(exact);
+  const free =
+    Math.abs(exact - rounded) < 0.02 && rounded >= 1 ? rounded : null;
+
+  return {
+    was,
+    free,
+    off: Math.round((saving / was) * 100),
+  };
+}
+
 function SalonRegistrationPage() {
   const { t, i18n } = useTranslation();
 
@@ -1056,6 +1119,11 @@ function SalonRegistrationPage() {
                     const previous =
                       index > 0 ? planOfPeriod(families[index - 1], period) : null;
 
+                    // Якорь цены — только на годовой карточке и только
+                    // когда год реально дешевле двенадцати помесячных.
+                    const anchor =
+                      period === 'yearly' ? yearlyAnchor(family) : null;
+
                     return (
                       <article
                         key={family.key}
@@ -1127,10 +1195,29 @@ function SalonRegistrationPage() {
                         ) : (
                           <>
                             <div className="registration-plan-price">
+                              {anchor ? (
+                                <s className="registration-plan-was">
+                                  {formatLike(plan.price, anchor.was)}{' '}
+                                  {plan.currency}
+                                </s>
+                              ) : null}
+
                               <strong>{plan.price}</strong>
 
                               <span>{plan.currency}</span>
                             </div>
+
+                            {/*
+                              Настоящая выгода года — «два месяца в
+                              подарок». Строку рисуем только при целом
+                              числе месяцев: полтора месяца обещать
+                              нельзя.
+                            */}
+                            {anchor && anchor.free !== null ? (
+                              <p className="registration-plan-free">
+                                {t('reg.freeMonths', { count: anchor.free })}
+                              </p>
+                            ) : null}
 
                             {/*
                               Вторая цена — не мелкий шрифт ради приличия,

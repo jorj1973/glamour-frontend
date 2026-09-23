@@ -2650,6 +2650,21 @@ textarea {
   font-size: 13px;
 }
 
+.registration-plan-was {
+  align-self: center;
+  color: var(--pf-text-muted);
+  font-size: 15px;
+  text-decoration: line-through;
+}
+
+.registration-plan-free {
+  margin: 8px 0 0;
+  color: var(--pf-accent-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
 .registration-trial {
   display: flex;
   align-items: center;
