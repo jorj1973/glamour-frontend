@@ -425,11 +425,19 @@ function giftOnPlan(t: Translate, gift?: AnnualGift | null) {
  * после запятой. Зачёркнутая «12 × помесячно» должна выглядеть как
  * годовая цена, а не «12000» против «10000.00».
  */
-function formatLike(sample: string, value: number): string {
-  const dot = sample.indexOf('.');
-  const decimals = dot === -1 ? 0 : sample.length - dot - 1;
+function formatMoney(value: string | number): string {
+  const amount = Number(value);
 
-  return value.toFixed(decimals);
+  if (!Number.isFinite(amount)) {
+    return String(value);
+  }
+
+  const hasCents = Math.round(amount * 100) % 100 !== 0;
+  const fixed = hasCents ? amount.toFixed(2) : String(Math.round(amount));
+  const [whole, cents] = fixed.split('.');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+
+  return cents ? grouped + '.' + cents : grouped;
 }
 
 /**
@@ -1197,27 +1205,27 @@ function SalonRegistrationPage() {
                             <div className="registration-plan-price">
                               {anchor ? (
                                 <s className="registration-plan-was">
-                                  {formatLike(plan.price, anchor.was)}{' '}
-                                  {plan.currency}
+                                  {formatMoney(anchor.was)} {plan.currency}
                                 </s>
                               ) : null}
 
-                              <strong>{plan.price}</strong>
+                              <strong>{formatMoney(plan.price)}</strong>
 
                               <span>{plan.currency}</span>
                             </div>
 
                             {/*
-                              Настоящая выгода года — «два месяца в
-                              подарок». Строку рисуем только при целом
-                              числе месяцев: полтора месяца обещать
-                              нельзя.
+                              Строка выгоды стоит на всех карточках, даже
+                              пустая: своей высоты, чтобы кнопки на всех
+                              тарифах встали в один ряд. Число — только при
+                              целом числе месяцев: полтора месяца обещать
+                              нельзя, а на Debut выгоды нет вовсе.
                             */}
-                            {anchor && anchor.free !== null ? (
-                              <p className="registration-plan-free">
-                                {t('reg.freeMonths', { count: anchor.free })}
-                              </p>
-                            ) : null}
+                            <p className="registration-plan-free">
+                              {anchor && anchor.free !== null
+                                ? t('reg.freeMonths', { count: anchor.free })
+                                : '\u00A0'}
+                            </p>
 
                             {/*
                               Вторая цена — не мелкий шрифт ради приличия,
