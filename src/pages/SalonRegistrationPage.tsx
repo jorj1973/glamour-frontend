@@ -1272,7 +1272,9 @@ function SalonRegistrationPage() {
                             ? t('reg.discuss')
                             : isSubmitting
                               ? t('reg.savingChoice')
-                              : t('reg.choosePlan')}
+                              : anchor
+                                ? `${t('reg.choosePlan')} · −${anchor.off}%`
+                                : t('reg.choosePlan')}
                         </button>
 
                         <p className="registration-plan-cta">
