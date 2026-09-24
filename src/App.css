@@ -6318,7 +6318,7 @@ body:has(.registration-page-salon) {
 }
 
 .registration-page-salon .registration-plan-greeting {
-  min-height: 0;
+  min-height: 39px;
   margin: 12px 0 0;
   color: var(--pf-text-muted);
   font-size: 12.5px;
