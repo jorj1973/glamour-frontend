@@ -1196,7 +1196,8 @@ function SalonRegistrationPage() {
                           адресов и мастеров. Вместо числа — честная
                           строка, вместо выбора — разговор.
                         */}
-                        {plan.byRequest ? (
+                        <div className="registration-plan-pricezone">
+                          {plan.byRequest ? (
                           <p className="registration-plan-byrequest">
                             {t('reg.byRequestPrice')}
                           </p>
@@ -1248,6 +1249,7 @@ function SalonRegistrationPage() {
                             </div>
                           </>
                         )}
+                        </div>
 
                         {/*
                           Кнопка стоит сразу под ценой, а список — ниже, за

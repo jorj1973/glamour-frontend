@@ -6325,6 +6325,13 @@ body:has(.registration-page-salon) {
   line-height: 1.55;
 }
 
+.registration-page-salon .registration-plan-pricezone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 128px;
+}
+
 .registration-page-salon .registration-plan-price {
   justify-content: center;
   margin-top: 20px;
