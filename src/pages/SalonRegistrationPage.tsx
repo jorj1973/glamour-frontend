@@ -491,6 +491,22 @@ function yearlyAnchor(
   };
 }
 
+function offPerYear(lang: string, off: number): string {
+  const tail: Record<string, string> = {
+    ru: '\u0437\u0430 \u0433\u043e\u0434',
+    ro: 'pe an',
+    en: 'per year',
+    uk: '\u0437\u0430 \u0440\u0456\u043a',
+    pl: 'za rok',
+    it: "all'anno",
+    es: 'al a\u00f1o',
+    fr: 'par an',
+  };
+
+  return '\u2212' + String(off) + '% ' + (tail[lang] || tail.ro);
+}
+
+
 function SalonRegistrationPage() {
   const { t, i18n } = useTranslation();
 
@@ -1272,7 +1288,7 @@ function SalonRegistrationPage() {
                             : isSubmitting
                               ? t('reg.savingChoice')
                               : anchor
-                                ? `${t('reg.choosePlan')} · −${anchor.off}%`
+                                ? offPerYear(lang, anchor.off)
                                 : t('reg.choosePlan')}
                         </button>
 
